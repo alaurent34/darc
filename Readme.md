@@ -21,12 +21,6 @@ What need to be done :
 >  TODO: Description sommaire des métriques d'utilité <17-04-18, Antoine> >
 There is 6 different metric for utility :
 
-  <style type="text/css">
-  .tg  {border-collapse:collapse;border-spacing:0;}
-  .tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
-  .tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
-  .tg .tg-us36{border-color:inherit;vertical-align:top}
-  </style>
   <table class="tg">
     <tr>
       <th class="tg-us36">Metrics name</th>
