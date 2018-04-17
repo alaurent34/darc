@@ -152,9 +152,33 @@ There is 6 utility metrics, which are :
 
 # List of programs
 
+Here we discuss of the purpose of the differents scripts found in [PWSCup 2017
+archive](https://pwscup.personal-data.biz/web/pws2017/data/PWSCUP2017_Samples.zip).
+
+We will not represent here scripts for Utility and Metrics as we already list
+them above.
+
 ## To sort
 
+This is the current list of script to sort. Please update this list once the
+script is sorted. Programs can be found under ADD PATH HERE.
+
+### Python
+
+ - common.py
+
+### Ruby
+
+### R
+
 ## Sorted
+
+This is a list of script sorted by categories and with an explaination of what
+it does.
+
+Thanks to respect the format when placing a script here.
+
+>  TODO: Mettre le format a respecter  <17-04-18, Antoine> >
 
 ### Category 1
 
