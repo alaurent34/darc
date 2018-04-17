@@ -16,10 +16,43 @@ What need to be done :
 
 >  TODO: Description sommaire des métriques de ré-identification <17-04-18, Antoine> >
 
+  There is 6 re-indentification metrics, which are :
+  <table class="tg">
+    <tr>
+      <th class="tg-us36">Metrics name</th>
+      <th class="tg-us36">Purpose</th>
+    </tr>
+    <tr>
+      <td class="tg-us36">S1</td>
+      <td class="tg-us36"></td>
+    </tr>
+    <tr>
+      <td class="tg-us36">S2</td>
+      <td class="tg-us36"></td>
+    </tr>
+    <tr>
+      <td class="tg-us36">S3</td>
+      <td class="tg-us36"></td>
+    </tr>
+    <tr>
+      <td class="tg-us36">S4</td>
+      <td class="tg-us36"></td>
+    </tr>
+    <tr>
+      <td class="tg-us36">S5</td>
+      <td class="tg-us36"></td>
+    </tr>
+    <tr>
+      <td class="tg-us36">S6</td>
+      <td class="tg-us36"></td>
+    </tr>
+  </table>
+
 ## Utility metrics
 
 >  TODO: Description sommaire des métriques d'utilité <17-04-18, Antoine> >
-There is 6 different metric for utility :
+
+There is 6 utility metrics, which are :
 
   <table class="tg">
     <tr>
