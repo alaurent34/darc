@@ -166,10 +166,31 @@ script is sorted. Programs can be found under ADD PATH HERE.
 ### Python
 
  - common.py
+ - tool-compare_and.py
+ - tool-mcompare.py
+ - tool-mapcompare.py
+ - tool-createPBdata.py
+ - tool-kamei.py
+ - tool-kameimap.py
+ - tool-ncat.py
+ - tool-divide.py
 
 ### Ruby
 
+ - tool-ncat.rb
+ - tool-eval-re-tcm.rb
+ - tool-map.rb
+ - tool-ncat.rb
+ - tool-nsplit.rb
+ - tool-r2cid.rb
+
 ### R
+
+Just some re-identification code
+
+### Feelings
+
+For now i have the feeling that we can only use python scripts for our needs.
 
 ## Sorted
 
