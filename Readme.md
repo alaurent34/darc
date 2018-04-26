@@ -166,18 +166,12 @@ script is sorted. Programs can be found under ADD PATH HERE.
 ### Python
 
  - common.py
- - tool-compare_and.py
- - tool-mcompare.py
- - tool-mapcompare.py
- - tool-createPBdata.py
  - tool-kamei.py
  - tool-kameimap.py
- - tool-ncat.py
  - tool-divide.py
 
 ### Ruby
 
- - tool-ncat.rb
  - tool-eval-re-tcm.rb
  - tool-map.rb
  - tool-ncat.rb
@@ -201,8 +195,29 @@ Thanks to respect the format when placing a script here.
 
 >  TODO: Mettre le format a respecter  <17-04-18, Antoine> >
 
-### Category 1
+### Create S From AT
+This script take AT, the player anonymised database and create the file S with
+'DEL' entry supress and line shuffled:
 
-### Category 2
+ - tool-createPBdata.py
 
-### ...
+### Concat file between them
+
+There is two scripts for doing so which are :
+
+ - tool-ncat.py
+ - tool-ncat.rb
+
+They are usualy used to concat M, A and AT and return a J file
+
+### Scoring
+For scoring mesure there is multiples files :
+ - Scripts for utility and security measure (Ei and Si)
+
+Those to compare F and F_hat:
+ - tool-compare_and.py
+ - tool-mapcompare.py
+
+>  TODO: comprendre ce qu'il fait <25-04-18, Antoine> >
+And this one (to be determined)
+ - tool-mcompare.py
