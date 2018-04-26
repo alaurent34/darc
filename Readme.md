@@ -165,7 +165,6 @@ script is sorted. Programs can be found under ADD PATH HERE.
 
 ### Python
 
- - common.py
  - tool-kamei.py
  - tool-kameimap.py
  - tool-divide.py
@@ -203,12 +202,14 @@ This script take AT, the player anonymised database and create the file S with
 
 ### Concat file between them
 
-There is two scripts for doing so which are :
+There is two scripts for concatening files are :
 
  - tool-ncat.py
  - tool-ncat.rb
 
-They are usualy used to concat M, A and AT and return a J file
+They are usualy used to concat M, A and AT and return a J file.
+Also i suggest we use the python one to need only one interpreter instead of
+two.
 
 ### Scoring
 For scoring mesure there is multiples files :
@@ -218,6 +219,18 @@ Those to compare F and F_hat:
  - tool-compare_and.py
  - tool-mapcompare.py
 
->  TODO: comprendre ce qu'il fait <25-04-18, Antoine> >
-And this one (to be determined)
- - tool-mcompare.py
+And this one is the same but take into account the A(T) file
+ - tool-compare.py
+
+In my experience only tool-mapcompare.py need to be used for the
+re-identification phases, the two other are juste simple copy.
+
+**NB: Author seems to use tool-compare_and.py**
+
+### Misc
+
+Read input and write output R :
+
+ - common.py
+
+Usefull when you want to pipe result for exemple : tool-ncat.py A B C | E1.py
