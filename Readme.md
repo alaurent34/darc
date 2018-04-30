@@ -36,7 +36,6 @@ clients during one year (`T`).
 You can find in the table beloe all the notation used in the scripts and this
 Readme.
 
-  There is 6 re-indentification metrics, which are :
   <table class="tg">
     <tr>
       <th class="tg-us36">Notations</th>
@@ -66,6 +65,18 @@ Readme.
     <tr>
       <td class="tg-us36">F hat</td>
       <td class="tg-us36">Guess Mapping table by the adversary</td>
+    </tr>
+    <tr>
+      <td class="tg-us36">R</td>
+      <td class="tg-us36">Correspondance between ID and Pseudo in S and A</td>
+    </tr>
+    <tr>
+      <td class="tg-us36">P</td>
+      <td class="tg-us36">Correspondance between line shuffle in S and A(T)</td>
+    </tr>
+    <tr>
+      <td class="tg-us36">J(X,Y)</td>
+      <td class="tg-us36">Concatenation of file X and Y</td>
     </tr>
   </table>
 
@@ -120,7 +131,7 @@ There is 6 utility metrics, which are :
     </tr>
     <tr>
       <td class="tg-us36">E1</td>
-      <td class="tg-us36"></td>
+      <td class="tg-us36">Construct a similarity matrice</td>
     </tr>
     <tr>
       <td class="tg-us36">E2</td>
@@ -165,9 +176,6 @@ script is sorted. Programs can be found under ADD PATH HERE.
 
 ### Python
 
- - tool-kamei.py
- - tool-kameimap.py
- - tool-divide.py
 
 ### Ruby
 
@@ -190,28 +198,37 @@ For now i have the feeling that we can only use python scripts for our needs.
 This is a list of script sorted by categories and with an explaination of what
 it does.
 
-Thanks to respect the format when placing a script here.
+Thanks to respect the following format when placing a script here.
 
->  TODO: Mettre le format a respecter  <17-04-18, Antoine> >
+Format : - scipt.ext : Explaination
+*NB : Some remarks*
 
-### Create S From AT
-This script take AT, the player anonymised database and create the file S with
-'DEL' entry supress and line shuffled:
+### Creation scripts
 
- - tool-createPBdata.py
+ - tool-createPBdata.py : This script take AT, the player anonymised database
+   and create the file S with 'DEL' entry supress and line shuffled and P (or
+   just S with the version inside ./drill).
 
-### Concat file between them
+ - tool-kamei.py : The script take a T file and generate A(T), S, R and P. It
+   play the role of an participant.
+
+ - tool-kameimap.py : Take M, T, and A(T) and create F, the correspondance
+   between ID and Pseudo for each month.
+
+ - tool-divide.py : Take M, A, AT in stdin and outpout the 3 files separated.
+
+#### Concatenation scripts
 
 There is two scripts for concatening files are :
 
- - tool-ncat.py
- - tool-ncat.rb
+ - tool-ncat.py, tool-ncat.rb : They are usualy used to concat M, A and AT and
+   return a J file.
 
-They are usualy used to concat M, A and AT and return a J file.
-Also i suggest we use the python one to need only one interpreter instead of
-two.
+*NB : Also i suggest we use the python one to need only one interpreter instead
+of two.*
 
 ### Scoring
+
 For scoring mesure there is multiples files :
  - Scripts for utility and security measure (Ei and Si)
 
@@ -219,18 +236,16 @@ Those to compare F and F_hat:
  - tool-compare_and.py
  - tool-mapcompare.py
 
-And this one is the same but take into account the A(T) file
+And this one take J(R,P) and J(R',P') to give the re-identification rate:
  - tool-compare.py
 
 In my experience only tool-mapcompare.py need to be used for the
 re-identification phases, the two other are juste simple copy.
 
-**NB: Author seems to use tool-compare_and.py**
+*NB: Author seems to use tool-compare_and.py*
 
 ### Misc
 
-Read input and write output R :
-
- - common.py
+ - common.py : Read input and write output R.
 
 Usefull when you want to pipe result for exemple : tool-ncat.py A B C | E1.py
