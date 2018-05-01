@@ -50,6 +50,10 @@ Readme.
       <td class="tg-us36">Dataset containing all transaction of M's clients.</td>
     </tr>
     <tr>
+      <td class="tg-us36">`T_a`</td>
+      <td class="tg-us36">Dataset containing `a%` of T transactions.</td>
+    </tr>
+    <tr>
       <td class="tg-us36">A(T)</td>
       <td class="tg-us36">Anomyzed version of T.</td>
     </tr>
@@ -82,7 +86,7 @@ Readme.
 
 
 ## Metrics
-### Re-identification metrics
+### <a name="security"></a>Re-identification metrics
 
 >  TODO: Description sommaire des métriques de ré-identification <17-04-18, Antoine> >
 
@@ -90,35 +94,54 @@ Readme.
   <table class="tg">
     <tr>
       <th class="tg-us36">Metrics name</th>
+
       <th class="tg-us36">Purpose</th>
+
     </tr>
     <tr>
       <td class="tg-us36">S1</td>
-      <td class="tg-us36"></td>
+
+      <td class="tg-us36">Try to reconstruct F_h by comparing Purchase Date and
+      Quantity in T_a and S</td>
+
     </tr>
     <tr>
       <td class="tg-us36">S2</td>
-      <td class="tg-us36"></td>
+
+      <td class="tg-us36">Try to reconstruct F_h by comparing ID item and Unit
+      price in T_a and S</td>
+
     </tr>
     <tr>
       <td class="tg-us36">S3</td>
-      <td class="tg-us36"></td>
+
+      <td class="tg-us36">Try to reconstruct F_H by comparing (egality) ID item
+      and quantity</td>
+
     </tr>
     <tr>
       <td class="tg-us36">S4</td>
-      <td class="tg-us36"></td>
+
+      <td class="tg-us36">Try to reconstruct F_h by comparing (egality) ID item and Purchase Date</td>
+
     </tr>
     <tr>
       <td class="tg-us36">S5</td>
-      <td class="tg-us36"></td>
+
+      <td class="tg-us36">Try to reconstruct F_h by comparing (egality) the
+      first two digit of the ID item, quantity and price</td>
+
     </tr>
     <tr>
       <td class="tg-us36">S6</td>
-      <td class="tg-us36"></td>
+
+      <td class="tg-us36">Try to reconstruct F_h by comparing (egality) the
+      first two digit of the ID item, Purchased Date and price</td>
+
     </tr>
   </table>
 
-### Utility metrics
+### <a name="utility"></a>Utility metrics
 
 >  TODO: Description sommaire des métriques d'utilité <17-04-18, Antoine> >
 
@@ -131,29 +154,46 @@ There is 6 utility metrics, which are :
     </tr>
     <tr>
       <td class="tg-us36">E1</td>
-      <td class="tg-us36">Construct a similarity matrice</td>
+
+      <td class="tg-us36">Construct a similarity matrix of item buyed (User that
+      have bought this item also bought item_i). Here the score is maximized if
+      the quantity is high (calculated by dozen). We calculate the difference
+      between the two matrix of item buyed as a score.</td>
+
     </tr>
     <tr>
       <td class="tg-us36">E2</td>
-      <td class="tg-us36"></td>
+
+      <td class="tg-us36">Idem than E1 but here but only for item with a
+      quantity <= 11.</td>
+
     </tr>
     <tr>
       <td class="tg-us36">E3</td>
-      <td class="tg-us36"></td>
+
+      <td class="tg-us36">Difference and similarity matrix between top-`k` items
+      bought</td>
+
     </tr>
     <tr>
       <td class="tg-us36">E4</td>
+
       <td class="tg-us36">Calculate the mean distance in day between <br>
       anonymised and ground truth trajectories.</td>
+
     </tr>
     <tr>
       <td class="tg-us36">E5</td>
+
       <td class="tg-us36">Calculate the difference, as the ratio, of all item prices</td>
+
     </tr>
     <tr>
       <td class="tg-us36">E6</td>
+
       <td class="tg-us36">Calculate the ration between the number of lines <br>
       removed in the anonymized table over the number of lines in the original dataset.</td>
+
     </tr>
   </table>
 
@@ -176,6 +216,7 @@ script is sorted. Programs can be found under ADD PATH HERE.
 
 ### Python
 
+*Done*
 
 ### Ruby
 
@@ -201,21 +242,16 @@ it does.
 Thanks to respect the following format when placing a script here.
 
 Format : - scipt.ext : Explaination
+
+   | Input | Way | Outuput | Way |
+   | ---   | --- | ---     | --- |
+   | X     | Y   | Z       | V   |
+
+   *Example*:
+   ```
+   python ./example.py
+   ```
 *NB : Some remarks*
-
-### Creation scripts
-
- - tool-createPBdata.py : This script take AT, the player anonymised database
-   and create the file S with 'DEL' entry supress and line shuffled and P (or
-   just S with the version inside ./drill).
-
- - tool-kamei.py : The script take a T file and generate A(T), S, R and P. It
-   play the role of an participant.
-
- - tool-kameimap.py : Take M, T, and A(T) and create F, the correspondance
-   between ID and Pseudo for each month.
-
- - tool-divide.py : Take M, A, AT in stdin and outpout the 3 files separated.
 
 #### Concatenation scripts
 
@@ -224,28 +260,125 @@ There is two scripts for concatening files are :
  - tool-ncat.py, tool-ncat.rb : They are usualy used to concat M, A and AT and
    return a J file.
 
+   | Input                         | Way   | Outuput   | Way    |
+   | ---                           | ---   | ---       | ---    |
+   | J(M,T,AT) and Result_name.csv | stdin | J(M,T,AT) | stdout |
+
+   *Example*:
+   ```
+   python ./tool-ncat.py M_sample.csv T_sample.csv AT_sample.csv > J_out.csv
+   ```
+
 *NB : Also i suggest we use the python one to need only one interpreter instead
 of two.*
 
+### Creation scripts
+
+ - tool-createPBdata.py : This script take AT, the player anonymised database
+   and create the file S with 'DEL' entry supress and line shuffled and P (or
+   just S with the version inside ./drill).
+
+   | Input | Way   | Outuput | Way         |
+   | ---   | ---   | ---     | ---         |
+   | A(T)  | stdin | S       | args (path) |
+
+   *Example*:
+   ```
+   cat AT.csv | python ./tool-createPBdata.py S.csv
+   ```
+
+ - tool-kamei.py : The script take a T file and generate A(T), S, R and P. It
+   play the role of an participant.
+
+   | Input | Way         | Outuput       | Way                    |
+   | ---   | ---         | ---           | ---                    |
+   | T     | args (path) | A(T), S, R, P | file generated by prog |
+
+   *Example*:
+   ```
+   python ./tool-kamei.py T.csv
+   ```
+
+ - tool-kameimap.py : Take M, T, and A(T) and create F, the correspondance
+   between ID and Pseudo for each month.
+
+   | Input  | Way         | Outuput | Way         |
+   | ---    | ---         | ---     | ---         |
+   | M,T,AT | args (path) | F  | args (path) |
+
+   *Example*:
+   ```
+   python ./tool-kameimap.py $M $T $AT F.txt
+   ```
+
+ - tool-divide.py : Take M, A, AT in stdin and outpout the 3 files separated.
+
+   | Input                         | Way   | Outuput | Way                         |
+   | ---                           | ---   | ---     | ---                         |
+   | J(M,T,AT) and Result_name.csv | stdin | M,T,AT  | file generated (X_name.csv) |
+
+   *Example*:
+   ```
+   python ./tool-ncat.py M_sample.csv T_sample.csv AT_sample.csv | python ./tool-devide.py Result_sample_test.csv
+   ```
+
 ### Scoring
 
-For scoring mesure there is multiples files :
- - Scripts for utility and security measure (Ei and Si)
+#### Comparing Two F files
 
-Those to compare F and F_hat:
- - tool-compare_and.py
- - tool-mapcompare.py
+ - tool-compare_and.py : Take F, F_hat and give the re-identification ration.
+ - tool-mapcompare.py : Idem
 
-And this one take J(R,P) and J(R',P') to give the re-identification rate:
+   | Input    | Way         | Outuput                 | Way    |
+   | ---      | ---         | ---                     | ---    |
+   | F, F_hat | args (path) | re-identification ratio | stdout |
+
+   *Example*:
+   ```
+   python ./tool-compare_and.py F.csv F_hat.csv
+   ```
+
+There is also a file which take J(R,P) and J(R',P') and give the re-identification rate:
+
  - tool-compare.py
 
-In my experience only tool-mapcompare.py need to be used for the
+In my experience only tool-compare_and.py need to be used for the
 re-identification phases, the two other are juste simple copy.
 
-*NB: Author seems to use tool-compare_and.py*
+#### Utility metric scripts
+
+All scripts E_i calculate a utility measure that is explain in the subection
+[here](#utility). They have the following characteristics :
+
+   | Input    | Way   | Outuput       | Way    |
+   | ---      | ---   | ---           | ---    |
+   | J(M,A,T) | stdin | utility ratio | stdout |
+
+   *Example*:
+   ```
+   python ./tool-ncat.py M.csv T.csv AT.csv | python ./E1-ItemCF-s.py
+   ```
+
+#### Security metric scripts
+
+All scripts S_i calculate a security measure that is explain in the subsection [here](#security).
+They have the following characteristics :
+
+   | Input    | Way   | Outuput       | Way    |
+   | ---      | ---   | ---           | ---    |
+   | J(M,S,`T_a`) | stdin | `F_h` | stdout |
+
+   *Example*:
+   ```
+   python ./tool-ncat.py M.csv S.csv `T_a`.csv | python ./S1-datenum.py > `F_h_a.csv`
+   ```
 
 ### Misc
 
- - common.py : Read input and write output R.
+ - common.py : Read input and write output R. Used in Secutiry and Utility
+   metrics.
 
-Usefull when you want to pipe result for exemple : tool-ncat.py A B C | E1.py
+# TO DO
+
+- Script to check file format for better description of the error AND security.
+- Metrics need to return their values and not print them.
