@@ -100,44 +100,33 @@ Readme.
     </tr>
     <tr>
       <td class="tg-us36">S1</td>
-
-      <td class="tg-us36">Try to reconstruct F_h by comparing Purchase Date and
+      <td class="tg-us36">Try to reconstruct F_h by comparing Purchase Date and<br>
       Quantity in T_a and S</td>
-
     </tr>
     <tr>
       <td class="tg-us36">S2</td>
-
-      <td class="tg-us36">Try to reconstruct F_h by comparing ID item and Unit
+      <td class="tg-us36">Try to reconstruct F_h by comparing ID item and Unit<br>
       price in T_a and S</td>
-
     </tr>
     <tr>
       <td class="tg-us36">S3</td>
-
-      <td class="tg-us36">Try to reconstruct F_H by comparing (egality) ID item
+      <td class="tg-us36">Try to reconstruct F_H by comparing (egality) ID item<br>
       and quantity</td>
-
     </tr>
     <tr>
       <td class="tg-us36">S4</td>
-
-      <td class="tg-us36">Try to reconstruct F_h by comparing (egality) ID item and Purchase Date</td>
-
+      <td class="tg-us36">Try to reconstruct F_h by comparing (egality) ID item<br>
+      and Purchase Date</td>
     </tr>
     <tr>
       <td class="tg-us36">S5</td>
-
-      <td class="tg-us36">Try to reconstruct F_h by comparing (egality) the
+      <td class="tg-us36">Try to reconstruct F_h by comparing (egality) the<br>
       first two digit of the ID item, quantity and price</td>
-
     </tr>
     <tr>
       <td class="tg-us36">S6</td>
-
-      <td class="tg-us36">Try to reconstruct F_h by comparing (egality) the
+      <td class="tg-us36">Try to reconstruct F_h by comparing (egality) the<br>
       first two digit of the ID item, Purchased Date and price</td>
-
     </tr>
   </table>
 
@@ -154,26 +143,20 @@ There is 6 utility metrics, which are :
     </tr>
     <tr>
       <td class="tg-us36">E1</td>
-
-      <td class="tg-us36">Construct a similarity matrix of item buyed (User that
-      have bought this item also bought item_i). Here the score is maximized if
-      the quantity is high (calculated by dozen). We calculate the difference
+      <td class="tg-us36">Construct a similarity matrix of item buyed (User that<br>
+      have bought this item also bought item_i). Here the score is maximized if<br>
+      the quantity is high (calculated by dozen). We calculate the difference<br>
       between the two matrix of item buyed as a score.</td>
-
     </tr>
     <tr>
       <td class="tg-us36">E2</td>
-
-      <td class="tg-us36">Idem than E1 but here but only for item with a
+      <td class="tg-us36">Idem than E1 but here but only for item with a<br>
       quantity <= 11.</td>
-
     </tr>
     <tr>
       <td class="tg-us36">E3</td>
-
-      <td class="tg-us36">Difference and similarity matrix between top-`k` items
+      <td class="tg-us36">Difference and similarity matrix between top-`k` items<br>
       bought</td>
-
     </tr>
     <tr>
       <td class="tg-us36">E4</td>
@@ -328,6 +311,7 @@ of two.*
 
  - tool-compare_and.py : Take F, F_hat and give the re-identification ration.
  - tool-mapcompare.py : Idem
+<<<<<<< HEAD
 
    | Input    | Way         | Outuput                 | Way    |
    | ---      | ---         | ---                     | ---    |
@@ -338,6 +322,18 @@ of two.*
    python ./tool-compare_and.py F.csv F_hat.csv
    ```
 
+=======
+
+   | Input    | Way         | Outuput                 | Way    |
+   | ---      | ---         | ---                     | ---    |
+   | F, F_hat | args (path) | re-identification ratio | stdout |
+
+   *Example*:
+   ```
+   python ./tool-compare_and.py F.csv F_hat.csv
+   ```
+
+>>>>>>> antoine
 There is also a file which take J(R,P) and J(R',P') and give the re-identification rate:
 
  - tool-compare.py
