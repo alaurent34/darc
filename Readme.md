@@ -94,9 +94,7 @@ Readme.
   <table class="tg">
     <tr>
       <th class="tg-us36">Metrics name</th>
-
       <th class="tg-us36">Purpose</th>
-
     </tr>
     <tr>
       <td class="tg-us36">S1</td>
@@ -160,23 +158,17 @@ There is 6 utility metrics, which are :
     </tr>
     <tr>
       <td class="tg-us36">E4</td>
-
       <td class="tg-us36">Calculate the mean distance in day between <br>
       anonymised and ground truth trajectories.</td>
-
     </tr>
     <tr>
       <td class="tg-us36">E5</td>
-
       <td class="tg-us36">Calculate the difference, as the ratio, of all item prices</td>
-
     </tr>
     <tr>
       <td class="tg-us36">E6</td>
-
       <td class="tg-us36">Calculate the ration between the number of lines <br>
       removed in the anonymized table over the number of lines in the original dataset.</td>
-
     </tr>
   </table>
 
