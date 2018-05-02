@@ -8,9 +8,11 @@ specifically it contains :
 
 What need to be done :
   1. Create a script to sample the data from UCI.
-  2. Document source code available
-  3. Translate japaneese comments in source code
-  4. *Any suggestion goes here*
+  2. Script to check file format for better description of the error AND security.
+  3. Metrics need to return their values and not print them.
+  4. Document source code available (done)
+  5. Translate japaneese comments in source code (in progress)
+  6. *Any suggestion goes here*
 
 ## Datasets
 
@@ -353,7 +355,3 @@ They have the following characteristics :
  - common.py : Read input and write output R. Used in Secutiry and Utility
    metrics.
 
-# TO DO
-
-- Script to check file format for better description of the error AND security.
-- Metrics need to return their values and not print them.
