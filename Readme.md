@@ -98,32 +98,32 @@ Readme.
     </tr>
     <tr>
       <td class="tg-us36">S1</td>
-      <td class="tg-us36">Try to reconstruct F_h by comparing Purchase Date and<br>
+      <td class="tg-us36">Try to reconstruct F_h by comparing Purchase Date and
       Quantity in T_a and S</td>
     </tr>
     <tr>
       <td class="tg-us36">S2</td>
-      <td class="tg-us36">Try to reconstruct F_h by comparing ID item and Unit<br>
+      <td class="tg-us36">Try to reconstruct F_h by comparing ID item and Unit
       price in T_a and S</td>
     </tr>
     <tr>
       <td class="tg-us36">S3</td>
-      <td class="tg-us36">Try to reconstruct F_H by comparing (egality) ID item<br>
+      <td class="tg-us36">Try to reconstruct F_H by comparing (egality) ID item
       and quantity</td>
     </tr>
     <tr>
       <td class="tg-us36">S4</td>
-      <td class="tg-us36">Try to reconstruct F_h by comparing (egality) ID item<br>
+      <td class="tg-us36">Try to reconstruct F_h by comparing (egality) ID item
       and Purchase Date</td>
     </tr>
     <tr>
       <td class="tg-us36">S5</td>
-      <td class="tg-us36">Try to reconstruct F_h by comparing (egality) the<br>
+      <td class="tg-us36">Try to reconstruct F_h by comparing (egality) the
       first two digit of the ID item, quantity and price</td>
     </tr>
     <tr>
       <td class="tg-us36">S6</td>
-      <td class="tg-us36">Try to reconstruct F_h by comparing (egality) the<br>
+      <td class="tg-us36">Try to reconstruct F_h by comparing (egality) the
       first two digit of the ID item, Purchased Date and price</td>
     </tr>
   </table>
@@ -141,24 +141,24 @@ There is 6 utility metrics, which are :
     </tr>
     <tr>
       <td class="tg-us36">E1</td>
-      <td class="tg-us36">Construct a similarity matrix of item buyed (User that<br>
-      have bought this item also bought item_i). Here the score is maximized if<br>
-      the quantity is high (calculated by dozen). We calculate the difference<br>
+      <td class="tg-us36">Construct a similarity matrix of item buyed (User that
+      have bought this item also bought item_i). Here the score is maximized if
+      the quantity is high (calculated by dozen). We calculate the difference
       between the two matrix of item buyed as a score.</td>
     </tr>
     <tr>
       <td class="tg-us36">E2</td>
-      <td class="tg-us36">Idem than E1 but here but only for item with a<br>
+      <td class="tg-us36">Idem than E1 but here but only for item with a
       quantity <= 11.</td>
     </tr>
     <tr>
       <td class="tg-us36">E3</td>
-      <td class="tg-us36">Difference and similarity matrix between top-`k` items<br>
+      <td class="tg-us36">Difference and similarity matrix between top-`k` items
       bought</td>
     </tr>
     <tr>
       <td class="tg-us36">E4</td>
-      <td class="tg-us36">Calculate the mean distance in day between <br>
+      <td class="tg-us36">Calculate the mean distance in day between
       anonymised and ground truth trajectories.</td>
     </tr>
     <tr>
@@ -167,7 +167,7 @@ There is 6 utility metrics, which are :
     </tr>
     <tr>
       <td class="tg-us36">E6</td>
-      <td class="tg-us36">Calculate the ration between the number of lines <br>
+      <td class="tg-us36">Calculate the ration between the number of lines
       removed in the anonymized table over the number of lines in the original dataset.</td>
     </tr>
   </table>
