@@ -27,24 +27,24 @@
 - Author  : Hidenobu Oguri
 
 - Command :
-        ```
-        python tool-kamei.py T75.csv
-			-> output: AT_**.csv
-			-> output: S_**.csv
-			-> output: P_**.csv
-			-> output: R_**.csv
-        ```
+    ```
+    python tool-kamei.py T75.csv
+        -> output: AT_**.csv
+        -> output: S_**.csv
+        -> output: P_**.csv
+        -> output: R_**.csv
+    ```
 
-Function:  To change the IDs into Pseudonym IDs on A(T).
+- Function: To change the IDs into Pseudonym IDs on A(T).
 
-		if you change the Pseudonym IDs (you can check the result) into Encrypt IDs (cannot check), See the below lines.
+If you change the Pseudonym IDs (you can check the result) into Encrypt IDs (cannot check), See the below lines.
 
-        ```
-		## Pseudonym IDs
-		PsuID =  str( str( TRANS_MARK[0][i] ) + str(DIV_APPEND[DIV_CODE]) )
-		## Encrypt IDs (MD5)
-		#PsuID = hashlib.md5( str( str( TRANS_MARK[0][i] ) + str(DIV_APPEND[DIV_CODE]) ).encode('utf-8') ).hexdigest()
-        ```
+    ```
+    ## Pseudonym IDs
+    PsuID =  str( str( TRANS_MARK[0][i] ) + str(DIV_APPEND[DIV_CODE]) )
+    ## Encrypt IDs (MD5)
+    #PsuID = hashlib.md5( str( str( TRANS_MARK[0][i] ) + str(DIV_APPEND[DIV_CODE]) ).encode('utf-8') ).hexdigest()
+    ```
 
 
 #### Pseudonym IDs Sample
