@@ -23,20 +23,25 @@ import base64
 pd.set_option('display.width', 600)  #数値を変更すると改行位置を変更できる
 
 
-##############################
-#### Sample Program
+#############################
+#### Comprehension:
+#### Antoine -> The same as compare but with R and P.
+#############################
+
+############################## #### Sample Program
 ####   by Hidenobu Oguri   2017/08/07
 ####   edit by Akari Tachibana   2017/08/28
 ####
 #### Outline explanation
 ####   Read "J1(R,P)","J2(R,P)"  files, and calculate the Match rate (= Re-Identify rate).
-#### 
+####
 #### How to use
 ####   python compare.py FILE1 FILE2
 ##############################
 
 
-# 引数の定義と格納
+# Recover the first 2 args passed in parameter
+# Must be R and P concat, so F and S as i understand it
 ARGS = []
 for i in range(len(argv)):
 	ARGS.append(argv[i])
@@ -45,7 +50,9 @@ NUM_ARGS = len(ARGS)
 FILE1  = ARGS[1]
 FILE2  = ARGS[2]
 
-##### FILE1をMAPとPの部分に分ける
+#### Parse FILE1 and divide it into M and P
+#### P : Permutation indexes
+#### MAP : correspondance between ID and Pseudo
 MASTER_DATA1 = []
 MASTER_DATA2 = []
 count = 0
@@ -65,11 +72,13 @@ for line in open( FILE1 , 'r'):
 
 MASTER_MAP = pd.DataFrame(MASTER_DATA1)
 MASTER_ROW = pd.DataFrame(MASTER_DATA2)
-#print(MASTER_MAP)
-#print(MASTER_ROW)
+# print(MASTER_MAP)
+# print(MASTER_ROW)
 
 
-##### FILE2をMAPとPの部分に分ける
+#### Parse FILE2 and divide it into M and P
+#### P : Permutation indexes
+#### MAP : correspondance between ID and Pseudo
 INPUT_DATA1 = []
 INPUT_DATA2 = []
 count = 0
@@ -89,17 +98,17 @@ for line in open( FILE2 , 'r'):
 
 INPUT_MAP = pd.DataFrame(INPUT_DATA1)
 INPUT_ROW = pd.DataFrame(INPUT_DATA2)
-#print(INPUT_MAP)
-#print(INPUT_ROW)
-#sys.exit()
+# print(INPUT_MAP)
+# print(INPUT_ROW)
+# sys.exit()
 
 
-###### ファイルをそれぞれ分割したまででタイム
+###### Time to parse the files
 HALF_TIME = time()
 
-#####################
-##### MAPの比較 #####
-#####################
+##############################
+##### Comparision of MAP #####
+##############################
 
 ## MASTERの母数算出
 YY,XX = MASTER_MAP.shape # 500, 13
@@ -140,15 +149,15 @@ if(map_error == 0):
                 if MASTER_MAP[i][ii] != "DEL":
                     NOT_DEL = NOT_DEL + 1
             else :
-                err_string.append( "Error : " + str(i) + "列" + str(ii + 1) + "行 " +  str(MASTER_MAP[i][ii]) + " -> " + str( INPUT_MAP[i][ii] ) ) 
-    
+                err_string.append( "Error : " + str(i) + "列" + str(ii + 1) + "行 " +  str(MASTER_MAP[i][ii]) + " -> " + str( INPUT_MAP[i][ii] ) )
+
     ### 母数と当り数からDELの数を削除
     ALL_NUM = ALL_NUM - DEL_COUNT
     POINT = POINT - DEL_COUNT
     ### POINTがマイナス値になる場合は0にする
     if POINT < 0:
         POINT = 0
-    
+
 
     ###### MAP行列の数を確認
     #YY,XX = MASTER_MAP.shape
@@ -185,7 +194,7 @@ if(len(INPUT_ROW) > 0):
                 if MASTER_ROW[0][hh] == INPUT_ROW[0][hh]  :
                         POINT2 = POINT2 + 1
                 else :
-                        err_string2.append( "Error : " + str(hh + 1) + "行 " +  str(MASTER_ROW[0][hh]) + " -> " + str( INPUT_ROW[0][hh] ) ) 
+                        err_string2.append( "Error : " + str(hh + 1) + "行 " +  str(MASTER_ROW[0][hh]) + " -> " + str( INPUT_ROW[0][hh] ) )
     else:
         #### ROQ同士のIDの数が異なる
         row_error = 1
