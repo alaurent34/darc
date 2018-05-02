@@ -1,1 +1,0 @@
-/home/drayer34/Documents/cours/divers/competition/DARC/PWS-archive/Anonymity/A3/del.rb
