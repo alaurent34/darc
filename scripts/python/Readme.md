@@ -15,7 +15,10 @@
 
 ### tool-ncat.py
 - Author  : Hidenobu Oguri
-- Command : ```python tool-ncat.py M.csv T.csv AT.csv  >  J50.txt```
+- Command :
+    ```
+    python tool-ncat.py M.csv T.csv AT.csv  >  J50.txt
+    ```
 
 - Function: To make a Joint File. e.g., J( M, T, A(T) )
     ```
@@ -95,7 +98,10 @@ ID,12,1,2,3,4,5,6,7,8,9,10,11
 
 ### tool-mapcompare.py
 - Author  : Hidenobu Oguri
-- Command : ```python tool-mapcompare.py  F.csv  Fh.csv```
+- Command :
+    ```
+    python tool-mapcompare.py  F.csv  Fh.csv
+    ```
 
 - Function: Read MAP1, MAP2 files, and calculate the Match rate (= Re-Identify rate 1).
 
