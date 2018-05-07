@@ -1,4 +1,4 @@
-# DARC - Data Anonymisation and Re-indentification Competition
+# DARC - Data Anonymisation and Re-identification Competition
 
 This Repository contains all source code for PETS Competition DARC. More
 specifically it contains :
@@ -90,8 +90,6 @@ Readme.
 ## Metrics
 ### <a name="security"></a>Re-identification metrics
 
->  TODO: Description sommaire des métriques de ré-identification <17-04-18, Antoine> >
-
   There is 6 re-indentification metrics, which are :
   <table class="tg">
     <tr>
@@ -131,8 +129,6 @@ Readme.
   </table>
 
 ### <a name="utility"></a>Utility metrics
-
->  TODO: Description sommaire des métriques d'utilité <17-04-18, Antoine> >
 
 There is 6 utility metrics, which are :
 
@@ -175,8 +171,6 @@ There is 6 utility metrics, which are :
   </table>
 
 ### Success metrics
-
->  TODO: Description sommaire des métriques de succès <17-04-18, Antoine> >
 
 # List of programs
 
