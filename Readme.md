@@ -1,6 +1,6 @@
 # DARC - Data Anonymisation and Re-identification Competition
 
-This Repository contains all source code for PETS Competition DARC. More
+This Repository contains all source code for PETS Competition : DARC. More
 specifically it contains :
   - Source code for the re-identification metrics.
   - Source code for the utility metric.
@@ -10,8 +10,8 @@ What need to be done :
   1. Create a script to sample the data from UCI.
   2. Script to check file format for better description of the error AND security.
   3. Metrics need to return their values and not print them.
-  4. Document source code available (done)
-  5. Translate japaneese comments in source code (in progress)
+  4. Document the source code available (done).
+  5. Translate all japaneese comments in the source code (in progress).
   6. *Any suggestion goes here*
 
 ## Datasets
@@ -22,11 +22,11 @@ Original dataset is from UCI and can be downloaded
 
 ### Description
 
-**Original** :
-This is a transnational data set which contains all the transactions occurring
-between 01/12/2010 and 09/12/2011 for a UK-based and registered non-store online
-retail.The company mainly sells unique all-occasion gifts. Many customers of the
-company are wholesalers. [1](https://archive.ics.uci.edu/ml/datasets/Online+Retail)
+**Original** : This is a transactional data set which contains all the
+transactions that have occurred between 01/12/2010 and 09/12/2011 for a UK-based
+and registered non-store online retail.The company mainly sells unique
+all-occasion gifts. Many customers of the company are wholesalers.
+[1](https://archive.ics.uci.edu/ml/datasets/Online+Retail)
 
 **PWSCup** :
 The dataset is separated in two distinct datasets, one which contain all `n`
@@ -35,7 +35,7 @@ clients during one year (`T`).
 
 ## Notations
 
-You can find in the table beloe all the notation used in the scripts and this
+You can find in the table below all the notations used in the scripts and this
 Readme.
 
   <table class="tg">
@@ -53,7 +53,8 @@ Readme.
     </tr>
     <tr>
       <td class="tg-us36">`T_a`</td>
-      <td class="tg-us36">Dataset containing `a%` of T transactions.</td>
+      <td class="tg-us36">Dataset containing `a%` of T transactions. With `a` in
+      {.25, .50, .75}</td>
     </tr>
     <tr>
       <td class="tg-us36">A(T)</td>
@@ -142,7 +143,12 @@ There is 6 utility metrics, which are :
       <td class="tg-us36">Construct a similarity matrix of item buyed (User that
       have bought this item also bought item_i). Here the score is maximized if
       the quantity is high (calculated by dozen). We calculate the difference
-      between the two matrix of item buyed as a score.</td>
+      between the two matrix of item buyed as a score.
+      <br> More precisly we construct two matrix M1 and M2, one for the original dataset
+      and one for the anonymised one. Both are of size `n x n` where `n` is the
+      number of item. For M_ij <br>
+
+      </td>
     </tr>
     <tr>
       <td class="tg-us36">E2</td>
