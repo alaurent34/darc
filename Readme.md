@@ -181,7 +181,16 @@ There is 6 utility metrics, which are :
     </tr>
   </table>
 
- ### Success metrics
+### Success metrics
+
+To calculate the score of re-identification, the two F files from the ground
+truth and the attaquant are compared. For a participant to make a point it have
+to guess all the pseudonyms for one person (ie, for all month guess if it is DEL
+or a pseudonym). One error occurs a 0 in the count for the line.
+
+Then the count of points are divided by the number of line (persons) in the F
+file.
+
 ## Information about PWSCup 2017
 
  >  TODO:  Explain a bit about PWSCup Here <21-05-18, Antoine Laurent> >
@@ -312,9 +321,11 @@ of two.*
 
  ### Scoring
 
-#### Comparing Two F files
+#### Comparing Two F files (scoring)
 
  - tool-compare_and.py : Take F, F_hat and give the re-identification ration.
+**Warning**: there is two version of this scripts, one under ./usage_exemple and
+one under ./scripts/python/other/
  - tool-mapcompare.py : Idem
 
 | Input    | Way         | Outuput                 | Way    |
