@@ -11,3 +11,5 @@ data/original/*
 !data/results/
 data/results/*
 !data/results/plt/
+
+__pycache__
