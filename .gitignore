@@ -1,0 +1,13 @@
+#Not all the generated files will be stored
+!data/
+data/*
+
+#csv files needed that will not be recomputed are stored
+#becaue the time to compute them is huge
+!data/original/
+data/original/*
+!data/original/*.csv
+
+!data/results/
+data/results/*
+!data/results/plt/
