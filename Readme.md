@@ -7,11 +7,14 @@ specifically it contains :
   - Source code for succes in re-identification.
 
 What need to be done :
-  1. Create a script to sample the data from UCI.
+  1. Create a script to sample the data from UCI : Motsly done, see scripts under
+     ./scripts/python/dataset_creation/. We provide a way to do it but still
+     need to understand the distribution it provide (test made with t-sne).
   2. Script to check file format for better description of the error AND security.
   3. Metrics need to return their values and not print them.
-  4. Document the source code available (done).
+  4. Document the source code available : done for the most part.
   5. Translate all japaneese comments in the source code (in progress).
+  6. Adapt PWSCup code to the crawdia competition framework with [this](https://github.com/crowdAI/crowdai-example-evaluator) template.
   6. *Any suggestion goes here*
 
 ## Datasets
@@ -91,7 +94,8 @@ Readme.
 ## Metrics
 ### <a name="security"></a>Re-identification metrics
 
-  There is 6 re-indentification metrics, which are :
+  There is 6 re-indentification metrics (all the comparaison done here are
+  eguality comparision), which are :
   <table class="tg">
     <tr>
       <th class="tg-us36">Metrics name</th>
@@ -146,8 +150,9 @@ There is 6 utility metrics, which are :
       between the two matrix of item buyed as a score.
       <br> More precisly we construct two matrix M1 and M2, one for the original dataset
       and one for the anonymised one. Both are of size `n x n` where `n` is the
-      number of item. For M_ij <br>
-
+      number of item. For M_ij represent the number of people who have bought
+      the item i and have also bought the item j.<br>
+      This procede is called a <a href="https://en.wikipedia.org/wiki/Collaborative_filtering">collaborative filtering</a>.
       </td>
     </tr>
     <tr>
@@ -157,13 +162,13 @@ There is 6 utility metrics, which are :
     </tr>
     <tr>
       <td class="tg-us36">E3</td>
-      <td class="tg-us36">Difference and similarity matrix between top-`k` items
-      bought</td>
+      <td class="tg-us36">Caluclate the difference (as in set difference) and similarity matrix between top-`k` items
+      bought from ground truth and anonymised dataset.</td>
     </tr>
     <tr>
       <td class="tg-us36">E4</td>
       <td class="tg-us36">Calculate the mean distance in day between
-      anonymised and ground truth trajectories.</td>
+      anonymised and ground truth transactions.</td>
     </tr>
     <tr>
       <td class="tg-us36">E5</td>
@@ -171,12 +176,17 @@ There is 6 utility metrics, which are :
     </tr>
     <tr>
       <td class="tg-us36">E6</td>
-      <td class="tg-us36">Calculate the ration between the number of lines
+      <td class="tg-us36">Calculate the ratio between the number of lines
       removed in the anonymized table over the number of lines in the original dataset.</td>
     </tr>
   </table>
 
-### Success metrics
+ ### Success metrics
+## Information about PWSCup 2017
+
+ >  TODO:  Explain a bit about PWSCup Here <21-05-18, Antoine Laurent> >
+ For more informations about PWSCup 2017, you can visit this [site](https://pwscup.personal-data.biz/web/pws2017/info.php) for now (you
+ can use Google Translate to translate the website on Chrome browser).
 
 # List of programs
 
@@ -188,8 +198,8 @@ them above.
 
 ## To sort
 
-This is the current list of script to sort. Please update this list once the
-script is sorted. Programs can be found under ADD PATH HERE.
+This is the current list of scripts to sort. Please update this list once the
+script is sorted. Programs can be found under ./scripts/.
 
 ### Python
 
@@ -199,15 +209,16 @@ script is sorted. Programs can be found under ADD PATH HERE.
 
  - tool-eval-re-tcm.rb
  - tool-map.rb
- - tool-ncat.rb
  - tool-nsplit.rb
  - tool-r2cid.rb
+
+ *NB*: Most of rubys scripts were also wrote in python.
 
 ### R
 
 Just some re-identification code
 
-### Feelings
+### Thoughts
 
 For now i have the feeling that we can only use python scripts for our needs.
 
@@ -299,7 +310,7 @@ of two.*
    python ./tool-ncat.py M_sample.csv T_sample.csv AT_sample.csv | python ./tool-devide.py Result_sample_test.csv
    ```
 
-### Scoring
+ ### Scoring
 
 #### Comparing Two F files
 
