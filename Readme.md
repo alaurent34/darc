@@ -14,7 +14,7 @@ What need to be done :
   3. Metrics need to return their values and not print them.
   4. Document the source code available : done for the most part.
   5. Translate all japaneese comments in the source code (in progress).
-  6. Adapt PWSCup code to the crawdia competition framework with [this](https://github.com/crowdAI/crowdai-example-evaluator) template.
+  6. Adapt PWSCup code to the crowdai competition framework with [this](https://github.com/crowdAI/crowdai-example-evaluator) template.
   6. *Any suggestion goes here*
 
 ## Datasets
