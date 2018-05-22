@@ -15,7 +15,11 @@ What need to be done :
   4. Document the source code available : done for the most part.
   5. Translate all japaneese comments in the source code (in progress).
   6. Adapt PWSCup code to the crowdai competition framework with [this](https://github.com/crowdAI/crowdai-example-evaluator) template.
-  6. *Any suggestion goes here*
+  __IMPORANT NOTE__ : All scripts are now writted to be used inside a bash
+  script, I think it will be best to re-writte all the scripts in oriented
+  object paradigm. But I aim to keep the maximum code i can because it seem to
+  be a good policy to keep working code.
+  7. *Any suggestion goes here*
 
 ## Datasets
 
