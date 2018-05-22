@@ -11,7 +11,7 @@ ATTR = [2,6] # Tの属性を使い攻撃
 
 def month_passed(date):
     return int(date.split('/')[1]) % 12
-    
+
 def sig_gen(S, attr):
     value_dic = {}
     for idx in range(len(S)):
