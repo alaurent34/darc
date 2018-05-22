@@ -1,0 +1,3 @@
+[submodule "source/crowdai-example-evaluator"]
+	path = source/crowdai-example-evaluator
+	url = https://github.com/crowdAI/crowdai-example-evaluator.git
