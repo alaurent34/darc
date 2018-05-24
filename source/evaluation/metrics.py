@@ -8,6 +8,71 @@ Description: class for all re-identification metrics
 
 from collections import OrderedDict
 
+M_COL = []
+T_COL = []
+
+class Metrics(object):
+
+    """Docstring for Metrics. """
+
+    def __init__(self, M, T, S, M_col=M_COL, T_col=T_COL):
+        """
+        :_users: M table containing all users present in the transaction data T.
+        :_ground_truth: T table containing all transaction of all user for one year.
+        :_anonimized: S table, the anonimized version of the _ground_truth
+        :_users_t_col: the name of the columns in the csv file M.
+        :_gt_t_col: the name of the columns in the csv file T.
+        :_current_score: current score calculated by the metric already processed.
+        """
+        self._users = M
+        self._ground_truth = T
+        self._anonimized = S
+        self._users_t_col = M_col
+        self._gt_t_col = T_col
+        self._current_score = 0
+
+    @property
+    def users(self):
+        """
+        Get the users data
+        """
+        return self._users
+
+    @property
+    def ground_truth(self):
+        """
+        Get the ground_truth data
+        """
+        return self._ground_truth
+
+    @property
+    def anonimized(self):
+        """
+        Get the anonimized data
+        """
+        return self._anonimized
+
+    @property
+    def users_t_col(self):
+        """
+        Get the column used in the M csv
+        """
+        return self._users_t_col
+
+    @property
+    def gt_t_col(self):
+        """
+        Get the column used in the T csv
+        """
+        return self._gt_t_col
+
+    @property
+    def current_score(self):
+        """
+        Get the current score calculated by the metrics
+        """
+        return self._current_score
+
 class ReidentificationMetrics(object):
 
     """Docstring for S1. """
