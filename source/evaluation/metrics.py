@@ -73,15 +73,20 @@ class Metrics(object):
         """
         return self._current_score
 
-class ReidentificationMetrics(object):
+class ReidentificationMetrics(Metrics):
 
     """Docstring for S1. """
 
-    def __init__(self, attr):
+    def __init__(self, M, T, S, M_col=M_COL, T_col=T_COL):
         """
-        attr: attributes to check in the csv. must be a list
+        :_users: M table containing all users present in the transaction data T.
+        :_ground_truth: T table containing all transaction of all user for one year.
+        :_anonimized: S table, the anonimized version of the _ground_truth
+        :_users_t_col: the name of the columns in the csv file M.
+        :_gt_t_col: the name of the columns in the csv file T.
+        :_current_score: current score calculated by the metric already processed.
         """
-        self.attr = attr
+        Metrics.__init__(self, M, T, S, M_col, T_col)
 
     def _month_passed(date):
         return int(date.split('/')[1]) % 12
