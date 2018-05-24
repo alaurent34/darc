@@ -123,7 +123,20 @@ class ReidentificationMetrics(Metrics):
                 guess[cus_id][self._month_passed(t_sub_gyo[2])]=sig_S[value]
         return [cus_id+","+",".join(guess[cus_id])  for cus_id in guess.keys()]
 
+class UtilityMetrics(Metrics):
 
+    """Docstring for UtilityMetrics. """
+
+    def __init__(self, M, T, S, M_col=M_COL, T_col=T_COL):
+        """
+        :_users: M table containing all users present in the transaction data T.
+        :_ground_truth: T table containing all transaction of all user for one year.
+        :_anonimized: S table, the anonimized version of the _ground_truth
+        :_users_t_col: the name of the columns in the csv file M.
+        :_gt_t_col: the name of the columns in the csv file T.
+        :_current_score: current score calculated by the metric already processed.
+        """
+        Metrics.__init__(self, M, T, S, M_col, T_col)
 
 
 if __name__ == '__main__':
