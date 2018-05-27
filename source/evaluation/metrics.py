@@ -101,11 +101,16 @@ class ReidentificationMetrics(Metrics):
 
 
     def _sig_gen(S, attr):
+        """Generate the dictionaty which associate the value ([row[attrs]]) to an id
+
+        :attr: the list of attibutes to check for creating the value
+        :return: dictionary of value:id
+        """
         value_dic = {}
-        for idx in range(len(S)):
-            s = S[idx].strip().split(',')
-            value = ':'.join([s[i] for i in range(len(s)) if i in attr])
-            value_dic[value] = s[0]
+        for row in self._anonimized.itertuples():
+            # Create the value with all the row[attr] concat with ":"
+            value = ':'.join([str(row[elt]) for elt in attr])
+            value_dic[value] = row[self._gt_t_col['id_user']]
         return value_dic
 
     def _guess_ini(M):
