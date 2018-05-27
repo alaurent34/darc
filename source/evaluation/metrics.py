@@ -125,11 +125,16 @@ class ReidentificationMetrics(Metrics):
         return guess
 
     def _drop(S, num):
-        for idx in range(len(S)):
-            S_gyo = S[idx].strip().split(',')
-            S_gyo[4] = S_gyo[4][0:min(len(S_gyo[4]), num)]
-            S[idx] = ','.join(S_gyo)
-        return S
+        """ Tronc the product ID to the number num.
+            Example :
+                id_prod = ABCDEF and num = 2
+                result = AB
+
+        :num: the number of characters to keep.
+        """
+        for row in self._anonimized.itertuples():
+            col_id_item = self._gt_t_col['id_item']
+            row[col_id_item] = row[col_id_item][:min(len(row[col_id_item]), num)]
 
     def _eval(M, T_sub, S):
         sig_S = self._sig_gen(S, self.attr)
