@@ -162,6 +162,22 @@ class ReidentificationMetrics(Metrics):
         f_hat = pd.DataFrame(guess).transpose()
         return f_hat
 
+    def s1_metrics(self):
+        """Calculate metric S1, comparing date and quantity buy on each row.
+
+        :returns: the score on this metric (between 0 and 1)
+
+        """
+        date_col = self._gt_t_col['date']
+        qty_col = self._gt_t_col['qty']
+        f_hat = self._evaluate([date_col, qty_col])
+        #index is true to keep original ID
+        f_hat.to_csv('./scripts/usage_example/S_new.csv', index=True)
+
+        #compare two F file and add to score
+
+        return ""
+
 class UtilityMetrics(Metrics):
 
     """Docstring for UtilityMetrics. """
