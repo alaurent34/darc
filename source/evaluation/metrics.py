@@ -11,6 +11,13 @@ from collections import OrderedDict
 M_COL = []
 T_COL = []
 
+def month_passed(date):
+    """ Get the month from a date, month should be between 0 and 11
+
+    :date: a date in format YYYY/MM/DD
+    :return: integer between 0 and 11 """
+    return int(date.split('/')[1]) % 12o
+
 class Metrics(object):
 
     """Docstring for Metrics. """
@@ -88,8 +95,6 @@ class ReidentificationMetrics(Metrics):
         """
         Metrics.__init__(self, M, T, S, M_col, T_col)
 
-    def _month_passed(date):
-        return int(date.split('/')[1]) % 12
 
     def _sig_gen(S, attr):
         value_dic = {}
