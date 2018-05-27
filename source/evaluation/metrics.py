@@ -193,10 +193,26 @@ class UtilityMetrics(Metrics):
         """
         Metrics.__init__(self, M, T, S, M_col, T_col)
 
+def main():
+    """main
+    """
+    start = time.clock()
+    T = pd.read_csv('./scripts/usage_example/given_data/T.txt', sep=',', engine='c', na_filter=False, low_memory=False)
+    M = T.id_user.value_counts()
+    M = list(M.index)
+    M.sort()
+    M = pd.DataFrame(M, columns=['id_user'])
+    S = pd.read_csv('./scripts/usage_example/S.csv', sep=',', engine='c', na_filter=False, low_memory=False)
+    print("Temps de lecture : {}".format(time.clock() - start))
 
-if __name__ == '__main__':
-    M,S,T_sub = common.input(3)
-    if 4 in ATTR:       # 4は商品IDについての属性
-        S = drop(S, 2)
 
-    common.output([eval(M, T_sub, S)])
+    start = time.clock()
+    m = ReidentificationMetrics(M, T, S)
+    print("Temps d'initialisation : {}".format(time.clock() - start))
+
+    start = time.clock()
+    m.s1_metrics()
+    print("Temps de calcul : {}".format(time.clock() - start))
+
+if __name__ == "__main__":
+    main()
