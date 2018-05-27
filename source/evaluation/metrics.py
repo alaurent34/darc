@@ -7,6 +7,7 @@ Description: class for all re-identification metrics
 """
 
 from collections import OrderedDict
+import time
 
 import pandas as pd
 
@@ -20,7 +21,7 @@ def month_passed(date):
 
     :date: a date in format YYYY/MM/DD
     :return: integer between 0 and 11 """
-    return int(date.split('/')[1]) % 12o
+    return int(date.split('/')[1]) % 12
 
 class Metrics(object):
 
@@ -28,9 +29,9 @@ class Metrics(object):
 
     def __init__(self, M, T, S, M_col=M_COL, T_col=T_COL):
         """
-        :_users: M table containing all users present in the transaction data T.
-        :_ground_truth: T table containing all transaction of all user for one year.
-        :_anonimized: S table, the anonimized version of the _ground_truth
+        :_users: M table containing all users present in the transaction data T (pandas DataFrame).
+        :_ground_truth: T table containing all transaction of all user for one year (pandas DataFrame).
+        :_anonimized: S table, the anonimized version of the _ground_truth (pandas DataFrame).
         :_users_t_col: the name of the columns in the csv file M.
         :_gt_t_col: the name of the columns in the csv file T.
         :_current_score: current score calculated by the metric already processed.
@@ -90,9 +91,9 @@ class ReidentificationMetrics(Metrics):
 
     def __init__(self, M, T, S, M_col=M_COL, T_col=T_COL):
         """
-        :_users: M table containing all users present in the transaction data T.
-        :_ground_truth: T table containing all transaction of all user for one year.
-        :_anonimized: S table, the anonimized version of the _ground_truth
+        :_users: M table containing all users present in the transaction data T (pandas DataFrame).
+        :_ground_truth: T table containing all transaction of all user for one year (pandas DataFrame).
+        :_anonimized: S table, the anonimized version of the _ground_truth (pandas DataFrame).
         :_users_t_col: the name of the columns in the csv file M.
         :_gt_t_col: the name of the columns in the csv file T.
         :_current_score: current score calculated by the metric already processed.
@@ -100,7 +101,7 @@ class ReidentificationMetrics(Metrics):
         Metrics.__init__(self, M, T, S, M_col, T_col)
 
 
-    def _sig_gen(S, attr):
+    def _gen_value_id_dic(self, attr):
         """Generate the dictionaty which associate the value ([row[attrs]]) to an id
 
         :attr: the list of attibutes to check for creating the value
@@ -113,7 +114,7 @@ class ReidentificationMetrics(Metrics):
             value_dic[value] = row[self._gt_t_col['id_user']]
         return value_dic
 
-    def _guess_ini(M):
+    def _guess_inialisation(self):
         """Generate a virgin F^ file with DEL on each column for each id
 
         :return: the dictionary of id:pseudos
@@ -124,7 +125,7 @@ class ReidentificationMetrics(Metrics):
             guess[row[self._users_t_col['id_user']]] = ['DEL' for i in range(12)]
         return guess
 
-    def _drop(S, num):
+    def _tronc_product_id(self, num):
         """ Tronc the product ID to the number num.
             Example :
                 id_prod = ABCDEF and num = 2
@@ -136,7 +137,7 @@ class ReidentificationMetrics(Metrics):
             col_id_item = self._gt_t_col['id_item']
             row[col_id_item] = row[col_id_item][:min(len(row[col_id_item]), num)]
 
-    def _eval(M, T_sub, S):
+    def _evaluate(self, attr):
         """ Evaluate the similtude between T and S on attributs attr.
 
         :attr: attributes to check.
@@ -184,9 +185,9 @@ class UtilityMetrics(Metrics):
 
     def __init__(self, M, T, S, M_col=M_COL, T_col=T_COL):
         """
-        :_users: M table containing all users present in the transaction data T.
-        :_ground_truth: T table containing all transaction of all user for one year.
-        :_anonimized: S table, the anonimized version of the _ground_truth
+        :_users: M table containing all users present in the transaction data T (pandas DataFrame).
+        :_ground_truth: T table containing all transaction of all user for one year (pandas DataFrame).
+        :_anonimized: S table, the anonimized version of the _ground_truth (pandas DataFrame)
         :_users_t_col: the name of the columns in the csv file M.
         :_gt_t_col: the name of the columns in the csv file T.
         :_current_score: current score calculated by the metric already processed.
