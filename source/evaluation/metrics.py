@@ -163,6 +163,33 @@ class ReidentificationMetrics(Metrics):
         f_hat = pd.DataFrame(guess).transpose()
         return f_hat
 
+    def compare_f_files(self, f, f_hat):
+        """Compare the two F files to compute the difference and thus the score
+
+        :f: the original f file to compare (pandas DataFrame)
+        :f_hat: the guessed f file computed by the metric or adversary (pandas DataFrame)
+
+        :returns: score
+        """
+
+        #  TODO: Mettre dans le module test <27-05-18, Antoine Laurent> #
+        map_error = 0
+
+        #we want the same list of users
+        if set(f[self._gt_t_col['id_user']]).difference(f_hat[self._gt_t_col['id_user']]):
+            map_error = 1
+
+        bingo = 0
+
+        if map_error == 0:
+            for row in f.itertuples():
+                # Compare each tuple, if they are egual over all month then gain 1 point
+                if row[1:] == tuple(f_hat[f_hat['id_user'] == row[1]]):
+                    bingo = 1
+
+        if map_error == 0:
+            self._current_score += round(float(bingo)/float(f.shape[0]), 6)
+
     def s1_metrics(self):
         """Calculate metric S1, comparing date and quantity buy on each row.
 
