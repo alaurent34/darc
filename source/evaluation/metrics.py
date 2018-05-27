@@ -114,9 +114,14 @@ class ReidentificationMetrics(Metrics):
         return value_dic
 
     def _guess_ini(M):
+        """Generate a virgin F^ file with DEL on each column for each id
+
+        :return: the dictionary of id:pseudos
+        """
         guess = OrderedDict()
-        for idx in range(len(M)):
-            guess[M[idx].strip().split(',')[0]] = ['DEL' for i in range(12)]
+        for row in self._users.itertuples():
+            # Fill dic[id] with DEL
+            guess[row[self._users_t_col['id_user']]] = ['DEL' for i in range(12)]
         return guess
 
     def _drop(S, num):
