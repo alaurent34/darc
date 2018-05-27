@@ -8,8 +8,12 @@ Description: class for all re-identification metrics
 
 from collections import OrderedDict
 
-M_COL = []
-T_COL = []
+import pandas as pd
+
+#for itertuples which is A LOT faster than iterrows
+M_COL = {'id_user':1}
+T_COL = {'id_user':1, 'nul':2, 'date':3, 'hours':4, 'id_item':5,\
+        'price':6, 'qty':7}
 
 def month_passed(date):
     """ Get the month from a date, month should be between 0 and 11
