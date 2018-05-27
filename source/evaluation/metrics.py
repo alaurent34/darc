@@ -137,15 +137,30 @@ class ReidentificationMetrics(Metrics):
             row[col_id_item] = row[col_id_item][:min(len(row[col_id_item]), num)]
 
     def _eval(M, T_sub, S):
-        sig_S = self._sig_gen(S, self.attr)
-        guess = self._guess_ini(M)
-        for idx in range(len(T_sub)):
-            t_sub_gyo = T_sub[idx].strip().split(',')
-            value= ':'.join([t_sub_gyo[i] for i in range(len(t_sub_gyo)) if i in self.attr])
-            cus_id = t_sub_gyo[0]
-            if value in sig_S.keys():
-                guess[cus_id][self._month_passed(t_sub_gyo[2])]=sig_S[value]
-        return [cus_id+","+",".join(guess[cus_id])  for cus_id in guess.keys()]
+        """ Evaluate the similtude between T and S on attributs attr.
+
+        :attr: attributes to check.
+        :return: F^ the guess of Pseudo for each user and each month.
+        """
+        #only keep the 2 firsts digit of the id_number
+        if self._gt_t_col['id_item'] in attr:
+            self._tronc_product_id(2)
+        start = time.clock()
+        dic_value_anon = self._gen_value_id_dic(attr)
+        guess = self._guess_inialisation()
+        print("Temps d'initialisation dic : {}".format(time.clock() - start))
+        for row in self._ground_truth.itertuples():
+            #create the concat of the attributes to watch
+            value = ':'.join([str(row[i]) for i in attr])
+            id_user = row[self._gt_t_col['id_user']]
+            if value in dic_value_anon.keys():
+                #recover month of the transaction
+                month = month_passed(row[self._gt_t_col['date']])
+                #affect pseudo for id_user where value == value
+                guess[id_user][month] = dic_value_anon[value]
+
+        f_hat = pd.DataFrame(guess).transpose()
+        return f_hat
 
 class UtilityMetrics(Metrics):
 
