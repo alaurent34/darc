@@ -174,6 +174,9 @@ class ReidentificationMetrics(Metrics):
                 guess[id_user][month] = dic_value_anon[value]
 
         f_hat = pd.DataFrame(guess).transpose()
+        f_hat = f_hat.reset_index()
+        f_hat = f_hat.rename(columns={'index':'id_user'})
+
         return f_hat
 
     def compare_f_files(self, f, f_hat):
