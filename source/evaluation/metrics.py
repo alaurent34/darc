@@ -205,7 +205,7 @@ class ReidentificationMetrics(Metrics):
 
         return f_orig
 
-    def compare_f_files(self, f, f_hat):
+    def compare_f_files(self, f_orig, f_hat):
         """Compare the two F files to compute the difference and thus the score
 
         :f: the original f file to compare (pandas DataFrame)
@@ -216,21 +216,23 @@ class ReidentificationMetrics(Metrics):
 
         #  TODO: Mettre dans le module test <27-05-18, Antoine Laurent> #
         map_error = 0
-
-        #we want the same list of users
-        if set(f[self._gt_t_col['id_user']]).difference(f_hat[self._gt_t_col['id_user']]):
-            map_error = 1
-
+        score = 0
         bingo = 0
 
-        if map_error == 0:
-            for row in f.itertuples():
-                # Compare each tuple, if they are egual over all month then gain 1 point
-                if row[1:] == tuple(f_hat[f_hat['id_user'] == row[1]]):
-                    bingo = 1
+        #we want the same list of users
+        if set(f_orig['id_user']).difference(set(f_hat['id_user'])):
+            map_error = 1
 
         if map_error == 0:
-            self._current_score += round(float(bingo)/float(f.shape[0]), 6)
+            for row in f_orig.itertuples():
+                # Compare each tuple, if they are egual over all month then gain 1 point
+                if row[1:] == tuple(f_hat[f_hat['id_user'] == row[1]].iloc[0]):
+                    bingo += 1
+
+        if map_error == 0:
+            score += round(float(bingo)/float(f_orig.shape[0]), 6)
+
+        return score
 
     def s1_metrics(self):
         """Calculate metric S1, comparing date and quantity buy on each row.
