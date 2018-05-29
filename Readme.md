@@ -74,11 +74,11 @@ Readme.
     <tr>
       <td class="tg-us36">F</td>
       <td class="tg-us36">Mapping table between orginal ID (in `M`) and
-      anonymized ID (in A(T))</td>
+      anonymized ID (in A(T)) : it's a generated File</td>
     </tr>
     <tr>
       <td class="tg-us36">F hat</td>
-      <td class="tg-us36">Guess Mapping table by the adversary</td>
+      <td class="tg-us36">Guess Mapping table by the adversary : Generated File</td>
     </tr>
     <tr>
       <td class="tg-us36">R</td>
