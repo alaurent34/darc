@@ -179,6 +179,32 @@ class ReidentificationMetrics(Metrics):
 
         return f_hat
 
+    def generate_f_orig(self):
+        """Generate the F file for the original data, to compare it with the F^ file.
+
+        :returns: F file original
+
+        """
+
+        # Initialization
+        f_orig = pd.DataFrame(columns=['id_user', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
+        f_orig.id_user = self._ground_truth[self._gt_t_col['id_user']].value_counts().index
+        f_orig = f_orig.sort_values('id_user').reset_index(drop=True)
+        f_orig.loc[:, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]] = "DEL"
+
+
+        seen = set()
+        for row in self._ground_truth.itertuples():
+            id_orig = row[self._gt_t_col['id_user']]
+            month = month_passed(row[self._gt_t_col['date']])
+            id_ano = self._anon_trans.loc[row[0], self._gt_t_col['id_user']]
+            item = "{}-{}-{}".format(id_orig, month, id_ano)
+            if item not in seen:
+                seen.add(item)
+                f_orig.loc[f_orig.id_user == id_orig, month] = id_ano
+
+        return f_orig
+
     def compare_f_files(self, f, f_hat):
         """Compare the two F files to compute the difference and thus the score
 
