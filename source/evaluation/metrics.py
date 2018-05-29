@@ -103,7 +103,7 @@ class ReidentificationMetrics(Metrics):
 
     """Docstring for S1. """
 
-    def __init__(self, M, T, S, M_col=M_COL, T_col=T_COL):
+    def __init__(self, M, T, AT, M_col=M_COL, T_col=T_COL):
         """
         :_users: M table containing all users present in the transaction data T (pandas DataFrame).
         :_ground_truth: T table containing all transaction of all user for one year (pandas DataFrame).
@@ -112,7 +112,8 @@ class ReidentificationMetrics(Metrics):
         :_gt_t_col: the name of the columns in the csv file T.
         :_current_score: current score calculated by the metric already processed.
         """
-        Metrics.__init__(self, M, T, S, M_col, T_col)
+        Metrics.__init__(self, M, T, AT, M_col, T_col)
+        self._f_orig = self.generate_f_orig()
 
 
     def _gen_value_id_dic(self, attr):
@@ -254,6 +255,95 @@ class ReidentificationMetrics(Metrics):
 
         return score
 
+    def s2_metrics(self):
+        """Calculate metric S2, comparing date and quantity buy on each row.
+
+        :returns: the score on this metric (between 0 and 1)
+
+        """
+        id_item_col = self._gt_t_col['id_item']
+        price_col = self._gt_t_col['price']
+
+        f_hat = self._evaluate([id_item_col, price_col])
+
+        score = self.compare_f_files(self._f_orig, f_hat)
+        self._current_score += score
+
+        return score
+
+    def s3_metrics(self):
+        """Calculate metric S3, comparing date and quantity buy on each row.
+
+        :returns: the score on this metric (between 0 and 1)
+
+        """
+        id_item_col = self._gt_t_col['id_item']
+        qty_col = self._gt_t_col['qty']
+
+        f_hat = self._evaluate([id_item_col, qty_col])
+
+        score = self.compare_f_files(self._f_orig, f_hat)
+        self._current_score += score
+
+        return score
+
+    def s4_metrics(self):
+        """Calculate metric S4, comparing date and quantity buy on each row.
+
+        :returns: the score on this metric (between 0 and 1)
+
+        """
+        date_col = self._gt_t_col['date']
+        id_item_col = self._gt_t_col['id_item']
+
+        f_hat = self._evaluate([date_col, id_item_col])
+
+        score = self.compare_f_files(self._f_orig, f_hat)
+        self._current_score += score
+
+        return score
+
+    def s5_metrics(self):
+        """Calculate metric S5, comparing date and quantity buy on each row.
+
+        :returns: the score on this metric (between 0 and 1)
+
+        """
+        id_item_col = self._gt_t_col['id_item']
+        price_col = self._gt_t_col['price']
+        qty_col = self._gt_t_col['qty']
+
+        f_hat = self._evaluate([id_item_col, price_col, qty_col])
+
+        score = self.compare_f_files(self._f_orig, f_hat)
+        self._current_score += score
+
+        return score
+
+    def s6_metrics(self):
+        """Calculate metric S6, comparing date and quantity buy on each row.
+
+        :returns: the score on this metric (between 0 and 1)
+
+        """
+        id_item_col = self._gt_t_col['id_item']
+        date_col = self._gt_t_col['date']
+        price_col = self._gt_t_col['price']
+
+        f_hat = self._evaluate([id_item_col, date_col, price_col])
+
+        score = self.compare_f_files(self._f_orig, f_hat)
+        self._current_score += score
+
+        return score
+
+    @property
+    def f_orig(self):
+        """
+        Get the original file F.
+        """
+        return self._f_orig
+
 class UtilityMetrics(Metrics):
 
     """Docstring for UtilityMetrics. """
@@ -289,7 +379,12 @@ def main():
     print("Temps d'initialisation : {}".format(time.clock() - start))
 
     start = time.clock()
-    m.s1_metrics()
+    print(m.s1_metrics())
+    print(m.s2_metrics())
+    print(m.s3_metrics())
+    print(m.s4_metrics())
+    print(m.s5_metrics())
+    print(m.s6_metrics())
     print("Temps de calcul : {}".format(time.clock() - start))
 
 if __name__ == "__main__":
