@@ -236,19 +236,23 @@ class ReidentificationMetrics(Metrics):
 
     def s1_metrics(self):
         """Calculate metric S1, comparing date and quantity buy on each row.
+        Update the current score value
 
         :returns: the score on this metric (between 0 and 1)
 
         """
         date_col = self._gt_t_col['date']
         qty_col = self._gt_t_col['qty']
+
         f_hat = self._evaluate([date_col, qty_col])
-        #index is true to keep original ID
-        f_hat.to_csv('./scripts/usage_example/S_new.csv', index=True)
 
-        #compare two F file and add to score
+        f_hat.to_csv("F_hat.csv", index=False)
+        self._f_orig.to_csv("F.csv", index=False)
 
-        return ""
+        score = self.compare_f_files(self._f_orig, f_hat)
+        self._current_score += score
+
+        return score
 
 class UtilityMetrics(Metrics):
 
