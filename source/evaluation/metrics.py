@@ -10,11 +10,11 @@ from collections import OrderedDict
 import time
 
 import pandas as pd
+import numpy as np
 
 #for itertuples which is A LOT faster than iterrows
 M_COL = {'id_user':1}
-T_COL = {'id_user':1, 'nul':2, 'date':3, 'hours':4, 'id_item':5,\
-        'price':6, 'qty':7}
+T_COL = {'id_user':1, 'nul':2, 'date':3, 'hours':4, 'id_item':5, 'price':6, 'qty':7}
 
 def month_passed(date):
     """ Get the month from a date, month should be between 0 and 11
@@ -27,7 +27,7 @@ class Metrics(object):
 
     """Docstring for Metrics. """
 
-    def __init__(self, M, T, S, M_col=M_COL, T_col=T_COL):
+    def __init__(self, M, T, AT, M_col=M_COL, T_col=T_COL):
         """
         :_users: M table containing all users present in the transaction data T (pandas DataFrame).
         :_ground_truth: T table containing all transaction of all user for one year (pandas DataFrame).
@@ -38,10 +38,24 @@ class Metrics(object):
         """
         self._users = M
         self._ground_truth = T
-        self._anonimized = S
+        self._anon_trans = AT
         self._users_t_col = M_col
         self._gt_t_col = T_col
         self._current_score = 0
+        self._anonimized = self.generate_S_data()
+
+    def generate_S_data(self):
+        """Generate S data from AT data
+        :returns: S
+
+        """
+        data = self._anon_trans
+        data = data.dropna()
+        data = data[data[self._gt_t_col['id_user']] != "DEL"]
+        data = data.reindex(np.random.permutation(data.index))
+
+        return data
+
 
     @property
     def users(self):
@@ -210,7 +224,7 @@ class UtilityMetrics(Metrics):
 
     """Docstring for UtilityMetrics. """
 
-    def __init__(self, M, T, S, M_col=M_COL, T_col=T_COL):
+    def __init__(self, M, T, AT, M_col=M_COL, T_col=T_COL):
         """
         :_users: M table containing all users present in the transaction data T (pandas DataFrame).
         :_ground_truth: T table containing all transaction of all user for one year (pandas DataFrame).
@@ -219,23 +233,25 @@ class UtilityMetrics(Metrics):
         :_gt_t_col: the name of the columns in the csv file T.
         :_current_score: current score calculated by the metric already processed.
         """
-        Metrics.__init__(self, M, T, S, M_col, T_col)
+        Metrics.__init__(self, M, T, M_col, T_col)
 
 def main():
     """main
     """
     start = time.clock()
-    T = pd.read_csv('./scripts/usage_example/given_data/T.txt', sep=',', engine='c', na_filter=False, low_memory=False)
-    M = T.id_user.value_counts()
+    T = pd.read_csv('./scripts/usage_example/given_data/T100.csv', sep=',', engine='c', na_filter=False, low_memory=False)
+    T.columns = T_COL.values()
+    M = T[T_COL['id_user']].value_counts()
     M = list(M.index)
     M.sort()
-    M = pd.DataFrame(M, columns=['id_user'])
-    S = pd.read_csv('./scripts/usage_example/S.csv', sep=',', engine='c', na_filter=False, low_memory=False)
+    M = pd.DataFrame(M, columns=M_COL.values())
+    AT = pd.read_csv('./scripts/usage_example/at_data/AT_sample.csv', sep=',', engine='c', na_filter=False, low_memory=False)
+    AT.columns = T_COL.values()
     print("Temps de lecture : {}".format(time.clock() - start))
 
 
     start = time.clock()
-    m = ReidentificationMetrics(M, T, S)
+    m = ReidentificationMetrics(M, T, AT)
     print("Temps d'initialisation : {}".format(time.clock() - start))
 
     start = time.clock()
