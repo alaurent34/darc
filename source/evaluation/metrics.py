@@ -147,9 +147,9 @@ class ReidentificationMetrics(Metrics):
 
         :num: the number of characters to keep.
         """
-        for row in self._anonimized.itertuples():
-            col_id_item = self._gt_t_col['id_item']
-            row[col_id_item] = row[col_id_item][:min(len(row[col_id_item]), num)]
+        col_id_item = self._gt_t_col['id_item']
+        self._anonimized.loc[:, col_id_item] = self._anonimized.loc[:, col_id_item]\
+                                            .apply(lambda s: s[:min(len(s), num)])
 
     def _evaluate(self, attr):
         """ Evaluate the similtude between T and S on attributs attr.
@@ -157,13 +157,12 @@ class ReidentificationMetrics(Metrics):
         :attr: attributes to check.
         :return: F^ the guess of Pseudo for each user and each month.
         """
+
         #only keep the 2 firsts digit of the id_number
         if self._gt_t_col['id_item'] in attr:
             self._tronc_product_id(2)
-        start = time.clock()
         dic_value_anon = self._gen_value_id_dic(attr)
         guess = self._guess_inialisation()
-        print("Temps d'initialisation dic : {}".format(time.clock() - start))
         for row in self._ground_truth.itertuples():
             #create the concat of the attributes to watch
             value = ':'.join([str(row[i]) for i in attr])
