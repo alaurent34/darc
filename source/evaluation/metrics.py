@@ -304,13 +304,13 @@ def main():
     """main
     """
     start = time.clock()
-    T = pd.read_csv('./scripts/usage_example/given_data/T100.csv', sep=',', engine='c', na_filter=False, low_memory=False)
+    T = pd.read_csv('../../data/testing/T.csv', sep=',', engine='c', na_filter=False, low_memory=False)
     T.columns = T_COL.values()
     M = T[T_COL['id_user']].value_counts()
     M = list(M.index)
     M.sort()
     M = pd.DataFrame(M, columns=M_COL.values())
-    AT = pd.read_csv('./scripts/usage_example/at_data/AT_sample.csv', sep=',', engine='c', na_filter=False, low_memory=False)
+    AT = pd.read_csv('../../data/testing/AT.csv', sep=',', engine='c', na_filter=False, low_memory=False)
     AT.columns = T_COL.values()
     print("Temps de lecture : {}".format(time.clock() - start))
 
@@ -320,12 +320,13 @@ def main():
     print("Temps d'initialisation : {}".format(time.clock() - start))
 
     start = time.clock()
-    print(m.s1_metrics())
-    print(m.s2_metrics())
-    print(m.s3_metrics())
-    print(m.s4_metrics())
-    print(m.s5_metrics())
-    print(m.s6_metrics())
+    print("S1 score : {}".format(m.s1_metrics()))
+    print("S2 score : {}".format(m.s2_metrics()))
+    print("S3 score : {}".format(m.s3_metrics()))
+    print("S4 score : {}".format(m.s4_metrics()))
+    print("S5 score : {}".format(m.s5_metrics()))
+    print("S6 score : {}".format(m.s6_metrics()))
+
     print("Temps de calcul : {}".format(time.clock() - start))
 
 if __name__ == "__main__":
