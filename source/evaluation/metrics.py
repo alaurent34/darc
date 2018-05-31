@@ -43,6 +43,7 @@ class Metrics(object):
         data = self._anon_trans
         data = data.dropna()
         data = data[data[self._gt_t_col['id_user']] != "DEL"]
+        #  TODO:check si il y a une seed pour l'aléa  <30-05-18, yourname> #
         data = data.reindex(np.random.permutation(data.index))
 
         return data
@@ -142,6 +143,9 @@ class ReidentificationMetrics(Metrics):
         col_id_item = self._gt_t_col['id_item']
         self._anonimized.loc[:, col_id_item] = self._anonimized.loc[:, col_id_item]\
                                             .apply(lambda s: s[:min(len(s), num)])
+        self._ground_truth.loc[:, col_id_item] = self._ground_truth.loc[:, col_id_item]\
+                                            .apply(lambda s: s[:min(len(s), num)])
+        pass
 
     def _evaluate(self, attr):
         """ Evaluate the similtude between T and S on attributs attr.
