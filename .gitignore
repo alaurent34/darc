@@ -12,4 +12,12 @@ data/original/*
 data/results/*
 !data/results/plt/
 
+!data/competition/
+data/competition/*
+!data/competition/*.csv
+
+!data/testing/
+data/testing/*
+!data/testing/*.csv
+
 __pycache__/
