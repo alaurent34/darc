@@ -450,6 +450,64 @@ class CollaborativeFiltering(object):
 
         return item_item_dic
 
+    @property
+    def data(self):
+        """
+        Get the data
+        """
+        return self._data
+
+    @property
+    def columns(self):
+        """
+        Get the columns of the DataFrame data
+        """
+        return self._columns
+
+    @property
+    def item_table(self):
+        """
+        Get the item_table of the DataFrame data. It's the corespondance between the item_id and
+        it's position (item_no).
+        """
+        return self._item_table
+
+    @property
+    def user_table(self):
+        """
+        Get the user_table of the DataFrame data. It's the corespondance between the user_id and
+        it's position (user_no).
+        """
+        return self._user_table
+
+    @property
+    def item_user_dic(self):
+        """
+        Get the dictionary of item_no->users who've bought the item
+        """
+        return self._item_user_dic
+
+    @property
+    def user_item_dic(self):
+        """
+        Get the dictionary of user_no->items bought by him
+        """
+        return self._user_item_dic
+
+    @property
+    def tier_for_score(self):
+        """
+        Get the minimal score possessed by a user to be kept
+        """
+        return self._tier_for_score
+
+    @property
+    def user_threshold(self):
+        """
+        Get the minimal number of user
+        """
+        return self._user_threshold
+
 class UtilityMetrics(Metrics):
 
     """Docstring for UtilityMetrics. """
