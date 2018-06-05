@@ -8,6 +8,7 @@ Description: class for all re-identification metrics
 
 from collections import OrderedDict
 import time
+import math
 
 import pandas as pd
 import numpy as np
@@ -393,6 +394,38 @@ class CollaborativeFiltering(object):
 
         return (total_user_num, total_item_num, self._user_table, self._item_table,\
                 self._user_item_dic, self._item_user_dic)
+
+    def _calc_cos_sim(self, item_no, item2_no):
+        """ Calculate the cosinus similarity between items bought by users.
+
+        :item_no: item that as been bought by an user.
+        :item2_no: other item bought by the same user at least.
+
+        :return: the cosinus similarity between the vector of people buying item_no and item2_no
+
+        """
+
+        # Initialisation
+        cos_sim = 0
+        item_vec_size = 0
+        item2_vec_size = 0
+        inner_product = 0
+
+        for user_no,score in self._item_user_dic[item_no].items():
+            # 1つ目のItemの特徴ベクトルのサイズを更新 --> item_vec_size
+            item_vec_size += score*score
+            # 2つ目のItemの特徴ベクトルにuser_noが含まれていれば，Item同士の内積を更新 --> inner_product
+            if user_no in self._item_user_dic[item2_no]:
+                score2 = self._item_user_dic[item2_no][user_no]
+                inner_product += score*score2
+        # Item-User辞書の2つ目のItem No
+        for user_no,score2 in self._item_user_dic[item2_no].items():
+            # 2つ目のItemの特徴ベクトルのサイズを更新 --> item2_vec_size
+            item2_vec_size += score2*score2
+        # cosine類似度を計算
+        cos_sim = float(inner_product) / float(math.sqrt(item_vec_size) * math.sqrt(item2_vec_size))
+        return cos_sim
+
 
 class UtilityMetrics(Metrics):
 
