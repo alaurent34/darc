@@ -149,7 +149,6 @@ class ReidentificationMetrics(Metrics):
                                             .apply(lambda s: s[:min(len(s), num)])
         self._ground_truth.loc[:, col_id_item] = self._ground_truth.loc[:, col_id_item]\
                                             .apply(lambda s: s[:min(len(s), num)])
-        pass
 
     def _evaluate(self, attr):
         """ Evaluate the similtude between T and S on attributs attr.
@@ -284,6 +283,33 @@ class ReidentificationMetrics(Metrics):
         Get the original file F.
         """
         return self._f_orig
+
+class CollaborativeFiltering(object):
+    """Docstring for CollaborativeFiltering.
+
+       Return the matrix representing the collaborative filtering on a transactional database.
+       It's item x item matrix with c_ij the number of people which have order item_i and item_j.
+    """
+
+    def __init__(self, data, tier_for_score, user_threshold, item_table=None, columns=T_COL):
+        """
+        :data: transaction data on which you want to make the Collaborative filtering
+        """
+        self._data = data
+        self._columns = columns
+        if item_table:
+            self._item_table = item_table
+            self._second_pass = True
+        else:
+            self._item_table = {}
+            self._second_pass = False
+        self._user_table = {}
+        self._user_item_dic = []
+        self._item_user_dic = []
+        self._tier_for_score = tier_for_score
+        self._user_threshold = user_threshold
+        #  TODO: Separer les initialisations des différenttes variables dans des methodes
+        #  differentes <05-06-18, Antoine Laurent> #
 
 class UtilityMetrics(Metrics):
 
