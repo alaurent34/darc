@@ -601,5 +601,14 @@ def main():
 
     print("Temps de calcul : {}".format(time.clock() - start))
 
+    start = time.clock()
+    m = UtilityMetrics(M, T, AT)
+    print("Temps d'initialisation : {}".format(time.clock() - start))
+
+    start = time.clock()
+    print("E1 score : {}".format(m.e1_metric()))
+
+    print("Temps de calcul : {}".format(time.clock() - start))
+
 if __name__ == "__main__":
     main()
