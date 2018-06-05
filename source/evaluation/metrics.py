@@ -427,6 +427,29 @@ class CollaborativeFiltering(object):
         return cos_sim
 
 
+    def calc_item2item_dic(self):
+        """ Calculate the item_item matrix (I(i,j)) from item_user_dic and user_item_dic.
+        I(i,j) take the cos_sim distance between i and j.
+
+        :return: the item_item matrix.
+
+        """
+
+        item_item_dic = {}
+
+        # Item-User/User_Item辞書から，denseなところを1に初期化したItem-Item辞書を作成する --> item_item_dic
+        for item_no in range(len(self._item_user_dic)):
+            for user_no in self._item_user_dic[item_no].keys():
+                for item2_no in self._user_item_dic[user_no].keys():
+                     if item_no != item2_no:
+                        # Item-Item辞書のキー(item_no,item2_no)に対応する値を1に初期化
+                        item_item_dic[(item_no,item2_no)] = 1
+        # Item-Item辞書のうちdenseなところについて，cosine類似度を求める
+        for item_no,item2_no in item_item_dic.keys():
+            item_item_dic[(item_no,item2_no)] = self._calc_cos_sim(item_no,item2_no)
+
+        return item_item_dic
+
 class UtilityMetrics(Metrics):
 
     """Docstring for UtilityMetrics. """
