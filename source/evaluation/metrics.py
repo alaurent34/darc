@@ -521,7 +521,56 @@ class UtilityMetrics(Metrics):
         :_gt_t_col: the name of the columns in the csv file T.
         :_current_score: current score calculated by the metric already processed.
         """
-        Metrics.__init__(self, M, T, M_col, T_col)
+        Metrics.__init__(self, M, T, AT, M_col, T_col)
+
+
+    def _calc_sim_mat_dist(self, item_item_dic1, item_item_dic2):
+        # 初期化
+        sim_dist = 0
+        item_item_dic1_sum = 0
+        # Item-Item辞書(T1)のdenseな要素から距離を計算
+        for item_no,item2_no in item_item_dic1:
+            # Item-item辞書(T1)の要素の総和 --> item_item_dic1_sum
+            item_item_dic1_sum += item_item_dic1[(item_no,item2_no)]
+            # Item-Item辞書(T2)においてもdenseな場合
+            if (item_no,item2_no) in item_item_dic2:
+                # L1距離
+                sim_dist += math.fabs(item_item_dic1[(item_no,item2_no)] - item_item_dic2[(item_no,item2_no)])
+            # Item-Item辞書(T2)ではsparseな場合
+            else:
+                # L1距離
+                sim_dist += item_item_dic1[(item_no,item2_no)]
+        # Item-item辞書(T1)の要素の総和で割ることで正規化
+        sim_dist /= item_item_dic1_sum
+        # 正規化後の距離が1を超えた場合は，1にする
+        if sim_dist > 1.0:
+            sim_dist = 1.0
+        return sim_dist
+
+    def e1_metric(self):
+        """TODO: Docstring for e1_metric.
+        :returns: TODO
+
+        """
+
+        # Processing of Ground Truth Database
+        gt_colab_fi = CollaborativeFiltering(self._ground_truth, [12, 24, 36, 48], 1)
+
+        gt_colab_fi.preprocessing_data_cf()
+        item_item_dic1 = gt_colab_fi.calc_item2item_dic()
+
+        # Processing of Anonymized Database
+        anon_colab_fi = CollaborativeFiltering(self._anonimized, [12, 24, 36, 48], 1,\
+                item_table=gt_colab_fi.item_table)
+
+        anon_colab_fi.preprocessing_data_cf()
+        item_item_dic2 = anon_colab_fi.calc_item2item_dic()
+
+        # Calcul of the distance
+        dist = self._calc_sim_mat_dist(item_item_dic1, item_item_dic2)
+
+        print(dist)
+        return dist
 
 def main():
     """main
