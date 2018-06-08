@@ -37,12 +37,14 @@ class Metrics(object):
         self._anonimized = self.generate_S_data()
 
     def generate_S_data(self):
-        """Generate S data from AT data
+        """Generate S data from AT data.
         :returns: S
 
         """
         data = self._anon_trans
+        # Remove NaN value from DataFrame
         data = data.dropna()
+        # Remove 'DEL' row in DataFrame
         data = data[data[self._gt_t_col['id_user']] != "DEL"]
         #  TODO:check si il y a une seed pour l'aléa  <30-05-18, yourname> #
         data = data.reindex(np.random.permutation(data.index))
@@ -113,16 +115,17 @@ class ReidentificationMetrics(Metrics):
         self._tronc_product_id(2)
 
 
-    def _gen_value_id_dic(self, attr):
-        """Generate the dictionaty which associate the value ([row[attrs]]) to an id
+    def _gen_value_id_dic(self, attrs):
+        """Generate the dictionaty which associate the value of the attributes attrs in the
+        DataFrame to an user ID.
 
-        :attr: the list of attibutes to check for creating the value
+        :attrs: the list of attibutes to check for creating the value
         :return: dictionary of value:id
         """
         value_dic = {}
         for row in self._anonimized.itertuples():
-            # Create the value with all the row[attr] concat with ":"
-            value = ':'.join([str(row[elt]) for elt in attr])
+            # Create the value with all the row[attrs] concat with ":"
+            value = ':'.join([str(row[elt]) for elt in attrs])
             value_dic[value] = row[self._gt_t_col['id_user']]
         return value_dic
 
@@ -151,18 +154,18 @@ class ReidentificationMetrics(Metrics):
         self._ground_truth.loc[:, col_id_item] = self._ground_truth.loc[:, col_id_item]\
                                             .apply(lambda s: s[:min(len(s), num)])
 
-    def _evaluate(self, attr):
-        """ Evaluate the similtude between T and S on attributs attr.
+    def _evaluate(self, attrs):
+        """ Evaluate the similtude between T and S on attributs attrs.
 
-        :attr: attributes to check.
+        :attrs: attributes to check.
         :return: F^ the guess of Pseudo for each user and each month.
         """
 
-        dic_value_anon = self._gen_value_id_dic(attr)
+        dic_value_anon = self._gen_value_id_dic(attrs)
         guess = self._guess_inialisation()
         for row in self._ground_truth.itertuples():
             #create the concat of the attributes to watch
-            value = ':'.join([str(row[i]) for i in attr])
+            value = ':'.join([str(row[i]) for i in attrs])
             id_user = row[self._gt_t_col['id_user']]
             if value in dic_value_anon.keys():
                 #recover month of the transaction
@@ -658,6 +661,11 @@ class UtilityMetrics(Metrics):
 def main():
     """main
     """
+    total_time = time.clock()
+    ######################
+    ### Initialisation ###
+    ######################
+
     start = time.clock()
     T = pd.read_csv('../../data/testing/T.csv', sep=',', engine='c', na_filter=False, low_memory=False)
     T.columns = T_COL.values()
@@ -669,6 +677,23 @@ def main():
     AT.columns = T_COL.values()
     print("Temps de lecture : {}".format(time.clock() - start))
 
+    #######################
+    ### Utility Metrics ###
+    #######################
+
+    start = time.clock()
+    m = UtilityMetrics(M, T, AT)
+    print("Temps d'initialisation : {}".format(time.clock() - start))
+
+    start = time.clock()
+    print("E1 score : {}".format(m.e1_metric()))
+    print("E2 score : {}".format(m.e2_metric()))
+
+    print("Temps de calcul : {}".format(time.clock() - start))
+
+    #####################
+    ### Re-id Metrics ###
+    #####################
 
     start = time.clock()
     m = ReidentificationMetrics(M, T, AT)
@@ -684,14 +709,11 @@ def main():
 
     print("Temps de calcul : {}".format(time.clock() - start))
 
-    start = time.clock()
-    m = UtilityMetrics(M, T, AT)
-    print("Temps d'initialisation : {}".format(time.clock() - start))
+    print("Temps de calcul TOTAL : {}".format(time.clock() - total_time))
 
-    start = time.clock()
-    print("E1 score : {}".format(m.e1_metric()))
-
-    print("Temps de calcul : {}".format(time.clock() - start))
+    #  TODO: Thread all execution of e* and s* metrics, BUT DO NOT thread utility and Re-id metrics
+    #  together because we tronc the item_id in Re-id metrics, and it appears that it's using the
+    #  same data due to python not copying value <07-06-18, Antoine Laurent> #
 
 if __name__ == "__main__":
     main()
