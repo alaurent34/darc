@@ -448,6 +448,25 @@ class CollaborativeFiltering(object):
 
         return self._item_user_dic
 
+    def make_topk_item_list(self, k=0):
+        """
+        doc
+        """
+        frequent_item_dic = {}
+        top_k_items = []
+        for tmp_id in range(len(self._item_user_dic)):
+            bought_num = 0
+            bought_num = len(self._item_user_dic[tmp_id])
+            for i, j in self._item_table.items():
+                if j == tmp_id:
+                    item_id = i
+            frequent_item_dic[item_id] = bought_num
+        frequent_item_dic = sorted(frequent_item_dic.items(), key=lambda x:(x[1],x[0]), reverse=True)
+        #print(frequent_item_dic)
+        top_k = frequent_item_dic[:k]
+        for l in range(len(top_k)):
+            top_k_items.append(top_k[l][0])
+        return top_k_items
 
     def preprocessing_data(self, score_threshold, user_threshold, max_qty_score):
         """Process data (T and AT) to generate tables needed for the construction of the similarity
