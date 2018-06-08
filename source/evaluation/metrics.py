@@ -342,6 +342,50 @@ class CollaborativeFiltering(object):
         if self._item_user_dic[item_no][user_no] == 0:
             del self._item_user_dic[item_no][user_no]
 
+    def _generate_item_user_dic(self):
+        """ Generate a dictionary of pairs (item, user) -> quantity for all the transactions in the
+        dataset data.
+
+        If an item_table, which reference all item_id and the position they appear in (and thus
+        their position in the list), was passed to at the construction of the object
+        CollaborativeFiltering, then we need to skip some part of code.
+
+        :return: item_user_dic with quantity
+
+        """
+        if self._item_table_exist:
+            for item_id in self._item_table.keys():
+               self._item_user_dic.append({})
+
+        for row in self._data.itertuples():
+            user_id = row[self._columns['id_user']]
+            item_id = row[self._columns['id_item']]
+            quantity = row[self._columns['qty']]
+
+            # Create link between item_user_dic and item table
+            self.add_user2user_table(user_id)
+
+            # We don't want to pass two time in this if it already exist
+            if not self._item_table_exist:
+                self.add_item2item_table(item_id)
+
+            # Recover link between user_table/item and user_item_dic/item_user_dic
+            user_no = self._user_table[user_id]
+
+            # If second_pass then there will possibly have item not contained
+            if item_id in self._item_table:
+                item_no = self._item_table[item_id]
+            else:
+                continue
+
+            # Fill item_user_dic
+            if user_no not in self._item_user_dic[item_no]:
+                self._item_user_dic[item_no][user_no] = quantity
+            else:
+                self._item_user_dic[item_no][user_no] += quantity
+
+        return self.item_user_dic
+
     def preprocessing_data_cf(self):
         """Process data (T and AT) to generate tables needed for the construction of the similarity
         matrix (or collaborative filtering).
