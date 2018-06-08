@@ -518,17 +518,15 @@ class CollaborativeFiltering(object):
         inner_product = 0
 
         for user_no,score in self._item_user_dic[item_no].items():
-            # 1つ目のItemの特徴ベクトルのサイズを更新 --> item_vec_size
             item_vec_size += score*score
-            # 2つ目のItemの特徴ベクトルにuser_noが含まれていれば，Item同士の内積を更新 --> inner_product
+
             if user_no in self._item_user_dic[item2_no]:
                 score2 = self._item_user_dic[item2_no][user_no]
                 inner_product += score*score2
-        # Item-User辞書の2つ目のItem No
+
         for user_no,score2 in self._item_user_dic[item2_no].items():
-            # 2つ目のItemの特徴ベクトルのサイズを更新 --> item2_vec_size
             item2_vec_size += score2*score2
-        # cosine類似度を計算
+
         cos_sim = float(inner_product) / float(math.sqrt(item_vec_size) * math.sqrt(item2_vec_size))
         return cos_sim
 
@@ -543,14 +541,12 @@ class CollaborativeFiltering(object):
 
         item_item_dic = {}
 
-        # Item-User/User_Item辞書から，denseなところを1に初期化したItem-Item辞書を作成する --> item_item_dic
         for item_no in range(len(self._item_user_dic)):
             for user_no in self._item_user_dic[item_no].keys():
                 for item2_no in self._user_item_dic[user_no].keys():
                      if item_no != item2_no:
-                        # Item-Item辞書のキー(item_no,item2_no)に対応する値を1に初期化
                         item_item_dic[(item_no,item2_no)] = 1
-        # Item-Item辞書のうちdenseなところについて，cosine類似度を求める
+
         for item_no,item2_no in item_item_dic.keys():
             item_item_dic[(item_no,item2_no)] = self._calc_cos_sim(item_no,item2_no)
 
@@ -617,24 +613,19 @@ class UtilityMetrics(Metrics):
 
 
     def _calc_sim_mat_dist(self, item_item_dic1, item_item_dic2):
-        # 初期化
         sim_dist = 0
         item_item_dic1_sum = 0
-        # Item-Item辞書(T1)のdenseな要素から距離を計算
+
         for item_no,item2_no in item_item_dic1:
-            # Item-item辞書(T1)の要素の総和 --> item_item_dic1_sum
             item_item_dic1_sum += item_item_dic1[(item_no,item2_no)]
-            # Item-Item辞書(T2)においてもdenseな場合
+
             if (item_no,item2_no) in item_item_dic2:
-                # L1距離
                 sim_dist += math.fabs(item_item_dic1[(item_no,item2_no)] - item_item_dic2[(item_no,item2_no)])
-            # Item-Item辞書(T2)ではsparseな場合
             else:
-                # L1距離
                 sim_dist += item_item_dic1[(item_no,item2_no)]
-        # Item-item辞書(T1)の要素の総和で割ることで正規化
+
         sim_dist /= item_item_dic1_sum
-        # 正規化後の距離が1を超えた場合は，1にする
+
         if sim_dist > 1.0:
             sim_dist = 1.0
         return sim_dist
@@ -664,7 +655,7 @@ class UtilityMetrics(Metrics):
         return dist
 
     def e2_metric(self):
-        """TODO: Docstring for e1_metric.
+        """TODO: Docstring for e2_metric.
         :returns: TODO
 
         """
