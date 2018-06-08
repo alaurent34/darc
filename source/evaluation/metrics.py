@@ -741,6 +741,7 @@ def main():
     start = time.clock()
     print("E1 score : {}".format(m.e1_metric()))
     print("E2 score : {}".format(m.e2_metric()))
+    print("E3 score : {}".format(m.e3_metric()))
 
     print("Temps de calcul : {}".format(time.clock() - start))
 
