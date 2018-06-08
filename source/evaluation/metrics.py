@@ -399,6 +399,57 @@ class CollaborativeFiltering(object):
 
         return self._user_item_dic
 
+    def _generate_score(self, score_threshold=[12], user_threshold=1, max_qty=True):
+        """This method calculate the score to give to a pair (item, user) in function of the
+        quantity associated to this pair.
+
+        We can have two case :
+            - We want pairs with highter quantity, so we delete pair with quantity < score
+              threshold. This case is defined by max_qty = True.
+            - We want pairs with lower quantity, so we delete pairs with quantity >= score
+              threshold. This case is defined by max_qty = False.
+
+        NB: pairs with less than a user threshold will be deleted too.
+
+        :score_threshold: a list of threshold use to define the score gain by a user. In case of
+        max_qty = False, only the lowest item of the list will affect the score.
+        :user_threshold: the minimum number of user to have bought the item.
+        :max_qty: the information for the quantity threshold.
+
+        :return: the pairs of (item, user) with their score associated.
+        """
+
+        # In Item-User_dic, convert purchase quantity to score (delete element with score 0)
+        for item_no in range(len(self._item_user_dic)):
+            for user_no in list(self._item_user_dic[item_no]):
+                score = 0
+                for elem in range(len(score_threshold)):
+                    if self._item_user_dic[item_no][user_no] < score_threshold[elem]:
+                        if max_qty:
+                            break
+                        else:
+                            # Nothing change
+                            score = self._item_user_dic[item_no][user_no]
+                    else:
+                        if max_qty:
+                            score += 1
+                        else:
+                            break
+                # Put 0 for item with qty < thrsld or qty > thrsld in regard of the bool max_qty
+                self._item_user_dic[item_no][user_no] = score
+                # Delete element with depending on quantity
+                self.del_item_cond(item_no, user_no)
+
+        # For each item in the Item-User dictionary,
+        # those whose number of users is less than UserNumThr are deleted
+        for item_no in range(len(self._item_user_dic)):
+            if len(self._item_user_dic[item_no]) < user_threshold:
+                for user_no in list(self._item_user_dic[item_no]):
+                    del self._item_user_dic[item_no][user_no]
+
+        return self._item_user_dic
+
+
     def preprocessing_data_cf(self):
         """Process data (T and AT) to generate tables needed for the construction of the similarity
         matrix (or collaborative filtering).
