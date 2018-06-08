@@ -341,7 +341,7 @@ class CollaborativeFiltering(object):
         if self._item_user_dic[item_no][user_no] == 0:
             del self._item_user_dic[item_no][user_no]
 
-    def _generate_item_user_dic(self):
+    def _generate_item_user_dic(self, top_k_ids=None):
         """ Generate a dictionary of pairs (item, user) -> quantity for all the transactions in the
         dataset data.
 
@@ -360,6 +360,10 @@ class CollaborativeFiltering(object):
             user_id = row[self._columns['id_user']]
             item_id = row[self._columns['id_item']]
             quantity = row[self._columns['qty']]
+
+            if top_k_ids:
+                if item_id in top_k_ids:
+                    continue
 
             # Create link between item_user_dic and item table
             self.add_user2user_table(user_id)
@@ -380,8 +384,12 @@ class CollaborativeFiltering(object):
             # Fill item_user_dic
             if user_no not in self._item_user_dic[item_no]:
                 self._item_user_dic[item_no][user_no] = quantity
+                if top_k_ids:
+                    self._item_user_dic[item_no][user_no] = 1
             else:
                 self._item_user_dic[item_no][user_no] += quantity
+                if top_k_ids:
+                    self._item_user_dic[item_no][user_no] = 1
 
         return self.item_user_dic
 
@@ -468,7 +476,8 @@ class CollaborativeFiltering(object):
             top_k_items.append(top_k[l][0])
         return top_k_items
 
-    def preprocessing_data(self, score_threshold, user_threshold, max_qty_score):
+    def preprocessing_data(self, score_threshold=None, user_threshold=None, max_qty_score=True, top_k=False,
+                           top_k_ids=None):
         """Process data (T and AT) to generate tables needed for the construction of the similarity
         matrix (or collaborative filtering).
 
@@ -481,10 +490,11 @@ class CollaborativeFiltering(object):
         """
 
         # Generate item_user_dic : item are buyed buy which user by quantity
-        self._generate_item_user_dic()
+        self._generate_item_user_dic(top_k_ids=top_k_ids)
 
-        # Get scoring done by quantity and
-        self._generate_score(score_threshold, user_threshold, max_qty=max_qty_score)
+        if not top_k:
+            # Get scoring done by quantity and with threshold
+            self._generate_score(score_threshold, user_threshold, max_qty=max_qty_score)
 
         self._generate_user_item_dic()
 
