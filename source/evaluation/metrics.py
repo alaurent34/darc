@@ -614,22 +614,45 @@ class UtilityMetrics(Metrics):
         """
 
         # Processing of Ground Truth Database
-        gt_colab_fi = CollaborativeFiltering(self._ground_truth, [12, 24, 36, 48], 1)
+        gt_colab_fi = CollaborativeFiltering(self._ground_truth)
 
-        gt_colab_fi.preprocessing_data_cf()
+        gt_colab_fi.preprocessing_data([12, 24, 36, 48], 1, max_qty_score=True)
         item_item_dic1 = gt_colab_fi.calc_item2item_dic()
 
         # Processing of Anonymized Database
-        anon_colab_fi = CollaborativeFiltering(self._anonimized, [12, 24, 36, 48], 1,\
+        anon_colab_fi = CollaborativeFiltering(self._anonimized,\
                 item_table=gt_colab_fi.item_table)
 
-        anon_colab_fi.preprocessing_data_cf()
+        anon_colab_fi.preprocessing_data([12, 24, 36, 48], 1, max_qty_score=True)
         item_item_dic2 = anon_colab_fi.calc_item2item_dic()
 
         # Calcul of the distance
         dist = self._calc_sim_mat_dist(item_item_dic1, item_item_dic2)
 
-        print(dist)
+        return dist
+
+    def e2_metric(self):
+        """TODO: Docstring for e1_metric.
+        :returns: TODO
+
+        """
+
+        # Processing of Ground Truth Database
+        gt_colab_fi = CollaborativeFiltering(self._ground_truth)
+
+        gt_colab_fi.preprocessing_data([12], 1, max_qty_score=False)
+        item_item_dic1 = gt_colab_fi.calc_item2item_dic()
+
+        # Processing of Anonymized Database
+        anon_colab_fi = CollaborativeFiltering(self._anonimized,\
+                item_table=gt_colab_fi.item_table)
+
+        anon_colab_fi.preprocessing_data([12], 1, max_qty_score=False)
+        item_item_dic2 = anon_colab_fi.calc_item2item_dic()
+
+        # Calcul of the distance
+        dist = self._calc_sim_mat_dist(item_item_dic1, item_item_dic2)
+
         return dist
 
 def main():
