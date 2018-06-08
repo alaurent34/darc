@@ -292,7 +292,7 @@ class CollaborativeFiltering(object):
        It's item x item matrix with c_ij the number of people which have order item_i and item_j.
     """
 
-    def __init__(self, data, tier_for_score, user_threshold, item_table=None, columns=T_COL):
+    def __init__(self, data, item_table=None, columns=T_COL):
         """
         :data: transaction data on which you want to make the Collaborative filtering
         """
@@ -300,17 +300,13 @@ class CollaborativeFiltering(object):
         self._columns = columns
         if item_table:
             self._item_table = item_table
-            self._second_pass = True
+            self._item_table_exist = True
         else:
             self._item_table = {}
-            self._second_pass = False
+            self._item_table_exist = False
         self._user_table = {}
         self._user_item_dic = []
         self._item_user_dic = []
-        self._tier_for_score = tier_for_score
-        self._user_threshold = user_threshold
-        #  TODO: Separer les initialisations des différenttes variables dans des methodes
-        #  differentes <05-06-18, Antoine Laurent> #
 
     def add_user2user_table(self, user_id):
         """ Add an user to the dictionary user_table and an empty entry on in the pair (user, item)
@@ -450,7 +446,7 @@ class CollaborativeFiltering(object):
         return self._item_user_dic
 
 
-    def preprocessing_data_cf(self):
+    def preprocessing_data(self, score_threshold, user_threshold, max_qty_score):
         """Process data (T and AT) to generate tables needed for the construction of the similarity
         matrix (or collaborative filtering).
 
@@ -530,8 +526,8 @@ class CollaborativeFiltering(object):
             for user_no, score in self._item_user_dic[item_no].items():
                 self._user_item_dic[user_no][item_no] = score
 
-        return (total_user_num, total_item_num, self._user_table, self._item_table,\
-                self._user_item_dic, self._item_user_dic)
+        return (self._user_table, self._item_table, self._user_item_dic,\
+                self._item_user_dic)
 
     def _calc_cos_sim(self, item_no, item2_no):
         """ Calculate the cosinus similarity between items bought by users.
@@ -631,20 +627,6 @@ class CollaborativeFiltering(object):
         Get the dictionary of user_no->items bought by him
         """
         return self._user_item_dic
-
-    @property
-    def tier_for_score(self):
-        """
-        Get the minimal score possessed by a user to be kept
-        """
-        return self._tier_for_score
-
-    @property
-    def user_threshold(self):
-        """
-        Get the minimal number of user
-        """
-        return self._user_threshold
 
 class UtilityMetrics(Metrics):
 
