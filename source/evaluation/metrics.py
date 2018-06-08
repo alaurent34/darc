@@ -386,6 +386,19 @@ class CollaborativeFiltering(object):
 
         return self.item_user_dic
 
+    def _generate_user_item_dic(self):
+        """Generate the user_item dictionary with the item_user dictionary.
+
+        Nothing special here
+
+        """
+        # Fill user_item_dic with item_user_dic
+        for item_no in range(len(self._item_user_dic)):
+            for user_no, score in self._item_user_dic[item_no].items():
+                self._user_item_dic[user_no][item_no] = score
+
+        return self._user_item_dic
+
     def preprocessing_data_cf(self):
         """Process data (T and AT) to generate tables needed for the construction of the similarity
         matrix (or collaborative filtering).
