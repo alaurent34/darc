@@ -331,6 +331,17 @@ class CollaborativeFiltering(object):
             self._item_table[item_id] = len(self._item_table)
             self._item_user_dic.append({})
 
+    def del_item_cond(self, item_no, user_no):
+        """Delete a pair (item, user) in item_user_dic, the condition change depending on the
+        attribute max_qty, which is a boolean and mean :
+                - True : that we want to delete all users under a given threshold.
+                - False : that we want to delete all users above a given threshold.
+
+        """
+        # Delete element with score = 0 (Unsignificant purchase for the metric)
+        if self._item_user_dic[item_no][user_no] == 0:
+            del self._item_user_dic[item_no][user_no]
+
     def preprocessing_data_cf(self):
         """Process data (T and AT) to generate tables needed for the construction of the similarity
         matrix (or collaborative filtering).
