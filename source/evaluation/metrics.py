@@ -455,76 +455,16 @@ class CollaborativeFiltering(object):
                  user_table : table representing all the user, the correspondance between an item
                               and the dictionary user_item_dic
                  user_item_dic : quantity of item bought by user
-                 item_user_dic :
-                 total_user_num
 
         """
-        total_user_num = 0
-        total_item_num = 0
 
-        if self._second_pass:
-            for item_id in self._item_table.keys():
-               self._item_user_dic.append({})
+        # Generate item_user_dic : item are buyed buy which user by quantity
+        self._generate_item_user_dic()
 
-        for row in self._data.itertuples():
-            user_id = row[self._columns['id_user']]
-            item_id = row[self._columns['id_item']]
-            quantity = row[self._columns['qty']]
+        # Get scoring done by quantity and
+        self._generate_score(score_threshold, user_threshold, max_qty=max_qty_score)
 
-            # Create link between item_user_dic and item table
-            if user_id not in self._user_table:
-                self._user_table[user_id] = total_user_num
-                self._user_item_dic.append({})
-                total_user_num += 1
-
-            # We don't want to pass two time in this if it already exist
-            if not self._second_pass:
-                # Create link between item_user_dic and item table
-                if item_id not in self._item_table:
-                    self._item_table[item_id] = total_item_num
-                    self._item_user_dic.append({})
-                    total_item_num += 1
-
-            # Recover link between user_table/item and user_item_dic/item_user_dic
-            user_no = self._user_table[user_id]
-
-            # If second_pass then there will possibly have item not contained
-            if item_id in self._item_table:
-                item_no = self._item_table[item_id]
-            else:
-                continue
-
-            # Fill item_user_dic
-            if user_no not in self._item_user_dic[item_no]:
-                self._item_user_dic[item_no][user_no] = quantity
-            else:
-                self._item_user_dic[item_no][user_no] += quantity
-
-        # In Item-User_dic, convert purchase quantity to score (delete element with score 0)
-        for item_no in range(len(self._item_user_dic)):
-            for user_no in list(self._item_user_dic[item_no]):
-                score = 0
-                for elem in range(len(self._tier_for_score)):
-                    if self._item_user_dic[item_no][user_no] < self._tier_for_score[elem]:
-                        break
-                    else:
-                        score += 1
-                self._item_user_dic[item_no][user_no] = score
-                # Delete element with score = 0 (No significant purchase)
-                if self._item_user_dic[item_no][user_no] == 0:
-                    del self._item_user_dic[item_no][user_no]
-
-        # For each item in the Item-User dictionary,
-        # those whose number of users is less than UserNumThr are deleted
-        for item_no in range(len(self._item_user_dic)):
-            if len(self._item_user_dic[item_no]) < self._user_threshold:
-                for user_no in list(self._item_user_dic[item_no]):
-                    del self._item_user_dic[item_no][user_no]
-
-        # Fill user_item_dic with item_user_dic
-        for item_no in range(len(self._item_user_dic)):
-            for user_no, score in self._item_user_dic[item_no].items():
-                self._user_item_dic[user_no][item_no] = score
+        self._generate_user_item_dic()
 
         return (self._user_table, self._item_table, self._user_item_dic,\
                 self._item_user_dic)
