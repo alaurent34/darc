@@ -312,6 +312,25 @@ class CollaborativeFiltering(object):
         #  TODO: Separer les initialisations des différenttes variables dans des methodes
         #  differentes <05-06-18, Antoine Laurent> #
 
+    def add_user2user_table(self, user_id):
+        """ Add an user to the dictionary user_table and an empty entry on in the pair (user, item)
+        in user_item_dic
+
+        """
+        if user_id not in self._user_table:
+            self._user_table[user_id] = len(self._user_table)
+            self._user_item_dic.append({})
+
+    def add_item2item_table(self, item_id):
+        """ Add an item to the dictionary item_table and an empty entry on in the pair (item, user)
+        in item_user_dic
+
+        """
+        # Create link between item_user_dic and item table
+        if item_id not in self._item_table:
+            self._item_table[item_id] = len(self._item_table)
+            self._item_user_dic.append({})
+
     def preprocessing_data_cf(self):
         """Process data (T and AT) to generate tables needed for the construction of the similarity
         matrix (or collaborative filtering).
