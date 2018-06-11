@@ -645,7 +645,7 @@ class UtilityMetrics(Metrics):
         item_item_dic1 = gt_colab_fi.calc_item2item_dic()
 
         # Processing of Anonymized Database
-        anon_colab_fi = CollaborativeFiltering(self._anonimized,\
+        anon_colab_fi = CollaborativeFiltering(self._anon_trans,\
                 item_table=gt_colab_fi.item_table)
 
         anon_colab_fi.preprocessing_data([12, 24, 36, 48], 1, max_qty_score=True)
@@ -669,7 +669,7 @@ class UtilityMetrics(Metrics):
         item_item_dic1 = gt_colab_fi.calc_item2item_dic()
 
         # Processing of Anonymized Database
-        anon_colab_fi = CollaborativeFiltering(self._anonimized,\
+        anon_colab_fi = CollaborativeFiltering(self._anon_trans,\
                 item_table=gt_colab_fi.item_table)
 
         anon_colab_fi.preprocessing_data([12], 1, max_qty_score=False)
@@ -696,7 +696,7 @@ class UtilityMetrics(Metrics):
         item_item_dic1 = gt_colab_fi.calc_item2item_dic()
 
         # Processing of Anonymized Database
-        anon_colab_fi = CollaborativeFiltering(self._anonimized,\
+        anon_colab_fi = CollaborativeFiltering(self._anon_trans,\
                 item_table=gt_colab_fi.item_table)
 
         anon_colab_fi.preprocessing_data(max_qty_score=False, top_k=True)
