@@ -14,7 +14,6 @@ import pandas as pd
 import numpy as np
 
 from utils import *
-
 class Metrics(object):
 
     """Docstring for Metrics. """
@@ -362,9 +361,11 @@ class CollaborativeFiltering(object):
             quantity = row[self._columns['qty']]
 
             if top_k_ids:
-                if item_id in top_k_ids:
+                if item_id not in top_k_ids:
                     continue
 
+            if user_id == 'DEL':
+                continue
             # Create link between item_user_dic and item table
             self.add_user2user_table(user_id)
 
@@ -387,9 +388,10 @@ class CollaborativeFiltering(object):
                 if top_k_ids:
                     self._item_user_dic[item_no][user_no] = 1
             else:
-                self._item_user_dic[item_no][user_no] += quantity
                 if top_k_ids:
-                    self._item_user_dic[item_no][user_no] = 1
+                    pass
+                else:
+                    self._item_user_dic[item_no][user_no] += quantity
 
         return self.item_user_dic
 
