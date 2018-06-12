@@ -673,6 +673,39 @@ class UtilityMetrics(Metrics):
 
         return score
 
+    def _compare_price_gt_anon(self):
+        """Compare each price in T and AT, it's mean to value the transformation applied to the
+        price in AT.
+
+        :returns: The total of all the difference between the price in T and AT
+
+        """
+        score = 0
+
+        for idx in range(self._anon_trans.shape[0]):
+            # Skip this loop if id_user == DEL
+            if self._anon_trans.iloc[idx, self._gt_t_col['id_user']] == "DEL":
+                continue
+
+            # Get the date from the data at index idx
+            gt_price = float(self._ground_truth.loc[idx, self._gt_t_col['price']])
+            anon_price = float(self._anon_trans.loc[idx, self._gt_t_col['price']])
+
+            #  TODO: Mettre ça dans un fichier qui test tous les formats et fait des messages
+            #  d'erreurs approprié  <12-06-18, Antoine> #
+            try:
+                if gt_price < 0 or anon_price < 0:
+                    raise Exception
+                # Get the difference between date1 and date2 in days
+                score += (1 - min(gt_price, anon_price)/max(gt_price, anon_price))
+            except e:
+                sys.exit("Price wrong format")
+
+        score = np.round(float(score)/float(self._anon_trans.shape[0]), 10)
+
+        return score
+
+
     def e1_metric(self):
         """TODO: Docstring for e1_metric.
         :returns: TODO
@@ -775,6 +808,17 @@ class UtilityMetrics(Metrics):
 
         """
         score = self._compare_date_gt_anon()
+        self._current_score.append(score)
+
+        return score
+
+    def e5_metric(self):
+        """ Calculate the difference, as the ratio, of all item prices.
+
+        :returns: score of the metric.
+
+        """
+        score = self._compare_price_gt_anon()
         self._current_score.append(score)
 
         return score
