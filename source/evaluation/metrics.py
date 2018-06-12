@@ -6,6 +6,7 @@ Github: https://github.com/Drayer34
 Description: class for all re-identification metrics
 """
 
+import sys
 from collections import OrderedDict
 import time
 import math
@@ -16,13 +17,23 @@ import numpy as np
 from utils import *
 class Metrics(object):
 
-    """Docstring for Metrics. """
+    """Super class Metrics for ReidentificationMetrics and UtilityMetrics. It genreate the S data
+    from AT one.
+
+    Attributes are :
+        :_users: M table containing all users present in the transaction data T (pandas DataFrame).
+        :_ground_truth: T table containing all transaction of all user for one year (pandas DataFrame).
+        :_anonymized: S table, the anonymized version of the _ground_truth (pandas DataFrame).
+        :_users_t_col: the name of the columns in the csv file M.
+        :_gt_t_col: the name of the columns in the csv file T.
+        :_current_score: current score calculated by the metric already processed.
+    """
 
     def __init__(self, M, T, AT, M_col=M_COL, T_col=T_COL):
         """
         :_users: M table containing all users present in the transaction data T (pandas DataFrame).
         :_ground_truth: T table containing all transaction of all user for one year (pandas DataFrame).
-        :_anonimized: S table, the anonimized version of the _ground_truth (pandas DataFrame).
+        :_anonymized: S table, the anonymized version of the _ground_truth (pandas DataFrame).
         :_users_t_col: the name of the columns in the csv file M.
         :_gt_t_col: the name of the columns in the csv file T.
         :_current_score: current score calculated by the metric already processed.
@@ -33,7 +44,7 @@ class Metrics(object):
         self._users_t_col = M_col
         self._gt_t_col = T_col
         self._current_score = []
-        self._anonimized = self.generate_S_data()
+        self._anonymized = self.generate_S_data()
 
     def generate_S_data(self):
         """Generate S data from AT data.
@@ -66,11 +77,11 @@ class Metrics(object):
         return self._ground_truth
 
     @property
-    def anonimized(self):
+    def anonymized(self):
         """
-        Get the anonimized data
+        Get the anonymized data
         """
-        return self._anonimized
+        return self._anonymized
 
     @property
     def users_t_col(self):
@@ -95,13 +106,23 @@ class Metrics(object):
 
 class ReidentificationMetrics(Metrics):
 
-    """Docstring for S1. """
+    """ Reidentification metrics, it create an object that has 6 metrics which calculate the
+    pourcentage of reidentification in transaction database, following 6 methods.
+
+    Attributes are :
+        :_users: M table containing all users present in the transaction data T (pandas DataFrame).
+        :_ground_truth: T table containing all transaction of all user for one year (pandas DataFrame).
+        :_anonymized: S table, the anonymized version of the _ground_truth (pandas DataFrame).
+        :_users_t_col: the name of the columns in the csv file M.
+        :_gt_t_col: the name of the columns in the csv file T.
+        :_current_score: current score calculated by the metric already processed.
+    """
 
     def __init__(self, M, T, AT, M_col=M_COL, T_col=T_COL):
         """
         :_users: M table containing all users present in the transaction data T (pandas DataFrame).
         :_ground_truth: T table containing all transaction of all user for one year (pandas DataFrame).
-        :_anonimized: S table, the anonimized version of the _ground_truth (pandas DataFrame).
+        :_anonymized: S table, the anonymized version of the _ground_truth (pandas DataFrame).
         :_users_t_col: the name of the columns in the csv file M.
         :_gt_t_col: the name of the columns in the csv file T.
         :_current_score: current score calculated by the metric already processed.
@@ -122,7 +143,7 @@ class ReidentificationMetrics(Metrics):
         :return: dictionary of value:id
         """
         value_dic = {}
-        for row in self._anonimized.itertuples():
+        for row in self._anonymized.itertuples():
             # Create the value with all the row[attrs] concat with ":"
             value = ':'.join([str(row[elt]) for elt in attrs])
             value_dic[value] = row[self._gt_t_col['id_user']]
@@ -148,7 +169,7 @@ class ReidentificationMetrics(Metrics):
         :num: the number of characters to keep.
         """
         col_id_item = self._gt_t_col['id_item']
-        self._anonimized.loc[:, col_id_item] = self._anonimized.loc[:, col_id_item]\
+        self._anonymized.loc[:, col_id_item] = self._anonymized.loc[:, col_id_item]\
                                             .apply(lambda s: s[:min(len(s), num)])
         self._ground_truth.loc[:, col_id_item] = self._ground_truth.loc[:, col_id_item]\
                                             .apply(lambda s: s[:min(len(s), num)])
@@ -298,11 +319,18 @@ class CollaborativeFiltering(object):
 
        Return the matrix representing the collaborative filtering on a transactional database.
        It's item x item matrix with c_ij the number of people which have order item_i and item_j.
+
+       Attributes are :
+        :data: transaction data on which you want to make the Collaborative filtering
+        :columns: name of the columns for data
+        :item_table: optional, the precomputed item_table
     """
 
     def __init__(self, data, item_table=None, columns=T_COL):
         """
         :data: transaction data on which you want to make the Collaborative filtering
+        :columns: name of the columns for data
+        :item_table: optional, the precomputed item_table
         """
         self._data = data
         self._columns = columns
@@ -465,11 +493,15 @@ class CollaborativeFiltering(object):
         return self._item_user_dic
 
     def make_topk_item_list(self, k=0):
+        """ Determine the top k item list in fonction of the item_table and item_user_dic
+
+            :return: the list of top k items
         """
-        doc
-        """
+        # Initialisation
         frequent_item_dic = {}
         top_k_items = []
+
+        # Create a dic with all item and the number of user they bought it
         for tmp_id in range(len(self._item_user_dic)):
             bought_num = 0
             bought_num = len(self._item_user_dic[tmp_id])
@@ -477,11 +509,15 @@ class CollaborativeFiltering(object):
                 if j == tmp_id:
                     item_id = i
             frequent_item_dic[item_id] = bought_num
+
+        # Sort the dic
         frequent_item_dic = sorted(frequent_item_dic.items(), key=lambda x:(x[1],x[0]), reverse=True)
-        #print(frequent_item_dic)
+
+        # Keep only the k first
         top_k = frequent_item_dic[:k]
         for l in range(len(top_k)):
             top_k_items.append(top_k[l][0])
+
         return top_k_items
 
     def preprocessing_data(self, score_threshold=None, user_threshold=None, max_qty_score=True, top_k=False,
@@ -546,7 +582,7 @@ class CollaborativeFiltering(object):
         :return: the item_item matrix.
 
         """
-
+        # Initialization
         item_item_dic = {}
 
         for item_no in range(len(self._item_user_dic)):
@@ -606,13 +642,23 @@ class CollaborativeFiltering(object):
 
 class UtilityMetrics(Metrics):
 
-    """Docstring for UtilityMetrics. """
+    """ Utility metrics, it create an object that has 6 metrics which calculate the
+    pourcentage of utility remaining in the anonymized transaction database, following 6 methods.
+
+    Attributes are :
+        :_users: M table containing all users present in the transaction data T (pandas DataFrame).
+        :_ground_truth: T table containing all transaction of all user for one year (pandas DataFrame).
+        :_anonymized: S table, the anonymized version of the _ground_truth (pandas DataFrame)
+        :_users_t_col: the name of the columns in the csv file M.
+        :_gt_t_col: the name of the columns in the csv file T.
+        :_current_score: current score calculated by the metric already processed.
+    """
 
     def __init__(self, M, T, AT, M_col=M_COL, T_col=T_COL):
         """
         :_users: M table containing all users present in the transaction data T (pandas DataFrame).
         :_ground_truth: T table containing all transaction of all user for one year (pandas DataFrame).
-        :_anonimized: S table, the anonimized version of the _ground_truth (pandas DataFrame)
+        :_anonymized: S table, the anonymized version of the _ground_truth (pandas DataFrame)
         :_users_t_col: the name of the columns in the csv file M.
         :_gt_t_col: the name of the columns in the csv file T.
         :_current_score: current score calculated by the metric already processed.
@@ -621,6 +667,10 @@ class UtilityMetrics(Metrics):
 
 
     def _calc_sim_mat_dist(self, item_item_dic1, item_item_dic2):
+        """ Calcul the distance between two item_item matrix.
+
+        return: the distance between the matrix, max value is 1
+        """
         sim_dist = 0
         item_item_dic1_sum = 0
 
@@ -707,8 +757,18 @@ class UtilityMetrics(Metrics):
 
 
     def e1_metric(self):
-        """TODO: Docstring for e1_metric.
-        :returns: TODO
+        """ Construct a similarity matrix of item buyed (User that have bought this item also bought
+        item_i). Here the score is maximized if the quantity is high (calculated by dozen). We
+        calculate the difference between the two matrix of item buyed as a score.
+
+        More precisly we construct two matrix M1 and M2, one for the original dataset and one for
+        the anonymised one. Both are of size `n x n` where `n` is the number of item. For M_ij
+        represent the number of people who have bought the item i and have also bought the item j.
+
+        This procede is called a collaborative filtering
+        (https://en.wikipedia.org/wiki/Collaborative_filtering).
+
+        :returns: score of the metric.
 
         """
 
@@ -734,8 +794,18 @@ class UtilityMetrics(Metrics):
         return score
 
     def e2_metric(self):
-        """TODO: Docstring for e2_metric.
-        :returns: TODO
+        """ Construct a similarity matrix of item buyed (User that have bought this item also bought
+        item_i). Here the score is maximized if the quantity is low (<= threshold). We
+        calculate the difference between the two matrix of item buyed as a score.
+
+        More precisly we construct two matrix M1 and M2, one for the original dataset and one for
+        the anonymised one. Both are of size `n x n` where `n` is the number of item. For M_ij
+        represent the number of people who have bought the item i and have also bought the item j.
+
+        This procede is called a collaborative filtering
+        (https://en.wikipedia.org/wiki/Collaborative_filtering).
+
+        :returns: score of the metric.
 
         """
 
@@ -761,36 +831,46 @@ class UtilityMetrics(Metrics):
         return score
 
     def e3_metric(self, param_k=100):
-        """TODO: Docstring for e3_metric.
-        :returns: TODO
+        """ Caluclate the difference (as in set difference) and similarity matrix between top-`k` items
+        bought from ground truth and anonymised dataset.
+
+        :returns: score of the metric.
 
         """
         # Processing of Ground Truth Database
+        ## Creation of Collaborative Filter object
         gt_colab_fi = CollaborativeFiltering(self._ground_truth)
 
+        ## Preprocessing and determination of top k items for GT
         gt_colab_fi.preprocessing_data(max_qty_score=True, top_k=True)
         gt_tok_k_ids = gt_colab_fi.make_topk_item_list(k=param_k)
 
+        #Preprocessing of Anonymized DataBase
+        ## Creation of Collaborative Filter object
         anon_colab_fi = CollaborativeFiltering(self._anon_trans,\
                 item_table=gt_colab_fi.item_table)
 
+        ## Preprocessing and determination of top k items for AT
         anon_colab_fi.preprocessing_data(max_qty_score=False, top_k=True)
         anon_tok_k_ids = anon_colab_fi.make_topk_item_list(k=param_k)
 
+        # Calcul score for top k items only and retrieve item_table for top k
         gt_colab_fi = CollaborativeFiltering(self._ground_truth)
         gt_colab_fi.preprocessing_data(max_qty_score=True, top_k=True, top_k_ids=gt_tok_k_ids)
 
+        # Obtention of item_item_GT
         item_item_dic1 = gt_colab_fi.calc_item2item_dic()
 
-        # Processing of Anonymized Database
+        # Processing of Anonymized Database for top k item with item_table
         anon_colab_fi = CollaborativeFiltering(self._anon_trans,\
                 item_table=gt_colab_fi.item_table)
 
         anon_colab_fi.preprocessing_data(max_qty_score=True, top_k=True, top_k_ids=gt_tok_k_ids)
 
+        # Obtention of item_item_GT
         item_item_dic2 = anon_colab_fi.calc_item2item_dic()
 
-        # Calcul of the distance
+        # Calcul of the score
         score = []
         score.append(len(set(gt_tok_k_ids).difference(set(anon_tok_k_ids))) / param_k)
         score.append(self._calc_sim_mat_dist(item_item_dic1, item_item_dic2))
