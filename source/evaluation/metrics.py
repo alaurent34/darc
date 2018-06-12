@@ -32,7 +32,7 @@ class Metrics(object):
         self._anon_trans = AT
         self._users_t_col = M_col
         self._gt_t_col = T_col
-        self._current_score = 0
+        self._current_score = []
         self._anonimized = self.generate_S_data()
 
     def generate_S_data(self):
@@ -194,7 +194,8 @@ class ReidentificationMetrics(Metrics):
         self._f_orig.to_csv("F.csv", index=False)
 
         score = compare_f_files(self._f_orig, f_hat)
-        self._current_score += score
+        # Add the score to the global score for this metric
+        self._current_score.append(score)
 
         return score
 
@@ -210,7 +211,8 @@ class ReidentificationMetrics(Metrics):
         f_hat = self._evaluate([id_item_col, price_col])
 
         score = compare_f_files(self._f_orig, f_hat)
-        self._current_score += score
+        # Add the score to the global score for this metric
+        self._current_score.append(score)
 
         return score
 
@@ -226,7 +228,8 @@ class ReidentificationMetrics(Metrics):
         f_hat = self._evaluate([id_item_col, qty_col])
 
         score = compare_f_files(self._f_orig, f_hat)
-        self._current_score += score
+        # Add the score to the global score for this metric
+        self._current_score.append(score)
 
         return score
 
@@ -242,7 +245,8 @@ class ReidentificationMetrics(Metrics):
         f_hat = self._evaluate([date_col, id_item_col])
 
         score = compare_f_files(self._f_orig, f_hat)
-        self._current_score += score
+        # Add the score to the global score for this metric
+        self._current_score.append(score)
 
         return score
 
@@ -259,7 +263,8 @@ class ReidentificationMetrics(Metrics):
         f_hat = self._evaluate([id_item_col, price_col, qty_col])
 
         score = compare_f_files(self._f_orig, f_hat)
-        self._current_score += score
+        # Add the score to the global score for this metric
+        self._current_score.append(score)
 
         return score
 
@@ -276,7 +281,8 @@ class ReidentificationMetrics(Metrics):
         f_hat = self._evaluate([id_item_col, date_col, price_col])
 
         score = compare_f_files(self._f_orig, f_hat)
-        self._current_score += score
+        # Add the score to the global score for this metric
+        self._current_score.append(score)
 
         return score
 
@@ -652,9 +658,12 @@ class UtilityMetrics(Metrics):
         item_item_dic2 = anon_colab_fi.calc_item2item_dic()
 
         # Calcul of the distance
-        dist = self._calc_sim_mat_dist(item_item_dic1, item_item_dic2)
+        score = self._calc_sim_mat_dist(item_item_dic1, item_item_dic2)
 
-        return dist
+        # Add the score to the global score for this metric
+        self._current_score.append(score)
+
+        return score
 
     def e2_metric(self):
         """TODO: Docstring for e2_metric.
@@ -676,9 +685,12 @@ class UtilityMetrics(Metrics):
         item_item_dic2 = anon_colab_fi.calc_item2item_dic()
 
         # Calcul of the distance
-        dist = self._calc_sim_mat_dist(item_item_dic1, item_item_dic2)
+        score = self._calc_sim_mat_dist(item_item_dic1, item_item_dic2)
 
-        return dist
+        # Add the score to the global score for this metric
+        self._current_score.append(score)
+
+        return score
 
     def e3_metric(self, param_k=100):
         """TODO: Docstring for e3_metric.
@@ -711,11 +723,14 @@ class UtilityMetrics(Metrics):
         item_item_dic2 = anon_colab_fi.calc_item2item_dic()
 
         # Calcul of the distance
-        dist = []
-        dist.append(len(set(gt_tok_k_ids).difference(set(anon_tok_k_ids))) / param_k)
-        dist.append(self._calc_sim_mat_dist(item_item_dic1, item_item_dic2))
+        score = []
+        score.append(len(set(gt_tok_k_ids).difference(set(anon_tok_k_ids))) / param_k)
+        score.append(self._calc_sim_mat_dist(item_item_dic1, item_item_dic2))
 
-        return dist
+        # Add the score to the global score for this metric
+        self._current_score.append(score)
+
+        return max(score)
 
 
 def main():
