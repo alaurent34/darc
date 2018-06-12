@@ -823,6 +823,18 @@ class UtilityMetrics(Metrics):
 
         return score
 
+    def e6_metric(self):
+        """ Calculate the ratio between the number of lines removed in the anonymized table over the
+        number of lines in the original dataset.
+
+        :returns: score of the metric.
+
+        """
+        score = np.round(float(1 - self._anonymized.shape[0]/self._ground_truth.shape[0]), 4)
+        self._current_score.append(score)
+
+        return score
+
 
 def main():
     """main
