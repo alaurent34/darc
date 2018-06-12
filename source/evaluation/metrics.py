@@ -638,6 +638,41 @@ class UtilityMetrics(Metrics):
             sim_dist = 1.0
         return sim_dist
 
+    def _compare_date_gt_anon(self):
+        """Compare each date in T and AT, it's mean to value the transformation applied to the date
+        in AT.
+
+        :returns: The total of all the difference between the date in T and AT
+
+        """
+        score = 0
+
+        for idx in range(self._anon_trans.shape[0]):
+            # Skip this loop if id_user == DEL
+            if self._anon_trans.iloc[idx, self._gt_t_col['id_user']] == "DEL":
+                continue
+
+            # Get the date from the data at index idx
+            #  TODO: .iloc should be used here for safety reason but iloc does not keep columns
+            #  value <12-06-18, Antoine> #
+            gt_day = self._ground_truth.loc[idx, self._gt_t_col['date']]
+            anon_day = self._anon_trans.loc[idx, self._gt_t_col['date']]
+
+            #  TODO: Mettre ça dans un fichier qui test tous les formats et fait des messages
+            #  d'erreurs approprié  <12-06-18, Antoine> #
+            try:
+                gt_day = pd.datetime.strptime(gt_day, '%Y/%m/%d')
+                anon_day = pd.datetime.strptime(anon_day, '%Y/%m/%d')
+            except:
+                sys.exit("Date wrong format")
+
+            # Get the difference between date1 and date2 in days
+            score += abs((gt_day - anon_day).days)
+
+        score = np.round(float(score)/float(31 * self._anon_trans.shape[0]), 10)
+
+        return score
+
     def e1_metric(self):
         """TODO: Docstring for e1_metric.
         :returns: TODO
@@ -731,6 +766,18 @@ class UtilityMetrics(Metrics):
         self._current_score.append(score)
 
         return max(score)
+
+    def e4_metric(self):
+        """ Calculate the mean distance in day between anonymised and ground truth
+        transactions.
+
+        :returns: score of the metric.
+
+        """
+        score = self._compare_date_gt_anon()
+        self._current_score.append(score)
+
+        return score
 
 
 def main():
