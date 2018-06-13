@@ -925,13 +925,13 @@ def main():
     ######################
 
     start = time.clock()
-    T = pd.read_csv('../../data/testing/T.csv', sep=',', engine='c', na_filter=False, low_memory=False)
+    T = pd.read_csv('./data/testing/T.csv', sep=',', engine='c', na_filter=False, low_memory=False)
     T.columns = T_COL.values()
     M = T[T_COL['id_user']].value_counts()
     M = list(M.index)
     M.sort()
     M = pd.DataFrame(M, columns=M_COL.values())
-    AT = pd.read_csv('../../data/testing/AT.csv', sep=',', engine='c', na_filter=False, low_memory=False)
+    AT = pd.read_csv('./data/testing/AT.csv', sep=',', engine='c', na_filter=False, low_memory=False)
     AT.columns = T_COL.values()
     print("Temps de lecture : {}".format(time.clock() - start))
 
