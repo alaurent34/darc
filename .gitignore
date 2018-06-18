@@ -4,17 +4,15 @@ data/*
 
 #csv files needed that will not be recomputed are stored
 #becaue the time to compute them is huge
-!data/original/
-data/original/*
-!data/original/*.csv
+!data/uci_dataset_original/
+data/uci_dataset_original/*
+!data/uci_dataset_original/*.csv
 
-!data/results/
-data/results/*
-!data/results/plt/
+!data/tsne_vizualisation/
+data/tsne_vizualisation/*
+!data/tsne_vizualisation/plt/
 
-!data/competition/
-data/competition/*
-!data/competition/*.csv
+!data/*.csv
 
 !data/testing/
 data/testing/*
