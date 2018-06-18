@@ -1,14 +1,14 @@
 {
-  "evaluator_name" : "example_evaluator",
-  "evaluator_class" : "ExampleEvaluator",
+  "evaluator_name" : "darc_evaluator",
+  "evaluator_class" : "DarcEvaluator",
   "challenge_client_name" : "your-challenge-client-name::for-admin-use-only",
   "challenge_grader_id" : "your-challenge-grader-id::for-admin-use-only",
   "evaluation_pipeline_version" : "1.0",
   "authors" : [
     {
-      "name" : "Sharada Mohanty",
-      "email" : "sharada.mohanty@epfl.ch",
-      "user_profile" : "https://www.crowdai.org/participants/spmohanty"
+      "name" : "Antoine Laurent",
+      "email" : "laurent.antoine@courrier.uqam.ca",
+      "user_profile" : "https://www.crowdai.org/participants/Drayer34"
     }
   ],
   "version": "0.1"
