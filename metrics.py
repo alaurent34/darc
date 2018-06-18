@@ -211,9 +211,6 @@ class ReidentificationMetrics(Metrics):
 
         f_hat = self._evaluate([date_col, qty_col])
 
-        f_hat.to_csv("F_hat.csv", index=False)
-        self._f_orig.to_csv("F.csv", index=False)
-
         score = compare_f_files(self._f_orig, f_hat)
         # Add the score to the global score for this metric
         self._current_score.append(score)
@@ -876,7 +873,7 @@ class UtilityMetrics(Metrics):
         score.append(self._calc_sim_mat_dist(item_item_dic1, item_item_dic2))
 
         # Add the score to the global score for this metric
-        self._current_score.append(score)
+        self._current_score.append(max(score))
 
         return max(score)
 
