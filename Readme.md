@@ -2,24 +2,24 @@
 
 This Repository contains all source code for PETS Competition : DARC. More
 specifically it contains :
+  - Sampled data from UCI for DARC (ground truth).
+  - Original data from UCI.
+  - T-sne representation of the sampled dataset.
+  - Source code to sample the data.
   - Source code for the re-identification metrics.
   - Source code for the utility metric.
-  - Source code for succes in re-identification.
+  - Source code for success for players re-identification.
+  - Source code for the integration of metrics in CrowdAI plateform
 
 What need to be done :
-  1. Create a script to sample the data from UCI : Motsly done, see scripts under
-     ./scripts/python/dataset_creation/. We provide a way to do it but still
-     need to understand the distribution it provide (test made with t-sne).
-  2. Script to check file format for better description of the error AND security.
-  3. Metrics need to return their values and not print them.
-  4. Document the source code available : done for the most part.
-  5. Translate all japaneese comments in the source code (in progress).
-  6. Adapt PWSCup code to the crowdai competition framework with [this](https://github.com/crowdAI/crowdai-example-evaluator) template.
-  __IMPORANT NOTE__ : All scripts are now writted to be used inside a bash
-  script, I think it will be best to re-writte all the scripts in oriented
-  object paradigm. But I aim to keep the maximum code i can because it seem to
-  be a good policy to keep working code.
-  7. *Any suggestion goes here*
+  1. The integration of the code in the [CrowdAI evaluator](https://github.com/crowdAI/crowdai-example-evaluator) to
+     automatize the phases procedure.
+  2. The writing of functions to check the file format submitted by the
+     participants for each phases, that would also provide detailed information
+     to participants about formatting errors in the file submitted.
+  3. Performing some tests to make sure the competition will run as smoothly as
+     possible.
+  4. *Any suggestion goes here*
 
 ## Datasets
 
@@ -188,8 +188,8 @@ There is 6 utility metrics, which are :
 ### Success metrics
 
 To calculate the score of re-identification, the two F files from the ground
-truth and the attaquant are compared. For a participant to make a point it have
-to guess all the pseudonyms for one person (ie, for all month guess if it is DEL
+truth and the attacker are compared. For a participant to make a point it have
+to guess all the pseudonyms for one person (*i.e.*, for all month guess if it is DEL
 or a pseudonym). One error occurs a 0 in the count for the line.
 
 Then the count of points are divided by the number of line (persons) in the F
@@ -198,186 +198,52 @@ file.
 ## Information about PWSCup 2017
 
  >  TODO:  Explain a bit about PWSCup Here <21-05-18, Antoine Laurent> >
+
  For more informations about PWSCup 2017, you can visit this [site](https://pwscup.personal-data.biz/web/pws2017/info.php) for now (you
  can use Google Translate to translate the website on Chrome browser).
 
-# List of programs
+# How to use
 
-Here we discuss of the purpose of the differents scripts found in [PWSCup 2017
-archive](https://pwscup.personal-data.biz/web/pws2017/data/PWSCUP2017_Samples.zip).
+We describe here how you can test the scripts written.
 
-We will not represent here scripts for Utility and Metrics as we already list
-them above.
+## CrowdAI evaluator
 
-## To sort
+To use the CrowdAI DARC evaluator, install the requirements contains in
+requirements.txt and execute darc_evaluator.py as follow :
 
-This is the current list of scripts to sort. Please update this list once the
-script is sorted. Programs can be found under ./scripts/.
+```
+pip install --requirements=requirements.txt
+python darc_evaluator.py
+```
 
-### Python
+## Metrics testing
 
-*Done*
+If you want to test the metrics alone you can do it by executing the python file
+metrics.py :
 
-### Ruby
+```
+python metrics.py
+```
 
- - tool-eval-re-tcm.rb
- - tool-map.rb
- - tool-nsplit.rb
- - tool-r2cid.rb
+**NB** : You also need to install the requirements.
 
- *NB*: Most of rubys scripts were also wrote in python.
+# Description of files
 
-### R
+## Metrics.py
 
-Just some re-identification code
+This module serve the purpose of calculating the metrics used in the 1st phase.
+You can find the UtilityMetrics class, the ReidentificationMetrics class and a
+CollaborativeFiltering class. This last one is used in the utility metrics for
+metrics E1, E2 and E3.
 
-### Thoughts
+An example of how to use this module is given in a `main()` function.
 
-For now i have the feeling that we can only use python scripts for our needs.
+## Utils.py
 
-## Sorted
+This file serve the purpose of stocking some configuration and function that
+will be used in both phase and are not considered as metrics. For example you
+can found a variable `T_COL` that store the name of the columns you want to use
+for your ground truth DataFrame.
 
-This is a list of script sorted by categories and with an explaination of what
-it does.
-
-Thanks to respect the following format when placing a script here.
-
-Format : - scipt.ext : Explaination
-
-| Input | Way | Outuput | Way |
-| ---   | --- | ---     | --- |
-| X     | Y   | Z       | V   |
-
-   *Example*:
-   ```
-   python ./example.py
-   ```
-*NB : Some remarks*
-
-#### Concatenation scripts
-
-There is two scripts for concatening files are :
-
- - tool-ncat.py, tool-ncat.rb : They are usualy used to concat M, A and AT and
-   return a J file.
-
-| Input                         | Way   | Outuput   | Way    |
-| ---                           | ---   | ---       | ---    |
-| J(M,T,AT) and Result_name.csv | stdin | J(M,T,AT) | stdout |
-
-   *Example*:
-   ```
-   python ./tool-ncat.py M_sample.csv T_sample.csv AT_sample.csv > J_out.csv
-   ```
-
-*NB : Also i suggest we use the python one to need only one interpreter instead
-of two.*
-
-### Creation scripts
-
- - tool-createPBdata.py : This script take AT, the player anonymised database
-   and create the file S with 'DEL' entry supress and line shuffled and P (or
-   just S with the version inside ./drill).
-
-| Input | Way   | Outuput | Way         |
-| ---   | ---   | ---     | ---         |
-| A(T)  | stdin | S       | args (path) |
-
-   *Example*:
-   ```
-   cat AT.csv | python ./tool-createPBdata.py S.csv
-   ```
-
- - tool-kamei.py : The script take a T file and generate A(T), S, R and P. It
-   play the role of an participant.
-
-| Input | Way         | Outuput       | Way                    |
-| ---   | ---         | ---           | ---                    |
-| T     | args (path) | A(T), S, R, P | file generated by prog |
-
-   *Example*:
-   ```
-   python ./tool-kamei.py T.csv
-   ```
-
- - tool-kameimap.py : Take M, T, and A(T) and create F, the correspondance
-   between ID and Pseudo for each month.
-
-| Input  | Way         | Outuput | Way         |
-| ---    | ---         | ---     | ---         |
-| M,T,AT | args (path) | F  | args (path) |
-
-   *Example*:
-   ```
-   python ./tool-kameimap.py $M $T $AT F.txt
-   ```
-
- - tool-divide.py : Take M, A, AT in stdin and outpout the 3 files separated.
-
-| Input                         | Way   | Outuput | Way                         |
-| ---                           | ---   | ---     | ---                         |
-| J(M,T,AT) and Result_name.csv | stdin | M,T,AT  | file generated (X_name.csv) |
-
-   *Example*:
-   ```
-   python ./tool-ncat.py M_sample.csv T_sample.csv AT_sample.csv | python ./tool-devide.py Result_sample_test.csv
-   ```
-
- ### Scoring
-
-#### Comparing Two F files (scoring)
-
- - tool-compare_and.py : Take F, F_hat and give the re-identification ration.
-**Warning**: there is two version of this scripts, one under ./usage_exemple and
-one under ./scripts/python/other/
- - tool-mapcompare.py : Idem
-
-| Input    | Way         | Outuput                 | Way    |
-| ---      | ---         | ---                     | ---    |
-| F, F_hat | args (path) | re-identification ratio | stdout |
-
-   *Example*:
-   ```
-   python ./tool-compare_and.py F.csv F_hat.csv
-   ```
-
-There is also a file which take J(R,P) and J(R',P') and give the re-identification rate:
-
- - tool-compare.py
-
-In my experience only tool-compare_and.py need to be used for the
-re-identification phases, the two other are juste simple copy.
-
-#### Utility metric scripts
-
-All scripts E_i calculate a utility measure that is explain in the subection
-[here](#utility). They have the following characteristics :
-
-| Input    | Way   | Outuput       | Way    |
-| -------- | ----- | ------------- | ------ |
-| J(M,A,T) | stdin | utility ratio | stdout |
-
-   *Example*:
-   ```
-   python ./tool-ncat.py M.csv T.csv AT.csv | python ./E1-ItemCF-s.py
-   ```
-
-#### Security metric scripts
-
-All scripts S_i calculate a security measure that is explain in the subsection [here](#security).
-They have the following characteristics :
-
-| Input    | Way   | Outuput       | Way    |
-| ---      | ---   | ---           | ---    |
-| J(M,S,`T_a`) | stdin | `F_h` | stdout |
-
-   *Example*:
-   ```
-   python ./tool-ncat.py M.csv S.csv `T_a`.csv | python ./S1-datenum.py > `F_h_a.csv`
-   ```
-
-### Misc
-
- - common.py : Read input and write output R. Used in Secutiry and Utility
-   metrics.
-
+Also you can found the method to compare two F files, which is useful in both
+phase and is not a metric itself.
