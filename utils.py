@@ -73,3 +73,49 @@ def compare_f_files(f_orig, f_hat):
         score += round(float(bingo)/float(f_orig.shape[0]), 6)
 
     return score
+
+def check_format_trans_file(dataframe):
+    """ Check the format of an Anonymized Transaction dataset submitted by a participant. Raise an
+    Exception if there is something that does not match the format requiered.
+
+    :dataframe: The dataframe that represent the participant data.
+
+    :Exception: If there is a problem with the file format.
+
+    """
+    #  TODO: Complete the format check if needed otherwise perform some test so we can say "It's all
+    #  Good Man !".<19-06-18, Antoine L.> #
+
+    # Check the number of columns of the DataFrame
+    if dataframe.shape[1] != 6:
+        raise Exception("Dataset should have 6 columns")
+
+    # Check the columns format : should be string, string, string, string, float, int
+    columns = dataframe.columns
+    try:
+        error_type = []
+        for i in range(0, 6):
+            if i < 4:
+                dataframe[columns[i]] = dataframe[columns[i]].apply(lambda x: str(x))
+                error_type.append("string")
+            elif i == 4:
+                dataframe[columns[i]] = dataframe[columns[i]].apply(lambda x: int(x))
+                error_type.append("int")
+            else:
+                dataframe[columns[i]] = dataframe[columns[i]].apply(lambda x: float(x))
+                error_type.append("float")
+    except Exception:
+        raise Exception("Column numero {} should be of type {}".format(i, error_type[i]))
+
+    # Check for NaN value
+    # We don't want to choose a way to interpret a NaN value
+    # It should be done by the participant
+    df_copy = dataframe[dataframe[columns[0]] != 'DEL']
+    size_before = df_copy.shape[0]
+
+    # Remove NaN
+    df_copy = df_copy.dropna()
+    size_after = df_copy.shape[0]
+
+    if size_before != size_after:
+        raise Exception("There should be no NaN value in the data")
