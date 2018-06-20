@@ -49,6 +49,9 @@ class DarcEvaluator:
         # Determine the score depending on the round
         ## ROUND 1
         if self.round == 1:
+            # Check the format of the Anonymized Transaction file
+            check_format_trans_file(submission)
+
             utility_scores, reid_scores, f_file = self._round1(ground_truth, aux_database,\
                                                                submission)
 
@@ -94,8 +97,8 @@ class DarcEvaluator:
 
         :ground_truth: DataFrame representing the ground truth data
         :aux_database: DataFrame containing a list of users present in the ground truth
-        :submission:
-        :returns: TODO
+        :submission: DataFrame representing the anonymized transaction database
+        :returns: both utility and the f_file
 
         """
         # Initialize utility metrics
