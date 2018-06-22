@@ -236,6 +236,7 @@ class DarcEvaluator:
 def main():
     """Main loop
     """
+    print("TESTING: Round 1")
     # Ground truth path for round 1
     answer_file_path = "data/ground_truth.csv"
 
@@ -261,6 +262,19 @@ def main():
     # Instantiate an evaluator
     crowdai_evaluator = DarcEvaluator(answer_file_path, round=1)
     # Evaluate
+    result = crowdai_evaluator.evaluate(_client_payload, _context)
+    print(result)
+
+    print("TESTING : Round 2")
+    # Ground truth path for round 2
+    # It is recovered during the round2 in method evaluate
+
+    # Submission file for round 2
+    _client_payload["submission_file_path"] = os.listdir("./data/teams/F_files/")[0]
+
+    # Instantiate an evaluator
+    crowdai_evaluator = DarcEvaluator(answer_file_path, round=2)
+    #Evaluate
     result = crowdai_evaluator.evaluate(_client_payload, _context)
     print(result)
 
