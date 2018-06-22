@@ -11,6 +11,7 @@ import pandas as pd
 #for itertuples which is A LOT faster than iterrows
 M_COL = {'id_user':1}
 T_COL = {'id_user':1, 'date':2, 'hours':3, 'id_item':4, 'price':5, 'qty':6}
+F_COL = ['id_user', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
 def month_passed(date):
     """ Get the month from a date, month should be between 0 and 11
