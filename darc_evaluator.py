@@ -106,6 +106,24 @@ class DarcEvaluator:
                 score_file.write("Utility score : {}\n".format(primary_score))
                 score_file.write("Re-identification score : {}".format(secondary_score))
 
+            # Count the number of directories inside team folder
+            nb_dir = len([name for name in os.listdir(team_directory) if os.path.isdir(team_directory+name)])
+
+            # Keep only 3 latest attempts
+            if nb_dir > 3:
+                # Work only if we never change dir after creating
+                oldest_dir = min(glob.iglob(team_directory+"/*"), key=os.path.getctime)
+
+                # Check if the selected dir is really the oldest
+                for dir_name in os.listdir(team_directory):
+                    if dir_name.split('_')[-1] < oldest_dir.split('_')[-1]:
+                        oldest_dir = team_directory+dir_name
+
+                infos = '_'.join(oldest_dir.split('/')[-1].split('_')[-2:])
+
+                # Remove the oldest attempt
+                shutil.rmtree(oldest_dir, ignore_errors=False)
+                os.remove(f_directory+"/F_{}_{}.csv".format(team, infos))
 
         # ROUND 2
         elif self.round == 2:
