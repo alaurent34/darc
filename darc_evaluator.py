@@ -236,17 +236,30 @@ class DarcEvaluator:
 def main():
     """Main loop
     """
-    # Lets assume the the ground_truth is a CSV file
-    # and is present at data/ground_truth.csv
-    # and a sample submission is present at data/sample_submission.csv
+    # Ground truth path for round 1
     answer_file_path = "data/ground_truth.csv"
+
     _client_payload = {}
+    # The submission file of the team
+    # For the round 1 : the anonymized transactional database
+    # For the round 2 : the F_hat guessed by the team
+    #                   It consist on the attack done by team submitting to the anonymized
+    #                   transaction of an other team (S).
+    #
+    #                   The name of the S file is formatted as follow :
+    #                   S_[team_name]_[anon_name]_[timestamp] and the F_hat file shall have the same
+    #                   format as the S file attacked. For example if S file is :
+    #                   S_mySuperTeam_attack1_1529601853639.csv, then the F_hat file should be
+    #                   F_a_toto_1529601853639.csv
     _client_payload["submission_file_path"] = "data/submission.csv"
-    # Find a way to recover team name from submission
-    # See with crawai
-    _context = {'team_name':'a'}
+    # Name of the anonymized transaction file (round 1) else ""
+    _client_payload["anon_name"] = "toto"
+
+    _context = {}
+    # Name of the current team who is submitting the file
+    _context["team_name"] = "a"
     # Instantiate an evaluator
-    crowdai_evaluator = DarcEvaluator(answer_file_path)
+    crowdai_evaluator = DarcEvaluator(answer_file_path, round=1)
     # Evaluate
     result = crowdai_evaluator.evaluate(_client_payload, _context)
     print(result)
