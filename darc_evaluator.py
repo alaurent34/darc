@@ -69,14 +69,28 @@ class DarcEvaluator:
             utility_scores, reid_scores, f_file, s_file = self._round1(ground_truth, aux_database,\
                                                                submission)
 
-            # Save he AT file for each team
-            team_directory = "./data/teams/{}".format(_context['team_name'])
-
+            # Create the team folder if not already existing
             if not os.path.exists(team_directory):
                 os.makedirs(team_directory)
 
-            submission.to_csv("{}/AT.csv".format(team_directory), index=False)
-            f_file.to_csv("{}/F.csv".format(team_directory), index=False)
+            # Create the folder for the anonymisation file submit and score get
+            if not os.path.exists(team_directory+"{}_{}".format(anon_name, current_milli_time)):
+                os.makedirs(team_directory+"{}_{}".format(anon_name, current_milli_time))
+
+            # Create folder containing F_files of every teams (used for re-identification)
+            if not os.path.exists(f_directory):
+                os.makedirs(f_directory)
+
+            # Save the AT file for the current team
+            submission.to_csv("{}/{}_{}/AT.csv"\
+                      .format(team_directory, anon_name, current_milli_time), index=False)
+            # Save S file for the current team
+            s_file.to_csv("{}/{}_{}/S_{}_{}_{}.csv"\
+                      .format(team_directory, anon_name, current_milli_time,\
+                              team, anon_name, current_milli_time), index=False)
+            # Save the F file for the current team
+            f_file.to_csv(f_directory+"/F_{}_{}_{}.csv"\
+                  .format(team, anon_name, current_milli_time), index=False)
 
             # Display to the player his scores on all metrics
             for i in range(len(utility_scores)):
@@ -88,10 +102,10 @@ class DarcEvaluator:
             secondary_score = max(reid_scores)
 
             # Save the best score for each team
-            score_file = open("{}/scores.txt".format(team_directory), "w+")
-            score_file.write("Utility score : {}".format(primary_score))
-            score_file.write("Re-identification score : {}".format(secondary_score))
-            score_file.close()
+            with open("{}/{}_{}/scores.txt".format(team_directory, anon_name, current_milli_time), "w+") as score_file:
+                score_file.write("Utility score : {}\n".format(primary_score))
+                score_file.write("Re-identification score : {}".format(secondary_score))
+
 
         # ROUND 2
         elif self.round == 2:
