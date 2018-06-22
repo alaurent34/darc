@@ -127,8 +127,51 @@ class DarcEvaluator:
 
         # ROUND 2
         elif self.round == 2:
-            pass
 
+            # Initialisation of parameters
+            submission_file_path = client_payload["submission_file_path"]
+
+            sub_file_name = submission_file_path.split('/')[-1]
+            infos = "_".join(sub_file_name.split("_")[1:])
+
+            submission = pd.read_csv(submission_file_path, sep=',', engine='c',\
+                                     na_filter=False, low_memory=False)
+            submission.columns = F_COL
+
+            # Read the ground truth file for this attack
+            try:
+                ground_truth = pd.read_csv("./data/teams/F_files/F_{}.csv".format(infos))
+            except Exception:
+                raise Exception("Your attack file name does not match the name standard")
+
+            #######################################
+            ####### Limit the nb of attemps #######
+            #######################################
+
+            # Create the rep to save the attemps for each team
+            if not os.path.exists("./data/teams/aux/"):
+                os.makedirs("./data/teams/aux/")
+
+            try:
+                with open("./data/teams/aux/{}_vs_{}".format(team, sub_file_name), "rb") as file_nb_atcks:
+                    nb_atcks = pickle.load(file_nb_atcks)
+            except FileNotFoundError:
+                nb_atcks = 0
+
+            # Check if they've attacked them 10 times already
+            if nb_atcks >= 10:
+                raise Exception("You've reach your 10 attempts on this file.")
+
+            check_format_f_file(submission)
+            score_reid = self._round2(ground_truth, submission)
+
+            primary_score = score_reid
+
+            nb_atcks +=1
+            with open("./data/teams/aux/{}_vs_{}".format(team, sub_file_name), "wb") as file_nb_atcks:
+                pickle.dump(nb_atcks, file_nb_atcks)
+
+        # Return object
         _result_object = {
             "primary_score": primary_score,
             "secondary_score" : secondary_score
