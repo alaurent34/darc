@@ -65,7 +65,8 @@ class DarcEvaluator:
             # Check the format of the Anonymized Transaction file
             check_format_trans_file(submission)
 
-            utility_scores, reid_scores, f_file = self._round1(ground_truth, aux_database,\
+            # Determine all the scores for a anonymization transaction file
+            utility_scores, reid_scores, f_file, s_file = self._round1(ground_truth, aux_database,\
                                                                submission)
 
             # Save he AT file for each team
@@ -146,6 +147,9 @@ class DarcEvaluator:
 
         # Recover F_orig file
         f_file = reid_m.f_orig
+        s_file = reid_m.anonymized
+
+        return utility_scores, reid_scores, f_file, s_file
 
         return utility_scores, reid_scores, f_file
 
