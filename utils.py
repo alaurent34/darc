@@ -120,3 +120,29 @@ def check_format_trans_file(dataframe):
 
     if size_before != size_after:
         raise Exception("There should be no NaN value in the data")
+
+def check_format_f_file(dataframe):
+    """ Check the format of a guessed F file submitted by a participant. Raise an
+    Exception if there is something that does not match the format requiered.
+
+    :dataframe: The dataframe that represent the participant data.
+
+    :Exception: If there is a problem with the file format.
+
+    """
+    # Check for NaN value
+    # We don't want to choose a way to interpret a NaN value
+    # It should be done by the participant
+    columns = dataframe.columns
+
+    # User_id should not be DEL
+    size_before = df_copy.shape[0]
+    df_copy = dataframe[dataframe[columns[0]] != 'DEL']
+
+    # Remove NaN
+    df_copy = df_copy.dropna()
+    size_after = df_copy.shape[0]
+
+    if size_before != size_after:
+        raise Exception("There should be no NaN value in the data")
+
