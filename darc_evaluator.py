@@ -1,4 +1,10 @@
 import os
+import os.path
+import pickle
+import time
+import shutil
+import glob
+
 import pandas as pd
 import numpy as np
 
@@ -29,26 +35,33 @@ class DarcEvaluator:
         primary_score = None
         secondary_score = None
 
-        # Read the ground truth file
-        ground_truth = pd.read_csv(self.answer_file_path, sep=',', engine='c',\
-                                   na_filter=False, low_memory=False)
-        ground_truth.columns = T_COL.values()
-
-        # Create the dataframe of user in ground truth
-        aux_database = ground_truth[T_COL['id_user']].value_counts()
-        aux_database = list(aux_database.index)
-        aux_database.sort()
-        aux_database = pd.DataFrame(aux_database, columns=M_COL.values())
-
-        # Read the submission file
-        submission_file_path = client_payload["submission_file_path"]
-        submission = pd.read_csv(submission_file_path, sep=',', engine='c',\
-                                 na_filter=False, low_memory=False)
-        submission.columns = T_COL.values()
-
+        # Initialize directory variable
+        team = _context['team_name']
+        team_directory = "./data/teams/{}/".format(team)
+        f_directory = "./data/teams/F_files/"
+        anon_name = client_payload['anon_name']
+        current_milli_time = int(round(time.time() * 1000))
         # Determine the score depending on the round
+
         ## ROUND 1
         if self.round == 1:
+            # Read the ground truth file
+            ground_truth = pd.read_csv(self.answer_file_path, sep=',', engine='c',\
+                                       na_filter=False, low_memory=False)
+            ground_truth.columns = T_COL.values()
+
+            # Create the dataframe of user in ground truth
+            aux_database = ground_truth[T_COL['id_user']].value_counts()
+            aux_database = list(aux_database.index)
+            aux_database.sort()
+            aux_database = pd.DataFrame(aux_database, columns=M_COL.values())
+
+            # Read the submission file
+            submission_file_path = client_payload["submission_file_path"]
+            submission = pd.read_csv(submission_file_path, sep=',', engine='c',\
+                                     na_filter=False, low_memory=False)
+            submission.columns = T_COL.values()
+
             # Check the format of the Anonymized Transaction file
             check_format_trans_file(submission)
 
@@ -68,7 +81,7 @@ class DarcEvaluator:
             for i in range(len(utility_scores)):
                 print("E{} : {}".format(i, utility_scores[i]))
             for i in range(len(reid_scores)):
-                print("E{} : {}".format(i, reid_scores[i]))
+                print("S{} : {}".format(i, reid_scores[i]))
 
             primary_score = max(utility_scores)
             secondary_score = max(reid_scores)
