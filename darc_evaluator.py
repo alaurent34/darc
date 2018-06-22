@@ -226,8 +226,12 @@ class DarcEvaluator:
 
         return utility_scores, reid_scores, f_file, s_file
 
-        return utility_scores, reid_scores, f_file
+    def _round2(self, ground_truth, submission):
+        """TODO: Docstring for _round2.
+        :returns: TODO
 
+        """
+        return generate_f_orig(ground_truth, submission)
 
 def main():
     """Main loop
