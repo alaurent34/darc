@@ -132,7 +132,7 @@ class DarcEvaluator:
             submission_file_path = client_payload["submission_file_path"]
 
             sub_file_name = submission_file_path.split('/')[-1]
-            infos = "_".join(sub_file_name.split("_")[1:])
+            infos = "_".join(sub_file_name.split("_")[1:]).split('.')[0]
 
             submission = pd.read_csv(submission_file_path, sep=',', engine='c',\
                                      na_filter=False, low_memory=False)
@@ -231,7 +231,7 @@ class DarcEvaluator:
         :returns: TODO
 
         """
-        return generate_f_orig(ground_truth, submission)
+        return compare_f_files(ground_truth, submission)
 
 def main():
     """Main loop
