@@ -135,13 +135,15 @@ def check_format_f_file(dataframe):
     # It should be done by the participant
     columns = dataframe.columns
 
+    # We want int64
+    dataframe[columns[0]] = dataframe[columns[0]].apply(lambda x: int(x))
+
     # User_id should not be DEL
-    size_before = df_copy.shape[0]
-    df_copy = dataframe[dataframe[columns[0]] != 'DEL']
+    size_before = dataframe.shape[0]
 
     # Remove NaN
-    df_copy = df_copy.dropna()
-    size_after = df_copy.shape[0]
+    dataframe = dataframe.dropna()
+    size_after = dataframe.shape[0]
 
     if size_before != size_after:
         raise Exception("There should be no NaN value in the data")
