@@ -97,14 +97,14 @@ def check_format_trans_file(dataframe):
         error_type = []
         for i in range(0, 6):
             if i < 4:
-                dataframe[columns[i]] = dataframe[columns[i]].apply(lambda x: str(x))
                 error_type.append("string")
+                dataframe[columns[i]] = dataframe[columns[i]].apply(lambda x: str(x))
             elif i == 4:
-                dataframe[columns[i]] = dataframe[columns[i]].apply(lambda x: int(x))
                 error_type.append("int")
+                dataframe[columns[i]] = dataframe[columns[i]].apply(lambda x: int(x))
             else:
-                dataframe[columns[i]] = dataframe[columns[i]].apply(lambda x: float(x))
                 error_type.append("float")
+                dataframe[columns[i]] = dataframe[columns[i]].apply(lambda x: float(x))
     except Exception:
         raise Exception("Column numero {} should be of type {}".format(i, error_type[i]))
 
