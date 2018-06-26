@@ -25,13 +25,19 @@ def connect_to_bdd(host, port, password):
     :returns: an instance of redis bdd
 
     """
-    #  TODO: Remove identifiant from git  <26-06-18, Antoine Laurent> #
     redis_co = redis.Redis(\
                 host=host,
                 port=port,
                 password=password)
 
     return redis_co
+
+def get_nb_try_reid(team_name, adversary_name, submission_number):
+    """
+    doc
+    """
+
+    pass
 
 def get_three_last_scores(team_name):
     """Recover the three last scores for a team. This is done for displaying three latest
