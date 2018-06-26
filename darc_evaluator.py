@@ -7,9 +7,26 @@ import glob
 
 import pandas as pd
 import numpy as np
+import redis
 
 from utils import *
 import metrics
+
+
+def connect_to_bdd(host, port, password):
+    """Connect to the online BDD redis
+
+    :returns: an instance of redis bdd
+
+    """
+    #  TODO: Remove identifiant from git  <26-06-18, Antoine Laurent> #
+    redis_co = redis.Redis(\
+                host=host,
+                port=port,
+                password=password)
+
+    return redis_co
+
 
 class DarcEvaluator:
     """
