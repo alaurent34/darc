@@ -48,6 +48,53 @@ def get_three_last_scores(team_name):
 
     return scores
 
+def save_first_round_attempt(team_name, at_data, s_data, f_data, score_util, score_reid):
+    """Save the attempt of team `team_name`. Attempt are stored as Y_TEAM_NAME_attempt_X
+    with Y in :
+            - AT : the submission
+            - S : AT with DEL row deleted
+            - F : correspondance between id and pseudo
+            - score_util : utility score for AT
+            - score_reid : re-identification score for S
+    and X in {0, 1, 2}, the attempt number
+
+    :team_name: The name of the team submitting the anonymized file.
+    :at_data: the submission
+    :s_data: AT with DEL row deleted
+    :f_data: correspondance between id and pseudo
+    :score_util: utility score for AT
+    :score_reid: re-identification score for S
+
+    """
+    redis_co = connect_to_bdd(HOST, PORT, PASSWORD)
+
+    nb_attempts = redis_co.get("{}_nb_attempts_ano".format(team_name))
+
+    if not nb_attempts:
+        nb_attempts = 0
+
+    # Save AT on redis BDD
+    redis_co.set("AT_{}_attempt_{}".format(team_name, nb_attempts),\
+                                           at_data.to_msgpack(compress='zlib'))
+    # Save S on redis BDD
+    redis_co.set("S_{}_attempt_{}".format(team_name, nb_attempts),\
+                                          s_data.to_msgpack(compress='zlib'))
+    # Save F on redis BDD
+    redis_co.set("F_{}_attempt_{}".format(team_name, nb_attempts),\
+                                          f_data.to_msgpack(compress='zlib'))
+    # Save utility score in redis BDD
+    redis_co.set("score_util_{}_attempt_{}".format(team_name, nb_attempts),\
+                                                   score_util)
+    # Save re-identification score in redis BDD
+    redis_co.set("score_reid_{}_attempt_{}".format(team_name, nb_attempts),\
+                                                   score_reid)
+
+    scores = get_three_last_scores(team_name)
+
+    redis_co.set("{}_nb_attempts_ano".format(team_name), (nb_attempts + 1)%3)
+
+    return scores
+
 
 class DarcEvaluator:
     """
