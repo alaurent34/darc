@@ -227,8 +227,11 @@ class DarcEvaluator:
         return utility_scores, reid_scores, f_file, s_file
 
     def _round2(self, ground_truth, submission):
-        """TODO: Docstring for _round2.
-        :returns: TODO
+        """ Return the re-identification score done by the team submitting on the file anonymized by
+        another team.
+
+        It's the score of this team we have to move in the classement.
+        :returns: the re-identification score obtained by the anonymized file.
 
         """
         return compare_f_files(ground_truth, submission)
