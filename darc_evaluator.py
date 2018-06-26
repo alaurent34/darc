@@ -1,9 +1,15 @@
+"""
+File: darc_evaluator.py
+Author: Antoine Laurent
+Email: laurent.antoine@courrier.uqam.ca
+Github: https://github.com/Drayer34
+Description: TODO
+"""
+
 import os
 import os.path
 import pickle
 import time
-import shutil
-import glob
 
 import pandas as pd
 import numpy as np
@@ -116,20 +122,14 @@ class DarcEvaluator:
           - submission_file_path : local file path of the submitted file
         """
 
-        # Initialize the score variables, 2nd one is just use for the first round
-        primary_score = None
-        secondary_score = None
 
         # Initialize directory variable
         team = _context['team_name']
-        team_directory = "./data/teams/{}/".format(team)
-        f_directory = "./data/teams/F_files/"
-        anon_name = client_payload['anon_name']
-        current_milli_time = int(round(time.time() * 1000))
         # Determine the score depending on the round
 
         ## ROUND 1
         if self.round == 1:
+
             # Read the ground truth file
             ground_truth = pd.read_csv(self.answer_file_path, sep=',', engine='c',\
                                        na_filter=False, low_memory=False)
@@ -154,61 +154,11 @@ class DarcEvaluator:
             utility_scores, reid_scores, f_file, s_file = self._round1(ground_truth, aux_database,\
                                                                submission)
 
-            # Create the team folder if not already existing
-            if not os.path.exists(team_directory):
-                os.makedirs(team_directory)
+            # Save all informations about this attempt and get 3 last scores
+            _result_object = save_first_round_attempt(team, submission, s_file, f_file,\
+                                                      utility_scores, reid_scores)
 
-            # Create the folder for the anonymisation file submit and score get
-            if not os.path.exists(team_directory+"{}_{}".format(anon_name, current_milli_time)):
-                os.makedirs(team_directory+"{}_{}".format(anon_name, current_milli_time))
-
-            # Create folder containing F_files of every teams (used for re-identification)
-            if not os.path.exists(f_directory):
-                os.makedirs(f_directory)
-
-            # Save the AT file for the current team
-            submission.to_csv("{}/{}_{}/AT.csv"\
-                      .format(team_directory, anon_name, current_milli_time), index=False)
-            # Save S file for the current team
-            s_file.to_csv("{}/{}_{}/S_{}_{}_{}.csv"\
-                      .format(team_directory, anon_name, current_milli_time,\
-                              team, anon_name, current_milli_time), index=False)
-            # Save the F file for the current team
-            f_file.to_csv(f_directory+"/F_{}_{}_{}.csv"\
-                  .format(team, anon_name, current_milli_time), index=False)
-
-            # Display to the player his scores on all metrics
-            for i in range(len(utility_scores)):
-                print("E{} : {}".format(i, utility_scores[i]))
-            for i in range(len(reid_scores)):
-                print("S{} : {}".format(i, reid_scores[i]))
-
-            primary_score = max(utility_scores)
-            secondary_score = max(reid_scores)
-
-            # Save the best score for each team
-            with open("{}/{}_{}/scores.txt".format(team_directory, anon_name, current_milli_time), "w+") as score_file:
-                score_file.write("Utility score : {}\n".format(primary_score))
-                score_file.write("Re-identification score : {}".format(secondary_score))
-
-            # Count the number of directories inside team folder
-            nb_dir = len([name for name in os.listdir(team_directory) if os.path.isdir(team_directory+name)])
-
-            # Keep only 3 latest attempts
-            if nb_dir > 3:
-                # Work only if we never change dir after creating
-                oldest_dir = min(glob.iglob(team_directory+"/*"), key=os.path.getctime)
-
-                # Check if the selected dir is really the oldest
-                for dir_name in os.listdir(team_directory):
-                    if dir_name.split('_')[-1] < oldest_dir.split('_')[-1]:
-                        oldest_dir = team_directory+dir_name
-
-                infos = '_'.join(oldest_dir.split('/')[-1].split('_')[-2:])
-
-                # Remove the oldest attempt
-                shutil.rmtree(oldest_dir, ignore_errors=False)
-                os.remove(f_directory+"/F_{}_{}.csv".format(team, infos))
+            return _result_object
 
         # ROUND 2
         elif self.round == 2:
@@ -250,19 +200,20 @@ class DarcEvaluator:
             check_format_f_file(submission)
             score_reid = self._round2(ground_truth, submission)
 
-            primary_score = score_reid
+            reidentification_score = score_reid
 
             nb_atcks +=1
             with open("./data/teams/aux/{}_vs_{}".format(team, sub_file_name), "wb") as file_nb_atcks:
                 pickle.dump(nb_atcks, file_nb_atcks)
 
-        # Return object
-        _result_object = {
-            "primary_score": primary_score,
-            "secondary_score" : secondary_score
-            }
+            # Return object
+            _result_object = {
+                "reidentification_score": reidentification_score,
+                }
 
-        return _result_object
+            return _result_object
+
+        return None
 
     def _round1(self, ground_truth, aux_database, submission):
         """Compute score for the 1st round of the competition. Score are based on utility metrics
