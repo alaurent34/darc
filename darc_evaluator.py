@@ -27,6 +27,27 @@ def connect_to_bdd(host, port, password):
 
     return redis_co
 
+def get_three_last_scores(team_name):
+    """Recover the three last scores for a team. This is done for displaying three latest
+    submission in crowdAI platform.
+
+    :team_name: The name of the team submitting the anonymized file.
+    :returns: list of all the scores.
+
+    """
+    redis_co = connect_to_bdd(HOST, PORT, PASSWORD)
+
+    scores = []
+
+    for i in range(3):
+        scores[i] = {}
+        scores[i]["utility_score"] = max(redis_co.get("score_util_{}_attempt_{}"\
+                                                 .format(team_name, i))) or 'Not computed yet'
+        scores[i]["reid_score"] = max(redis_co.get("score_util_{}_attempt_{}"\
+                                                 .format(team_name, i))) or 'Not computed yet'
+
+    return scores
+
 
 class DarcEvaluator:
     """
