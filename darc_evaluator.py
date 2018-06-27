@@ -134,6 +134,14 @@ class RedisConnection(object):
 
         return scores
 
+    def set_value(self, value, adress):
+        """ Set the value into redis BDD.
+
+        :value: the value to set into the redis BDD.
+        :adress: the adress where to set the value.
+        """
+        self._redis_co.set(adress, value)
+
 
 class DarcEvaluator:
     """
