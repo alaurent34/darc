@@ -57,7 +57,18 @@ class RedisConnection(object):
         redis_get = "{}_vs_{}_file_{}".format(team_name, opponent_name, submission_number)
         return int(self._redis_co.get(redis_get)) or 0
 
+    def set_nb_try_reid(self, nb_trys, team_name, opponent_name, submission_number):
+        """Set the number of attempts the team as made against one opponent team and their
+        submission dataset.
 
+        :nb_trys: the number of attempts to set
+        :team_name: the name of the attacking team.
+        :opponent_name: the name of the opponent team
+        :submission_number: the file (1, 2, or 3) of the opponent team attacked.
+
+        """
+        redis_set = "{}_vs_{}_file_{}".format(team_name, opponent_name, submission_number)
+        self._redis_co.set(redis_set, nb_trys)
 
     def get_three_last_scores(self, team_name):
         """Recover the three last scores for a team. This is done for displaying three latest
