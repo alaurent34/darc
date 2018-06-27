@@ -142,6 +142,13 @@ class RedisConnection(object):
         """
         self._redis_co.set(adress, value)
 
+    def get_value(self, adress):
+        """ Get the value at adress `adress` into redis BDD.
+
+        :adress: the adress where to get the value.
+        """
+        return self._redis_co.get(adress)
+
 
 class DarcEvaluator:
     """
