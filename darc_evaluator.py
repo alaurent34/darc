@@ -199,7 +199,9 @@ class DarcEvaluator:
             check_format_trans_file(submission)
 
             # Determine all the scores for a anonymization transaction file
-            utility_scores, reid_scores, f_file, s_file = self._round1(ground_truth, aux_database,\
+            utility_scores, reid_scores, f_file, s_file = self._compute_score_round1(\
+                                                               ground_truth,\
+                                                               aux_database,\
                                                                submission)
 
             # Save all informations about this attempt and get 3 last scores
@@ -243,7 +245,7 @@ class DarcEvaluator:
 
             # Compute score for round 2
             check_format_f_file(submission)
-            reidentification_score  = self._round2(ground_truth, submission)
+            reidentification_score = self._compute_score_round2(ground_truth, submission)
 
             # Increment by 1 the number of attempts
             redis_co.set_nb_try_reid(nb_atcks+1, team, opponent_name, submission_number)
@@ -257,7 +259,7 @@ class DarcEvaluator:
 
         return None
 
-    def _round1(self, ground_truth, aux_database, submission):
+    def _compute_score_round1(self, ground_truth, aux_database, submission):
         """Compute score for the 1st round of the competition. Score are based on utility metrics
         and Re-identification metrics. The score kept is the max of each category. Score go from 0
         (best) to 1 (worst).
@@ -304,7 +306,7 @@ class DarcEvaluator:
 
         return utility_scores, reid_scores, f_file, s_file
 
-    def _round2(self, ground_truth, submission):
+    def _compute_score_round2(self, ground_truth, submission):
         """ Return the re-identification score done by the team submitting on the file anonymized by
         another team.
 
