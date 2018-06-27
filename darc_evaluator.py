@@ -9,7 +9,6 @@ Description: TODO
 import os
 import os.path
 import pickle
-import time
 
 import pandas as pd
 import numpy as np
@@ -18,94 +17,111 @@ import redis
 from utils import *
 import metrics
 
+class RedisConnection(object):
 
-def connect_to_bdd(host, port, password):
-    """Connect to the online BDD redis
+    """Docstring for RedisConnection. """
 
-    :returns: an instance of redis bdd
+    def __init__(self, host, port, password):
+        """TODO: to be defined1. """
+        self._host = host
+        self._port = port
+        self._password = password
+        self._redis_co = self.connect_to_bdd()
 
-    """
-    redis_co = redis.Redis(\
-                host=host,
-                port=port,
-                password=password)
 
-    return redis_co
+    def connect_to_bdd(self):
+        """Connect to the online BDD redis
 
-def get_nb_try_reid(team_name, adversary_name, submission_number):
-    """
-    doc
-    """
+        :returns: an instance of redis bdd
 
-    pass
+        """
+        redis_co = redis.Redis(\
+                    host=self._host,
+                    port=self._port,
+                    password=self._password)
 
-def get_three_last_scores(team_name):
-    """Recover the three last scores for a team. This is done for displaying three latest
-    submission in crowdAI platform.
+        return redis_co
 
-    :team_name: The name of the team submitting the anonymized file.
-    :returns: list of all the scores.
+    def get_nb_try_reid(self, team_name, opponent_name, submission_number):
+        """ Return the number of attempts the team as made against one opponent team and their
+        submission dataset.
 
-    """
-    redis_co = connect_to_bdd(HOST, PORT, PASSWORD)
+        :team_name: the name of the attacking team.
+        :opponent_name: the name of the opponent team
+        :submission_number: the file (1, 2, or 3) of the opponent team attacked.
 
-    scores = []
+        :return: Number of attempts made by team A against team B file.
+        """
 
-    for i in range(3):
-        scores[i] = {}
-        scores[i]["utility_score"] = max(redis_co.get("score_util_{}_attempt_{}"\
-                                                 .format(team_name, i))) or 'Not computed yet'
-        scores[i]["reid_score"] = max(redis_co.get("score_util_{}_attempt_{}"\
-                                                 .format(team_name, i))) or 'Not computed yet'
+        # Return the number of attempts or 0 if there is no value at regis_get address.
+        redis_get = "{}_vs_{}_file_{}".format(team_name, opponent_name, submission_number)
+        return int(self._redis_co.get(redis_get)) or 0
 
-    return scores
 
-def save_first_round_attempt(team_name, at_data, s_data, f_data, score_util, score_reid):
-    """Save the attempt of team `team_name`. Attempt are stored as Y_TEAM_NAME_attempt_X
-    with Y in :
-            - AT : the submission
-            - S : AT with DEL row deleted
-            - F : correspondance between id and pseudo
-            - score_util : utility score for AT
-            - score_reid : re-identification score for S
-    and X in {0, 1, 2}, the attempt number
 
-    :team_name: The name of the team submitting the anonymized file.
-    :at_data: the submission
-    :s_data: AT with DEL row deleted
-    :f_data: correspondance between id and pseudo
-    :score_util: utility score for AT
-    :score_reid: re-identification score for S
+    def get_three_last_scores(self, team_name):
+        """Recover the three last scores for a team. This is done for displaying three latest
+        submission in crowdAI platform.
 
-    """
-    redis_co = connect_to_bdd(HOST, PORT, PASSWORD)
+        :team_name: The name of the team submitting the anonymized file.
+        :returns: list of all the scores.
 
-    nb_attempts = redis_co.get("{}_nb_attempts_ano".format(team_name))
+        """
+        scores = []
 
-    if not nb_attempts:
-        nb_attempts = 0
+        for i in range(3):
+            scores[i] = {}
+            scores[i]["utility_score"] = max(self._redis_co.get("score_util_{}_attempt_{}"\
+                                                     .format(team_name, i))) or 'Not computed yet'
+            scores[i]["reid_score"] = max(self._redis_co.get("score_util_{}_attempt_{}"\
+                                                     .format(team_name, i))) or 'Not computed yet'
 
-    # Save AT on redis BDD
-    redis_co.set("AT_{}_attempt_{}".format(team_name, nb_attempts),\
-                                           at_data.to_msgpack(compress='zlib'))
-    # Save S on redis BDD
-    redis_co.set("S_{}_attempt_{}".format(team_name, nb_attempts),\
-                                          s_data.to_msgpack(compress='zlib'))
-    # Save F on redis BDD
-    redis_co.set("F_{}_attempt_{}".format(team_name, nb_attempts),\
-                                          f_data.to_msgpack(compress='zlib'))
-    # Save utility score in redis BDD
-    redis_co.set("score_util_{}_attempt_{}".format(team_name, nb_attempts),\
-                                                   score_util)
-    # Save re-identification score in redis BDD
-    redis_co.set("score_reid_{}_attempt_{}".format(team_name, nb_attempts),\
-                                                   score_reid)
+        return scores
 
-    scores = get_three_last_scores(team_name)
+    def save_first_round_attempt(self, team_name, at_data, s_data, f_data, score_util, score_reid):
+        """Save the attempt of team `team_name`. Attempt are stored as Y_TEAM_NAME_attempt_X
+        with Y in :
+                - AT : the submission
+                - S : AT with DEL row deleted
+                - F : correspondance between id and pseudo
+                - score_util : utility score for AT
+                - score_reid : re-identification score for S
+        and X in {0, 1, 2}, the attempt number
 
-    redis_co.set("{}_nb_attempts_ano".format(team_name), (nb_attempts + 1)%3)
+        :team_name: The name of the team submitting the anonymized file.
+        :at_data: the submission
+        :s_data: AT with DEL row deleted
+        :f_data: correspondance between id and pseudo
+        :score_util: utility score for AT
+        :score_reid: re-identification score for S
 
-    return scores
+        """
+        nb_attempts = self._redis_co.get("{}_nb_attempts_ano".format(team_name))
+
+        if not nb_attempts:
+            nb_attempts = 0
+
+        # Save AT on redis BDD
+        self._redis_co.set("AT_{}_attempt_{}".format(team_name, nb_attempts),\
+                                               at_data.to_msgpack(compress='zlib'))
+        # Save S on redis BDD
+        self._redis_co.set("S_{}_attempt_{}".format(team_name, nb_attempts),\
+                                              s_data.to_msgpack(compress='zlib'))
+        # Save F on redis BDD
+        self._redis_co.set("F_{}_attempt_{}".format(team_name, nb_attempts),\
+                                              f_data.to_msgpack(compress='zlib'))
+        # Save utility score in redis BDD
+        self._redis_co.set("score_util_{}_attempt_{}".format(team_name, nb_attempts),\
+                                                       score_util)
+        # Save re-identification score in redis BDD
+        self._redis_co.set("score_reid_{}_attempt_{}".format(team_name, nb_attempts),\
+                                                       score_reid)
+
+        scores = self.get_three_last_scores(team_name)
+
+        self._redis_co.set("{}_nb_attempts_ano".format(team_name), (nb_attempts + 1)%3)
+
+        return scores
 
 
 class DarcEvaluator:
@@ -128,10 +144,10 @@ class DarcEvaluator:
           - submission_file_path : local file path of the submitted file
         """
 
-
         # Initialize directory variable
         team = _context['team_name']
         # Determine the score depending on the round
+        redis_co = RedisConnection(HOST, PORT, PASSWORD)
 
         ## ROUND 1
         if self.round == 1:
@@ -161,7 +177,7 @@ class DarcEvaluator:
                                                                submission)
 
             # Save all informations about this attempt and get 3 last scores
-            _result_object = save_first_round_attempt(team, submission, s_file, f_file,\
+            _result_object = redis_co.save_first_round_attempt(team, submission, s_file, f_file,\
                                                       utility_scores, reid_scores)
 
             return _result_object
