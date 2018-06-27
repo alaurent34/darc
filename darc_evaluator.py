@@ -214,45 +214,39 @@ class DarcEvaluator:
             # Initialisation of parameters
             submission_file_path = client_payload["submission_file_path"]
 
+            # Recover the submission number at the end of the filename
             sub_file_name = submission_file_path.split('/')[-1]
-            infos = "_".join(sub_file_name.split("_")[1:]).split('.')[0]
+            submission_number = sub_file_name.split("_")[-1]
+            # Recover opponent team name
+            opponent_name = sub_file_name.split("_")[1]
 
             submission = pd.read_csv(submission_file_path, sep=',', engine='c',\
                                      na_filter=False, low_memory=False)
             submission.columns = F_COL
 
             # Read the ground truth file for this attack
-            try:
-                ground_truth = pd.read_csv("./data/teams/F_files/F_{}.csv".format(infos))
-            except Exception:
-                raise Exception("Your attack file name does not match the name standard")
+            adress_redis = "F_{}_attempt_{}".format(opponent_name, submission_number)
+            f_file = pd.read_msgpack(redis_co.get_value(adress_redis))
+
+            if not f_file:
+                raise Exception("Your attack file name does not match the name standard.")
 
             #######################################
             ####### Limit the nb of attemps #######
             #######################################
 
-            # Create the rep to save the attemps for each team
-            if not os.path.exists("./data/teams/aux/"):
-                os.makedirs("./data/teams/aux/")
-
-            try:
-                with open("./data/teams/aux/{}_vs_{}".format(team, sub_file_name), "rb") as file_nb_atcks:
-                    nb_atcks = pickle.load(file_nb_atcks)
-            except FileNotFoundError:
-                nb_atcks = 0
+            nb_atcks = redis_co.get_nb_try_reid(team, opponent_name, submission_number)
 
             # Check if they've attacked them 10 times already
             if nb_atcks >= 10:
                 raise Exception("You've reach your 10 attempts on this file.")
 
+            # Compute score for round 2
             check_format_f_file(submission)
-            score_reid = self._round2(ground_truth, submission)
+            reidentification_score  = self._round2(ground_truth, submission)
 
-            reidentification_score = score_reid
-
-            nb_atcks +=1
-            with open("./data/teams/aux/{}_vs_{}".format(team, sub_file_name), "wb") as file_nb_atcks:
-                pickle.dump(nb_atcks, file_nb_atcks)
+            # Increment by 1 the number of attempts
+            redis_co.set_nb_try_reid(nb_atcks+1, team, opponent_name, submission_number)
 
             # Return object
             _result_object = {
@@ -335,16 +329,16 @@ def main():
     #                   transaction of an other team (S).
     #
     #                   The name of the S file is formatted as follow :
-    #                   S_[team_name]_[anon_name]_[timestamp] and the F_hat file shall have the same
+    #                   S_[team_name]_attempt_[attempt_nb] and the F_hat file shall have the same
     #                   format as the S file attacked. For example if S file is :
-    #                   S_mySuperTeam_attack1_1529601853639.csv, then the F_hat file should be
-    #                   F_a_toto_1529601853639.csv
+    #                   S_mySuperTeam_attempt_1.csv, then the F_hat file should be
+    #                   F_mySuperTeam_attemot_1.csv
     _client_payload["submission_file_path"] = "data/submission.csv"
     # Name of the anonymized transaction file (round 1) else ""
-    _client_payload["anon_name"] = "toto"
 
     _context = {}
     # Name of the current team who is submitting the file
+    # It **SHALL** not contains "_" char.
     _context["team_name"] = "a"
     # Instantiate an evaluator
     crowdai_evaluator = DarcEvaluator(answer_file_path, round=1)
