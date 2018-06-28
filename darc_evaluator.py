@@ -3,7 +3,8 @@ File: darc_evaluator.py
 Author: Antoine Laurent
 Email: laurent.antoine@courrier.uqam.ca
 Github: https://github.com/Drayer34
-Description: TODO
+Description: Evaluator used in the context of the DARC (Data Anonymization and Re-identification
+Competition).
 """
 
 import os
@@ -78,10 +79,18 @@ def compute_score_round2(ground_truth, submission):
 
 class RedisConnection(object):
 
-    """Docstring for RedisConnection. """
+    """Class to control redis data base and stock team submission scores.
+    The data base is store by the organizator of the competition
+
+    """
 
     def __init__(self, host, port, password):
-        """TODO: to be defined1. """
+        """Initialization method
+
+        :host: adresse of the host for the redis data base.
+        :port: port for the host.
+        :password: password of the data base.
+        """
         self._host = host
         self._port = port
         self._password = password
