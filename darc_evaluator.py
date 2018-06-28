@@ -16,6 +16,7 @@ import redis
 
 from utils import *
 import metrics
+import preprocessing
 
 def compute_score_round1(ground_truth, aux_database, submission):
     """Compute score for the 1st round of the competition. Score are based on utility metrics
@@ -229,29 +230,17 @@ class DarcEvaluator:
         """
 
         # Initialize directory variable
-        team = _context['team_name']
-        # Determine the score depending on the round
+        team_name = _context['team_name']
+        submission_file_path = client_payload["submission_file_path"]
         redis_co = RedisConnection(HOST, PORT, PASSWORD)
 
         ## ROUND 1
         if self.round == 1:
 
-            # Read the ground truth file
-            ground_truth = pd.read_csv(self.answer_file_path, sep=',', engine='c',\
-                                       na_filter=False, low_memory=False)
-            ground_truth.columns = T_COL.values()
-
-            # Create the dataframe of user in ground truth
-            aux_database = ground_truth[T_COL['id_user']].value_counts()
-            aux_database = list(aux_database.index)
-            aux_database.sort()
-            aux_database = pd.DataFrame(aux_database, columns=M_COL.values())
-
-            # Read the submission file
-            submission_file_path = client_payload["submission_file_path"]
-            submission = pd.read_csv(submission_file_path, sep=',', engine='c',\
-                                     na_filter=False, low_memory=False)
-            submission.columns = T_COL.values()
+            # Read database from files
+            ground_truth, aux_database, submission = preprocessing.round1_preprocessing(\
+                                                            self.answer_file_path,\
+                                                            submission_file_path)
 
             # Check the format of the Anonymized Transaction file
             check_format_trans_file(submission)
@@ -271,33 +260,15 @@ class DarcEvaluator:
         # ROUND 2
         elif self.round == 2:
 
-            # Initialisation of parameters
-            submission_file_path = client_payload["submission_file_path"]
-
-            # Recover the submission number at the end of the filename
-            sub_file_name = submission_file_path.split('/')[-1]
-            submission_number = sub_file_name.split("_")[-1]
-            # Recover opponent team name
-            opponent_name = sub_file_name.split("_")[1]
-
-            submission = pd.read_csv(submission_file_path, sep=',', engine='c',\
-                                     na_filter=False, low_memory=False)
-            submission.columns = F_COL
-
-            # Read the ground truth file for this attack
-            adress_redis = "F_{}_attempt_{}".format(opponent_name, submission_number)
-            f_file = pd.read_msgpack(redis_co.get_value(adress_redis))
-
-            if not f_file:
-                raise Exception("Your attack file name does not match the name standard.")
-
-            #######################################
-            ####### Limit the nb of attemps #######
-            #######################################
-
-            nb_atcks = redis_co.get_nb_try_reid(team, opponent_name, submission_number)
+            # Read submitted files and ground truth
+            ground_truth,\
+                submission,\
+                submission_number,\
+                opponent_name = preprocessing.round2_preprocessing(submission_file_path,\
+                                                                   self.redis_co)
 
             # Check if they've attacked them 10 times already
+            nb_atcks = redis_co.get_nb_try_reid(team_name, opponent_name, submission_number)
             if nb_atcks >= 10:
                 raise Exception("You've reach your 10 attempts on this file.")
 
