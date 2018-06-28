@@ -222,6 +222,8 @@ class DarcEvaluator:
         """
         self.answer_file_path = answer_file_path
         self.round = round
+        # Determine the score depending on the round
+        self.redis_co = RedisConnection(HOST, PORT, PASSWORD)
 
     def evaluate(self, client_payload, _context={}):
         """
@@ -232,7 +234,6 @@ class DarcEvaluator:
         # Initialize directory variable
         team_name = _context['team_name']
         submission_file_path = client_payload["submission_file_path"]
-        redis_co = RedisConnection(HOST, PORT, PASSWORD)
 
         ## ROUND 1
         if self.round == 1:
@@ -251,9 +252,14 @@ class DarcEvaluator:
                                                                aux_database,\
                                                                submission)
 
-            # Save all informations about this attempt and get 3 last scores
-            _result_object = redis_co.save_first_round_attempt(team, submission, s_file, f_file,\
-                                                      utility_scores, reid_scores)
+            # Save all informations about this attempt and get 3 last scores, it's a **list of dic**
+            _result_object = self.redis_co.save_first_round_attempt(\
+                                                      team_name,\
+                                                      submission,\
+                                                      s_file,\
+                                                      f_file,\
+                                                      utility_scores,\
+                                                      reid_scores)
 
             return _result_object
 
@@ -268,7 +274,7 @@ class DarcEvaluator:
                                                                    self.redis_co)
 
             # Check if they've attacked them 10 times already
-            nb_atcks = redis_co.get_nb_try_reid(team_name, opponent_name, submission_number)
+            nb_atcks = self.redis_co.get_nb_try_reid(team_name, opponent_name, submission_number)
             if nb_atcks >= 10:
                 raise Exception("You've reach your 10 attempts on this file.")
 
@@ -277,7 +283,7 @@ class DarcEvaluator:
             reidentification_score = compute_score_round2(ground_truth, submission)
 
             # Increment by 1 the number of attempts
-            redis_co.set_nb_try_reid(nb_atcks+1, team, opponent_name, submission_number)
+            self.redis_co.set_nb_try_reid(nb_atcks+1, team_name, opponent_name, submission_number)
 
             # Return object
             _result_object = {
