@@ -8,8 +8,8 @@ the DARC competition.
 """
 
 def round1_preprocessing(ground_truth_file_path, submission_file_path):
-    """TODO: Docstring for round1_processing.
-    :returns: TODO
+    """Read data for round 1 for Darc Evaluator.
+    :returns: all data read.
 
     """
     # Read the ground truth file
@@ -31,8 +31,8 @@ def round1_preprocessing(ground_truth_file_path, submission_file_path):
     return ground_truth, aux_database, submission
 
 def round2_preprocessing(submission_file_path, redis_co):
-    """TODO: Docstring for round1_processing.
-    :returns: TODO
+    """Read data for round 2 for Darc Evaluator.
+    :returns: all data read.
 
     """
 
