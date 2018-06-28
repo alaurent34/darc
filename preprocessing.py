@@ -40,7 +40,7 @@ def round2_preprocessing(submission_file_path, redis_co):
     """
 
     # Recover the submission number at the end of the filename
-    sub_file_name = submission_file_path.split('/')[-1]
+    sub_file_name = submission_file_path.split('/')[-1].split('.')[0]
     submission_number = sub_file_name.split("_")[-1]
     # Recover opponent team name
     opponent_name = sub_file_name.split("_")[1]
