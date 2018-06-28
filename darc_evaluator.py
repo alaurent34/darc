@@ -340,7 +340,7 @@ def main():
     # It is recovered during the round2 in method evaluate
 
     # Submission file for round 2
-    _client_payload["submission_file_path"] = os.listdir("./data/teams/F_files/")[0]
+    _client_payload["submission_file_path"] = "./data/testing/F_a_attempt_1.csv"
 
     # Instantiate an evaluator
     crowdai_evaluator = DarcEvaluator(answer_file_path, round=2)
