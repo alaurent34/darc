@@ -1,3 +1,6 @@
+import pandas as pd
+from utils import T_COL, F_COL, M_COL
+
 """
 File: preprocessing.py
 Author: Antoine Laurent
