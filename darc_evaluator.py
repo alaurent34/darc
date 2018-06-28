@@ -17,6 +17,64 @@ import redis
 from utils import *
 import metrics
 
+def compute_score_round1(ground_truth, aux_database, submission):
+    """Compute score for the 1st round of the competition. Score are based on utility metrics
+    and Re-identification metrics. The score kept is the max of each category. Score go from 0
+    (best) to 1 (worst).
+
+    :ground_truth: DataFrame representing the ground truth data
+    :aux_database: DataFrame containing a list of users present in the ground truth
+    :submission: DataFrame representing the anonymized transaction database
+    :returns: both utility and the f_file
+
+    """
+    # Initialize utility metrics
+    utility_m = metrics.UtilityMetrics(aux_database, ground_truth, submission)
+
+    print("Compute Utility metrics")
+    # Compute all the utility metrics
+    utility_m.e1_metric()
+    utility_m.e2_metric()
+    utility_m.e3_metric()
+    utility_m.e4_metric()
+    utility_m.e5_metric()
+    utility_m.e6_metric()
+
+    # Recover the utility scores
+    utility_scores = utility_m.current_score
+
+    # Initialize re-identification metrics
+    reid_m = metrics.ReidentificationMetrics(aux_database, ground_truth, submission)
+
+    print("Compute Re-identification metrics")
+    # Compute all the re-identificaiton metrics
+    reid_m.s1_metrics()
+    reid_m.s2_metrics()
+    reid_m.s3_metrics()
+    reid_m.s4_metrics()
+    reid_m.s5_metrics()
+    reid_m.s6_metrics()
+
+    # Recover the re-identification scores
+    reid_scores = reid_m.current_score
+
+    # Recover F_orig file
+    f_file = reid_m.f_orig
+    s_file = reid_m.anonymized
+
+    return utility_scores, reid_scores, f_file, s_file
+
+def compute_score_round2(ground_truth, submission):
+    """ Return the re-identification score done by the team submitting on the file anonymized by
+    another team.
+
+    It's the score of this team we have to move in the classement.
+    :returns: the re-identification score obtained by the anonymized file.
+
+    """
+    return compare_f_files(ground_truth, submission)
+
+
 class RedisConnection(object):
 
     """Docstring for RedisConnection. """
@@ -199,7 +257,7 @@ class DarcEvaluator:
             check_format_trans_file(submission)
 
             # Determine all the scores for a anonymization transaction file
-            utility_scores, reid_scores, f_file, s_file = self._compute_score_round1(\
+            utility_scores, reid_scores, f_file, s_file = compute_score_round1(\
                                                                ground_truth,\
                                                                aux_database,\
                                                                submission)
@@ -245,7 +303,7 @@ class DarcEvaluator:
 
             # Compute score for round 2
             check_format_f_file(submission)
-            reidentification_score = self._compute_score_round2(ground_truth, submission)
+            reidentification_score = compute_score_round2(ground_truth, submission)
 
             # Increment by 1 the number of attempts
             redis_co.set_nb_try_reid(nb_atcks+1, team, opponent_name, submission_number)
@@ -259,62 +317,6 @@ class DarcEvaluator:
 
         return None
 
-    def _compute_score_round1(self, ground_truth, aux_database, submission):
-        """Compute score for the 1st round of the competition. Score are based on utility metrics
-        and Re-identification metrics. The score kept is the max of each category. Score go from 0
-        (best) to 1 (worst).
-
-        :ground_truth: DataFrame representing the ground truth data
-        :aux_database: DataFrame containing a list of users present in the ground truth
-        :submission: DataFrame representing the anonymized transaction database
-        :returns: both utility and the f_file
-
-        """
-        # Initialize utility metrics
-        utility_m = metrics.UtilityMetrics(aux_database, ground_truth, submission)
-
-        print("Compute Utility metrics")
-        # Compute all the utility metrics
-        utility_m.e1_metric()
-        utility_m.e2_metric()
-        utility_m.e3_metric()
-        utility_m.e4_metric()
-        utility_m.e5_metric()
-        utility_m.e6_metric()
-
-        # Recover the utility scores
-        utility_scores = utility_m.current_score
-
-        # Initialize re-identification metrics
-        reid_m = metrics.ReidentificationMetrics(aux_database, ground_truth, submission)
-
-        print("Compute Re-identification metrics")
-        # Compute all the re-identificaiton metrics
-        reid_m.s1_metrics()
-        reid_m.s2_metrics()
-        reid_m.s3_metrics()
-        reid_m.s4_metrics()
-        reid_m.s5_metrics()
-        reid_m.s6_metrics()
-
-        # Recover the re-identification scores
-        reid_scores = reid_m.current_score
-
-        # Recover F_orig file
-        f_file = reid_m.f_orig
-        s_file = reid_m.anonymized
-
-        return utility_scores, reid_scores, f_file, s_file
-
-    def _compute_score_round2(self, ground_truth, submission):
-        """ Return the re-identification score done by the team submitting on the file anonymized by
-        another team.
-
-        It's the score of this team we have to move in the classement.
-        :returns: the re-identification score obtained by the anonymized file.
-
-        """
-        return compare_f_files(ground_truth, submission)
 
 def main():
     """Main loop
@@ -336,7 +338,6 @@ def main():
     #                   S_mySuperTeam_attempt_1.csv, then the F_hat file should be
     #                   F_mySuperTeam_attemot_1.csv
     _client_payload["submission_file_path"] = "data/submission.csv"
-    # Name of the anonymized transaction file (round 1) else ""
 
     _context = {}
     # Name of the current team who is submitting the file
