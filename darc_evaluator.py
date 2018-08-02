@@ -30,6 +30,7 @@ def compute_score_round1(ground_truth, aux_database, submission):
     :returns: both utility and the f_file
 
     """
+    #  TODO: Paralliser  <09-07-18, Antoine> #
     # Initialize utility metrics
     utility_m = metrics.UtilityMetrics(aux_database, ground_truth, submission)
 
@@ -149,7 +150,7 @@ class RedisConnection(object):
         scores = []
 
         for i in range(3):
-            scores[i] = {}
+            scores.append({})
             scores[i]["utility_score"] = max(self._redis_co.get("score_util_{}_attempt_{}"\
                                                      .format(team_name, i))) or 'Not computed yet'
             scores[i]["reid_score"] = max(self._redis_co.get("score_util_{}_attempt_{}"\
