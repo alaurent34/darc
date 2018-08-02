@@ -151,10 +151,16 @@ class RedisConnection(object):
 
         for i in range(3):
             scores.append({})
-            scores[i]["utility_score"] = max(self._redis_co.get("score_util_{}_attempt_{}"\
-                                                     .format(team_name, i))) or 'Not computed yet'
-            scores[i]["reid_score"] = max(self._redis_co.get("score_util_{}_attempt_{}"\
-                                                     .format(team_name, i))) or 'Not computed yet'
+
+            # We don't want to recover None Type
+            if self._redis_co.get("score_util_{}_attempt_{}".format(team_name, i)) :
+                scores[i]["utility_score"] = max(self._redis_co.get("score_util_{}_attempt_{}"\
+                                                         .format(team_name, i)))
+                scores[i]["reid_score"] = max(self._redis_co.get("score_reid_{}_attempt_{}"\
+                                                         .format(team_name, i)))
+            else:
+                scores[i]["utility_score"] = 'Not computed yet'
+                scores[i]["reid_score"] = 'Not computed yet'
 
         return scores
 
