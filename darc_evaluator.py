@@ -111,32 +111,32 @@ class RedisConnection(object):
 
         return redis_co
 
-    def get_nb_try_reid(self, team_name, opponent_name, submission_number):
+    def get_nb_try_reid(self, team_name, opponent_name, attempt_attacked):
         """ Return the number of attempts the team as made against one opponent team and their
         submission dataset.
 
         :team_name: the name of the attacking team.
         :opponent_name: the name of the opponent team
-        :submission_number: the file (1, 2, or 3) of the opponent team attacked.
+        :attempt_attacked: the file (1, 2, or 3) of the opponent team attacked.
 
         :return: Number of attempts made by team A against team B file.
         """
 
         # Return the number of attempts or 0 if there is no value at regis_get address.
-        redis_get = "{}_vs_{}_file_{}".format(team_name, opponent_name, submission_number)
+        redis_get = "{}_vs_{}_file_{}".format(team_name, opponent_name, attempt_attacked)
         return int(self._redis_co.get(redis_get)) or 0
 
-    def set_nb_try_reid(self, nb_trys, team_name, opponent_name, submission_number):
+    def set_nb_try_reid(self, nb_trys, team_name, opponent_name, attempt_attacked):
         """Set the number of attempts the team as made against one opponent team and their
         submission dataset.
 
         :nb_trys: the number of attempts to set
         :team_name: the name of the attacking team.
         :opponent_name: the name of the opponent team
-        :submission_number: the file (1, 2, or 3) of the opponent team attacked.
+        :attempt_attacked: the file (1, 2, or 3) of the opponent team attacked.
 
         """
-        redis_set = "{}_vs_{}_file_{}".format(team_name, opponent_name, submission_number)
+        redis_set = "{}_vs_{}_file_{}".format(team_name, opponent_name, attempt_attacked)
         self._redis_co.set(redis_set, nb_trys)
 
     def get_three_last_scores(self, team_name):
@@ -276,15 +276,18 @@ class DarcEvaluator:
         # ROUND 2
         elif self.round == 2:
 
+            team_attacked = _context["team_attacked"]
+            attempt_attacked = _context["attempt_attacked"]
+
             # Read submitted files and ground truth
             ground_truth,\
-                submission,\
-                submission_number,\
-                opponent_name = preprocessing.round2_preprocessing(submission_file_path,\
-                                                                   self.redis_co)
+                submission = preprocessing.round2_preprocessing(submission_file_path,\
+                                                                self.redis_co,\
+                                                                attempt_attacked,\
+                                                                team_attacked)
 
             # Check if they've attacked them 10 times already
-            nb_atcks = self.redis_co.get_nb_try_reid(team_name, opponent_name, submission_number)
+            nb_atcks = self.redis_co.get_nb_try_reid(team_name, team_attacked, attempt_attacked)
             if nb_atcks >= 10:
                 raise Exception("You've reach your 10 attempts on this file.")
 
@@ -293,7 +296,7 @@ class DarcEvaluator:
             reidentification_score = compute_score_round2(ground_truth, submission)
 
             # Increment by 1 the number of attempts
-            self.redis_co.set_nb_try_reid(nb_atcks+1, team_name, opponent_name, submission_number)
+            self.redis_co.set_nb_try_reid(nb_atcks+1, team_name, team_attacked, attempt_attacked)
 
             # Return object
             _result_object = {
@@ -342,6 +345,8 @@ def main():
 
     # Submission file for round 2
     _client_payload["submission_file_path"] = "./data/testing/F_a_attempt_1.csv"
+    _context["team_attacked"] = "a"
+    _context["attempt_attacked"] = "0"
 
     # Instantiate an evaluator
     crowdai_evaluator = DarcEvaluator(answer_file_path, round=2)
