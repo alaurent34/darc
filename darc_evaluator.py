@@ -124,7 +124,7 @@ class RedisConnection(object):
 
         # Return the number of attempts or 0 if there is no value at regis_get address.
         redis_get = "{}_vs_{}_file_{}".format(team_name, opponent_name, attempt_attacked)
-        return int(self._redis_co.get(redis_get)) or 0
+        return int(self._redis_co.get(redis_get) or 0)
 
     def set_nb_try_reid(self, nb_trys, team_name, opponent_name, attempt_attacked):
         """Set the number of attempts the team as made against one opponent team and their
@@ -176,7 +176,7 @@ class RedisConnection(object):
         :score_reid: re-identification score for S
 
         """
-        nb_attempts = self._redis_co.get("{}_nb_attempts_ano".format(team_name))
+        nb_attempts = int(self._redis_co.get("{}_nb_attempts_ano".format(team_name)))
 
         if not nb_attempts:
             nb_attempts = 0
@@ -262,6 +262,7 @@ class DarcEvaluator:
                                                                aux_database,\
                                                                submission)
 
+            #  TODO: Do not recover the score, rm result_obj return scores <06-08-18, Antoine> #
             # Save all informations about this attempt and get 3 last scores, it's a **list of dic**
             _result_object = self.redis_co.save_first_round_attempt(\
                                                       team_name,\
