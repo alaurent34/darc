@@ -33,27 +33,23 @@ def round1_preprocessing(ground_truth_file_path, submission_file_path):
 
     return ground_truth, aux_database, submission
 
-def round2_preprocessing(submission_file_path, redis_co):
+def round2_preprocessing(submission_file_path, redis_co, attempt_attacked, team_attacked):
     """Read data for round 2 for Darc Evaluator.
     :returns: all data read.
 
     """
-
-    # Recover the submission number at the end of the filename
-    sub_file_name = submission_file_path.split('/')[-1].split('.')[0]
-    submission_number = sub_file_name.split("_")[-1]
-    # Recover opponent team name
-    opponent_name = sub_file_name.split("_")[1]
-
     submission = pd.read_csv(submission_file_path, sep=',', engine='c',\
                              na_filter=False, low_memory=False)
     submission.columns = F_COL
 
     # Read the ground truth file for this attack
-    adress_redis = "F_{}_attempt_{}".format(opponent_name, submission_number)
-    ground_truth = pd.read_msgpack(redis_co.get_value(adress_redis))
+    adress_redis = "F_{}_attempt_{}".format(team_attacked, attempt_attacked)
+    mgspack_gt = redis_co.get_value(adress_redis)
 
-    if not ground_truth:
-        raise Exception("Your attack file name does not match the name standard.")
+    if not mgspack_gt:
+    raise Exception("There is no file for this combination of team and attempt")
 
-    return ground_truth, submission, submission_number, opponent_name
+ground_truth = pd.read_msgpack(mgspack_gt)
+
+
+return ground_truth, submission
