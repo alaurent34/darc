@@ -104,7 +104,7 @@ def check_format_trans_file(dataframe):
             if i < 4:
                 error_type.append("string")
                 dataframe[columns[i]] = dataframe[columns[i]].apply(lambda x: str(x))
-            elif i == 4:
+            elif i == 5:
                 error_type.append("int")
                 dataframe[columns[i]] = dataframe[columns[i]].apply(lambda x: int(x))
             else:
