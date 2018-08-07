@@ -199,7 +199,7 @@ class ReidentificationMetrics(Metrics):
 
         return f_hat
 
-    def s1_metrics(self):
+    def s1_metric(self):
         """Calculate metric S1, comparing date and quantity buy on each row.
         Update the current score value
 
@@ -217,7 +217,7 @@ class ReidentificationMetrics(Metrics):
 
         return score
 
-    def s2_metrics(self):
+    def s2_metric(self):
         """Calculate metric S2, comparing date and quantity buy on each row.
 
         :returns: the score on this metric (between 0 and 1)
@@ -234,7 +234,7 @@ class ReidentificationMetrics(Metrics):
 
         return score
 
-    def s3_metrics(self):
+    def s3_metric(self):
         """Calculate metric S3, comparing date and quantity buy on each row.
 
         :returns: the score on this metric (between 0 and 1)
@@ -251,7 +251,7 @@ class ReidentificationMetrics(Metrics):
 
         return score
 
-    def s4_metrics(self):
+    def s4_metric(self):
         """Calculate metric S4, comparing date and quantity buy on each row.
 
         :returns: the score on this metric (between 0 and 1)
@@ -268,7 +268,7 @@ class ReidentificationMetrics(Metrics):
 
         return score
 
-    def s5_metrics(self):
+    def s5_metric(self):
         """Calculate metric S5, comparing date and quantity buy on each row.
 
         :returns: the score on this metric (between 0 and 1)
@@ -286,7 +286,7 @@ class ReidentificationMetrics(Metrics):
 
         return score
 
-    def s6_metrics(self):
+    def s6_metric(self):
         """Calculate metric S6, comparing date and quantity buy on each row.
 
         :returns: the score on this metric (between 0 and 1)
@@ -959,12 +959,12 @@ def main():
     print("Temps d'initialisation : {}".format(time.process_time() - start))
 
     start = time.process_time()
-    print("S1 score : {}".format(m.s1_metrics()))
-    print("S2 score : {}".format(m.s2_metrics()))
-    print("S3 score : {}".format(m.s3_metrics()))
-    print("S4 score : {}".format(m.s4_metrics()))
-    print("S5 score : {}".format(m.s5_metrics()))
-    print("S6 score : {}".format(m.s6_metrics()))
+    print("S1 score : {}".format(m.s1_metric()))
+    print("S2 score : {}".format(m.s2_metric()))
+    print("S3 score : {}".format(m.s3_metric()))
+    print("S4 score : {}".format(m.s4_metric()))
+    print("S5 score : {}".format(m.s5_metric()))
+    print("S6 score : {}".format(m.s6_metric()))
 
     print("Temps de calcul : {}".format(time.process_time() - start))
 
