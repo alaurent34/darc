@@ -47,9 +47,9 @@ def round2_preprocessing(submission_file_path, redis_co, attempt_attacked, team_
     mgspack_gt = redis_co.get_value(adress_redis)
 
     if not mgspack_gt:
-    raise Exception("There is no file for this combination of team and attempt")
+        raise Exception("There is no file for this combination of team and attempt")
 
-ground_truth = pd.read_msgpack(mgspack_gt)
+    ground_truth = pd.read_msgpack(mgspack_gt)
 
 
-return ground_truth, submission
+    return ground_truth, submission
