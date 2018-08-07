@@ -139,31 +139,6 @@ class RedisConnection(object):
         redis_set = "{}_vs_{}_file_{}".format(team_name, opponent_name, attempt_attacked)
         self._redis_co.set(redis_set, nb_trys)
 
-    def get_three_last_scores(self, team_name):
-        """Recover the three last scores for a team. This is done for displaying three latest
-        submission in crowdAI platform.
-
-        :team_name: The name of the team submitting the anonymized file.
-        :returns: list of all the scores.
-
-        """
-        scores = []
-
-        for i in range(3):
-            scores.append({})
-
-            # We don't want to recover None Type
-            if self._redis_co.get("score_util_{}_attempt_{}".format(team_name, i)) :
-                scores[i]["utility_score"] = max(self._redis_co.get("score_util_{}_attempt_{}"\
-                                                         .format(team_name, i)))
-                scores[i]["reid_score"] = max(self._redis_co.get("score_reid_{}_attempt_{}"\
-                                                         .format(team_name, i)))
-            else:
-                scores[i]["utility_score"] = 'Not computed yet'
-                scores[i]["reid_score"] = 'Not computed yet'
-
-        return scores
-
     def save_first_round_attempt(self, team_name, at_data, s_data, f_data, score_util, score_reid):
         """Save the attempt of team `team_name`. Attempt are stored as Y_TEAM_NAME_attempt_X
         with Y in :
@@ -203,11 +178,7 @@ class RedisConnection(object):
         self._redis_co.set("score_reid_{}_attempt_{}".format(team_name, nb_attempts),\
                                                        score_reid)
 
-        scores = self.get_three_last_scores(team_name)
-
         self._redis_co.set("{}_nb_attempts_ano".format(team_name), (nb_attempts + 1)%3)
-
-        return scores
 
     def set_value(self, value, adress):
         """ Set the value into redis BDD.
@@ -268,16 +239,19 @@ class DarcEvaluator:
                                                                aux_database,\
                                                                submission)
 
-            #  TODO: Do not recover the score, rm result_obj return scores <06-08-18, Antoine> #
             # Save all informations about this attempt and get 3 last scores, it's a **list of dic**
-            _result_object = self.redis_co.save_first_round_attempt(\
-                                                      team_name,\
-                                                      submission,\
-                                                      s_file,\
-                                                      f_file,\
-                                                      utility_scores,\
-                                                      reid_scores)
+            print("Saving scores and files")
+            self.redis_co.save_first_round_attempt(team_name,\
+                                                   submission,\
+                                                   s_file,\
+                                                   f_file,\
+                                                   utility_scores,\
+                                                   reid_scores)
 
+            _result_object = {
+                    "utility_score" : max(utility_scores),
+                    "reidentification_score": max(reid_scores)
+                    }
             return _result_object
 
         # ROUND 2
