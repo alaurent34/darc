@@ -130,11 +130,6 @@ class ReidentificationMetrics(Metrics):
         Metrics.__init__(self, M, T, AT, M_col, T_col)
         self._f_orig = generate_f_orig(self._ground_truth, self._anon_trans, self._gt_t_col)
 
-        #only keep the 2 firsts digit of the id_number (PWSCUP rules)
-        #  TODO:Change this rule to keep all digits ?  <31-05-18, Antoine Laurent> #
-        self._tronc_product_id(2)
-
-
     def _gen_value_id_dic(self, attrs):
         """Generate the dictionaty which associate the value of the attributes attrs in the
         DataFrame to an user ID.
