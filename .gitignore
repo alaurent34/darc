@@ -14,9 +14,7 @@ data/tsne_vizualisation/*
 
 !data/*.csv
 
-!data/testing/
 data/testing/*
-!data/testing/*.csv
 
 __pycache__/
 
