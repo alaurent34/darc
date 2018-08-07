@@ -7,9 +7,9 @@ Description: Evaluator used in the context of the DARC (Data Anonymization and R
 Competition).
 """
 
-import os
-import os.path
-import pickle
+import time
+from multiprocessing import Process, Pool
+from functools import partial
 
 import pandas as pd
 import numpy as np
@@ -18,6 +18,14 @@ import redis
 from utils import *
 import metrics
 import preprocessing
+
+def metric_wrapper(metric, instance, numero):
+    """TODO: Docstring for metric_wrapper.
+    :returns: TODO
+
+    """
+    method = "{}{}_metric".format(metric, numero)
+    return getattr(instance, method)()
 
 def compute_score_round1(ground_truth, aux_database, submission):
     """Compute score for the 1st round of the competition. Score are based on utility metrics
@@ -30,36 +38,22 @@ def compute_score_round1(ground_truth, aux_database, submission):
     :returns: both utility and the f_file
 
     """
-    #  TODO: Paralliser  <09-07-18, Antoine> #
     # Initialize utility metrics
     utility_m = metrics.UtilityMetrics(aux_database, ground_truth, submission)
 
     print("Compute Utility metrics")
-    # Compute all the utility metrics
-    utility_m.e1_metric()
-    utility_m.e2_metric()
-    utility_m.e3_metric()
-    utility_m.e4_metric()
-    utility_m.e5_metric()
-    utility_m.e6_metric()
-
-    # Recover the utility scores
-    utility_scores = utility_m.current_score
+    metric_pool = Pool()
+    utility_wrapper = partial(metric_wrapper, "e", utility_m)
+    utility_scores = metric_pool.map(utility_wrapper, range(1, 7))
+    print(utility_scores)
 
     # Initialize re-identification metrics
     reid_m = metrics.ReidentificationMetrics(aux_database, ground_truth, submission)
 
-    print("Compute Re-identification metrics")
-    # Compute all the re-identificaiton metrics
-    reid_m.s1_metrics()
-    reid_m.s2_metrics()
-    reid_m.s3_metrics()
-    reid_m.s4_metrics()
-    reid_m.s5_metrics()
-    reid_m.s6_metrics()
-
-    # Recover the re-identification scores
-    reid_scores = reid_m.current_score
+    print("Compute Reidentification metrics")
+    metric_pool = Pool()
+    reid_wrapper = partial(metric_wrapper, "s", reid_m)
+    reid_scores = metric_pool.map(reid_wrapper, range(1, 7))
 
     # Recover F_orig file
     f_file = reid_m.f_orig
