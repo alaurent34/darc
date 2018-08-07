@@ -916,31 +916,31 @@ class UtilityMetrics(Metrics):
 def main():
     """main
     """
-    total_time = time.clock()
+    total_time = time.process_time()
     ######################
     ### Initialisation ###
     ######################
 
-    start = time.clock()
-    T = pd.read_csv('./data/testing/T.csv', sep=',', engine='c', na_filter=False, low_memory=False)
+    start = time.process_time()
+    T = pd.read_csv('./data/ground_truth.csv', sep=',', engine='c', na_filter=False, low_memory=False)
     T.columns = T_COL.values()
     M = T[T_COL['id_user']].value_counts()
     M = list(M.index)
     M.sort()
     M = pd.DataFrame(M, columns=M_COL.values())
-    AT = pd.read_csv('./data/testing/AT.csv', sep=',', engine='c', na_filter=False, low_memory=False)
+    AT = pd.read_csv('./data/submission.csv', sep=',', engine='c', na_filter=False, low_memory=False)
     AT.columns = T_COL.values()
-    print("Temps de lecture : {}".format(time.clock() - start))
+    print("Temps de lecture : {}".format(time.process_time() - start))
 
     #######################
     ### Utility Metrics ###
     #######################
 
-    start = time.clock()
+    start = time.process_time()
     m = UtilityMetrics(M, T, AT)
-    print("Temps d'initialisation : {}".format(time.clock() - start))
+    print("Temps d'initialisation : {}".format(time.process_time() - start))
 
-    start = time.clock()
+    start = time.process_time()
     print("E1 score : {}".format(m.e1_metric()))
     print("E2 score : {}".format(m.e2_metric()))
     print("E3 score : {}".format(m.e3_metric()))
@@ -948,17 +948,17 @@ def main():
     print("E5 score : {}".format(m.e5_metric()))
     print("E6 score : {}".format(m.e6_metric()))
 
-    print("Temps de calcul : {}".format(time.clock() - start))
+    print("Temps de calcul : {}".format(time.process_time() - start))
 
     #####################
     ### Re-id Metrics ###
     #####################
 
-    start = time.clock()
+    start = time.process_time()
     m = ReidentificationMetrics(M, T, AT)
-    print("Temps d'initialisation : {}".format(time.clock() - start))
+    print("Temps d'initialisation : {}".format(time.process_time() - start))
 
-    start = time.clock()
+    start = time.process_time()
     print("S1 score : {}".format(m.s1_metrics()))
     print("S2 score : {}".format(m.s2_metrics()))
     print("S3 score : {}".format(m.s3_metrics()))
@@ -966,9 +966,9 @@ def main():
     print("S5 score : {}".format(m.s5_metrics()))
     print("S6 score : {}".format(m.s6_metrics()))
 
-    print("Temps de calcul : {}".format(time.clock() - start))
+    print("Temps de calcul : {}".format(time.process_time() - start))
 
-    print("Temps de calcul TOTAL : {}".format(time.clock() - total_time))
+    print("Temps de calcul TOTAL : {}".format(time.process_time() - total_time))
 
     #  TODO: Thread all execution of e* and s* metrics, BUT DO NOT thread utility and Re-id metrics
     #  together because we tronc the item_id in Re-id metrics, and it appears that it's using the
