@@ -1,5 +1,5 @@
 import pandas as pd
-from utils import T_COL, F_COL, M_COL
+from utils import T_COL, F_COL, M_COL, PATH_F
 
 """
 File: preprocessing.py
@@ -43,13 +43,6 @@ def round2_preprocessing(submission_file_path, redis_co, attempt_attacked, team_
     submission.columns = F_COL
 
     # Read the ground truth file for this attack
-    adress_redis = "F_{}_attempt_{}".format(team_attacked, attempt_attacked)
-    mgspack_gt = redis_co.get_value(adress_redis)
-
-    if not mgspack_gt:
-        raise Exception("There is no file for this combination of team and attempt")
-
-    ground_truth = pd.read_msgpack(mgspack_gt)
-
+    ground_truth = pd.read_csv("{}/F_{}_attempt_{}.csv".format(PATH_F, team_attacked, attempt_attacked))
 
     return ground_truth, submission
