@@ -72,7 +72,7 @@ def compute_score_round2(ground_truth, submission):
     return compare_f_files(ground_truth, submission)
 
 
-class RedisConnection(object):
+class RedisConnection():
 
     """Class to control redis data base and stock team submission scores.
     The data base is store by the organizator of the competition
@@ -156,23 +156,19 @@ class RedisConnection(object):
         if not nb_attempts:
             nb_attempts = 0
 
-        # Save AT on redis BDD
-        self._redis_co.set("AT_{}_attempt_{}".format(team_name, nb_attempts),\
-                                               at_data.to_msgpack(compress='zlib'))
-        # Save S on redis BDD
-        self._redis_co.set("S_{}_attempt_{}".format(team_name, nb_attempts),\
-                                              s_data.to_msgpack(compress='zlib'))
-        # Save F on redis BDD
-        self._redis_co.set("F_{}_attempt_{}".format(team_name, nb_attempts),\
-                                              f_data.to_msgpack(compress='zlib'))
-        # Save utility score in redis BDD
-        self._redis_co.set("score_util_{}_attempt_{}".format(team_name, nb_attempts),\
-                                                       score_util)
-        # Save re-identification score in redis BDD
-        self._redis_co.set("score_reid_{}_attempt_{}".format(team_name, nb_attempts),\
-                                                       score_reid)
-
-        self._redis_co.set("{}_nb_attempts_ano".format(team_name), (nb_attempts + 1)%3)
+        redis_data = {"AT_{}_attempt_{}".format(team_name, nb_attempts):\
+                       at_data.to_msgpack(compress='zlib'),
+                      "S_{}_attempt_{}".format(team_name, nb_attempts):\
+                       s_data.to_msgpack(compress='zlib'),
+                      "F_{}_attempt_{}".format(team_name, nb_attempts):\
+                       f_data.to_msgpack(compress='zlib'),
+                      "score_util_{}_attempt_{}".format(team_name, nb_attempts):\
+                       score_util,
+                      "score_reid_{}_attempt_{}".format(team_name, nb_attempts):\
+                       score_reid,
+                      "{}_nb_attempts_ano".format(team_name):(nb_attempts + 1)%3
+            }
+        self._redis_co.mset(redis_data)
 
     def set_value(self, value, adress):
         """ Set the value into redis BDD.
@@ -235,17 +231,19 @@ class DarcEvaluator:
 
             # Save all informations about this attempt and get 3 last scores, it's a **list of dic**
             print("Saving scores and files")
+            start = time.perf_counter()
             self.redis_co.save_first_round_attempt(team_name,\
                                                    submission,\
                                                    s_file,\
                                                    f_file,\
                                                    utility_scores,\
                                                    reid_scores)
+            print("Saving file took : ", time.perf_counter() - start)
 
             _result_object = {
-                    "utility_score" : max(utility_scores),
-                    "reidentification_score": max(reid_scores)
-                    }
+                "utility_score" : max(utility_scores),
+                "reidentification_score": max(reid_scores)
+                }
             return _result_object
 
         # ROUND 2
@@ -319,9 +317,9 @@ def main():
     # It is recovered during the round2 in method evaluate
 
     # Submission file for round 2
-    _client_payload["submission_file_path"] = "./data/testing/F_a_attempt_1.csv"
+    _client_payload["submission_file_path"] = "./data/f_files/F_a_attempt_1.csv"
     _context["team_attacked"] = "a"
-    _context["attempt_attacked"] = "0"
+    _context["attempt_attacked"] = "1"
 
     # Instantiate an evaluator
     crowdai_evaluator = DarcEvaluator(answer_file_path, round=2)
