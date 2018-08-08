@@ -156,19 +156,24 @@ class RedisConnection():
         if not nb_attempts:
             nb_attempts = 0
 
-        redis_data = {"AT_{}_attempt_{}".format(team_name, nb_attempts):\
-                       at_data.to_msgpack(compress='zlib'),
-                      "S_{}_attempt_{}".format(team_name, nb_attempts):\
-                       s_data.to_msgpack(compress='zlib'),
-                      "F_{}_attempt_{}".format(team_name, nb_attempts):\
-                       f_data.to_msgpack(compress='zlib'),
-                      "score_util_{}_attempt_{}".format(team_name, nb_attempts):\
-                       score_util,
-                      "score_reid_{}_attempt_{}".format(team_name, nb_attempts):\
-                       score_reid,
-                      "{}_nb_attempts_ano".format(team_name):(nb_attempts + 1)%3
-            }
-        self._redis_co.mset(redis_data)
+        pipe = self._redis_co.pipeline()
+        # Save AT on redis BDD
+        pipe.set("AT_{}_attempt_{}".format(team_name, nb_attempts),\
+                                               at_data.to_msgpack(compress='zlib'))
+        # Save S on redis BDD
+        pipe.set("S_{}_attempt_{}".format(team_name, nb_attempts),\
+                                              s_data.to_msgpack(compress='zlib'))
+        # Save F on redis BDD
+        pipe.set("F_{}_attempt_{}".format(team_name, nb_attempts),\
+                                              f_data.to_msgpack(compress='zlib'))
+        # Save utility score in redis BDD
+        pipe.set("score_util_{}_attempt_{}".format(team_name, nb_attempts),\
+                                                       score_util)
+        # Save re-identification score in redis BDD
+        pipe.set("score_reid_{}_attempt_{}".format(team_name, nb_attempts),\
+                                                       score_reid)
+
+        pipe.set("{}_nb_attempts_ano".format(team_name), (nb_attempts + 1)%3)
 
     def set_value(self, value, adress):
         """ Set the value into redis BDD.
