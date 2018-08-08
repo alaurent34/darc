@@ -6,7 +6,11 @@ Github: https://github.com/Drayer34
 Description: File containing utilitaries for the DARC competition
 """
 
+import os
+import glob
+
 import pandas as pd
+import progressbar
 
 # for itertuples which is A LOT faster than iterrows
 M_COL = {'id_user':1}
@@ -52,6 +56,37 @@ def generate_f_orig(ground_truth_trans, anon_trans, gt_t_col=T_COL):
             f_orig.loc[f_orig.id_user == id_orig, month] = id_ano
 
     return f_orig
+
+def compute_all_f_orig(folder_path, ground_truth_file_path):
+    """TODO: Docstring for compute_f_orig.
+
+    :folder_path:
+    :returns: TODO
+
+    """
+    # Read ground truth from csv
+    ground_truth = pd.read_csv(ground_truth_file_path, sep=',', engine='c',\
+                               na_filter=False, low_memory=False)
+    ground_truth.columns = T_COL.values()
+
+    pbar = progressbar.ProgressBar()
+
+    for filepath in pbar(glob.glob(os.path.join(folder_path, 'AT*.csv'))):
+        # Read anon data
+        at_dataframe = pd.read_csv(filepath, sep=',', engine='c',\
+                             na_filter=False, low_memory=False)
+        at_dataframe.columns = T_COL.values()
+
+        team_name = filepath.split("/")[-1].split("_")[1]
+        attempt = filepath.split("/")[-1].split("_")[2].split(".")[0]
+
+        # Generate F_filepath file
+        f_dataframe = generate_f_orig(ground_truth, at_dataframe)
+
+        # Create Dir PATH_F if doesn't exist, otherwise do nothing
+        os.makedirs(PATH_F, exist_ok=True)
+        # Save F_filepath into PATH_F
+        f_dataframe.to_csv("{}/F_{}_attempt_{}.csv".format(PATH_F, team_name, attempt), index=False)
 
 def compare_f_files(f_orig, f_hat):
     """Compare the two F files to compute the difference and thus the score
