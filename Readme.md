@@ -5,7 +5,6 @@ specifically it contains :
   - Sampled data from UCI for DARC (ground truth).
   - Original data from UCI.
   - T-sne representation of the sampled dataset.
-  - Source code to sample the data.
   - Source code for the re-identification metrics.
   - Source code for the utility metric.
   - Source code for success for players re-identification.
@@ -13,9 +12,9 @@ specifically it contains :
 
 What need to be done :
   1. The integration of the code in the [CrowdAI evaluator](https://github.com/crowdAI/crowdai-example-evaluator) to
-     automatize the phases procedure.
-  2. The writing of functions to check the file format submitted by the
-     participants for each phases, that would also provide detailed information
+     automatize the phases procedure (Mostly done).
+  2. Amelioration of the functions which check the file format submitted by the
+     participants for each phases, they also provide detailed informations
      to participants about formatting errors in the file submitted.
   3. Performing some tests to make sure the competition will run as smoothly as
      possible.
@@ -222,10 +221,12 @@ If you want to test the metrics alone you can do it by executing the python file
 metrics.py :
 
 ```
+pip install --requirements=requirements.txt
 python metrics.py
 ```
 
-**NB** : You also need to install the requirements.
+**NB** : For the scripts to be working you need to use a python version above
+3.6.
 
 # Description of files
 
@@ -247,3 +248,14 @@ for your ground truth DataFrame.
 
 Also you can found the method to compare two F files, which is useful in both
 phase and is not a metric itself.
+
+## Preprocessing.py
+
+This file serve the purpose of reading and embbeding the files needed for the
+DARC competition, as submission and ground truth files for example. It's used by
+darc_evaluator.py
+
+## Darc_evaluator.py
+
+This file serve the purpose of integrating the process of the competition in the
+CrowdAI platform.
