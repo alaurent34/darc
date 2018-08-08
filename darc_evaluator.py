@@ -20,8 +20,13 @@ import metrics
 import preprocessing
 
 def metric_wrapper(metric, instance, numero):
-    """TODO: Docstring for metric_wrapper.
-    :returns: TODO
+    """Launch a metric in function of instance metric and the number of the later.
+
+    :metric: a single char wich is 's' or 'e', respectivly for reid and utility metrics.
+    :instance: the instance of a Metric class containing methods `metric`.
+    :numero: the ieme method of the instance you want to call.
+
+    :returns: Result of the metric method called.
 
     """
     method = "{}{}_metric".format(metric, numero)
@@ -41,15 +46,16 @@ def compute_score_round1(ground_truth, aux_database, submission):
     # Initialize utility metrics
     utility_m = metrics.UtilityMetrics(aux_database, ground_truth, submission)
 
+    #Compute utility metrics as subprocesses
     print("Compute Utility metrics")
     metric_pool = Pool()
     utility_wrapper = partial(metric_wrapper, "e", utility_m)
     utility_scores = metric_pool.map(utility_wrapper, range(1, 7))
-    print(utility_scores)
 
     # Initialize re-identification metrics
     reid_m = metrics.ReidentificationMetrics(aux_database, ground_truth, submission)
 
+    #Compute reidentification metrics as subprocesses
     print("Compute Reidentification metrics")
     metric_pool = Pool()
     reid_wrapper = partial(metric_wrapper, "s", reid_m)
@@ -70,7 +76,6 @@ def compute_score_round2(ground_truth, submission):
 
     """
     return compare_f_files(ground_truth, submission)
-
 
 class RedisConnection():
 
@@ -236,14 +241,12 @@ class DarcEvaluator:
 
             # Save all informations about this attempt and get 3 last scores, it's a **list of dic**
             print("Saving scores and files")
-            start = time.perf_counter()
             self.redis_co.save_first_round_attempt(team_name,\
                                                    submission,\
                                                    s_file,\
                                                    f_file,\
                                                    utility_scores,\
                                                    reid_scores)
-            print("Saving file took : ", time.perf_counter() - start)
 
             _result_object = {
                 "utility_score" : max(utility_scores),
@@ -284,7 +287,6 @@ class DarcEvaluator:
             return _result_object
 
         return None
-
 
 def main():
     """Main loop
