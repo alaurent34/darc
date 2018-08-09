@@ -215,6 +215,19 @@ pip install --requirements=requirements.txt
 python darc_evaluator.py
 ```
 
+**Round1**
+For testing with your own submission, in `main.py` you have to change
+`_client_payload["submission_file_path"] = "data/submission.csv"` with the path
+of your file.
+
+This will create a submission as : AT_*YourTeamName*_*AttemptNumber*.csv. For the Testing
+you need to format the name of your submission like said above, in order for
+`compute_all_f_orig` to run without error. During the competition AT files will
+be saved with this naming automatically.
+
+**Round2**
+In utils.py you will find the function `compute_all_f_orig(folder_path, ground_truth_file_path)` to generate all the F_files of your submission. Then you just have to enter the path of your files and the name and attempt nb you want to attack in `_client_payload["submission_file_path"]`, `_context["team_attacked"]`, `_context["attempt_attacked"]` respectively.
+
 ## Metrics testing
 
 If you want to test the metrics alone you can do it by executing the python file
