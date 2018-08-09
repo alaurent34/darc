@@ -35,9 +35,9 @@ all-occasion gifts. Many customers of the company are wholesalers.
 [1](https://archive.ics.uci.edu/ml/datasets/Online+Retail)
 
 **PWSCup** :
-The dataset is separated in two distinct datasets, one which contain all `n`
-clients (`M`) and the other containing all transactions made by those `n`
-clients during one year (`T`).
+The dataset is separated in two distinct datasets, one which contain all $`n`$
+clients ($`M`$) and the other containing all transactions made by those $`n`$
+clients during one year ($`T`$).
 
 ## Notations
 
@@ -50,46 +50,45 @@ Readme.
       <th class="tg-us36">Meaning</th>
     </tr>
     <tr>
-      <td class="tg-us36">M</td>
-      <td class="tg-us36">dataset containing all `n` clients.</td>
+      <td class="tg-us36">$`M`$</td>
+      <td class="tg-us36">dataset containing all $`n`$ clients.</td>
     </tr>
     <tr>
-      <td class="tg-us36">T</td>
-      <td class="tg-us36">Dataset containing all transaction of M's clients.</td>
+      <td class="tg-us36">$`T`$</td>
+      <td class="tg-us36">Dataset containing all transaction of $`M`$'s clients.</td>
     </tr>
     <tr>
-      <td class="tg-us36">`T_a`</td>
-      <td class="tg-us36">Dataset containing `a%` of T transactions. With `a` in
-      {.25, .50, .75}</td>
+      <td class="tg-us36">$`T_a`$</td>
+      <td class="tg-us36">Dataset containing $`a|T|`$ transactions. With $`a \in \{.25, .50, .75\}`$</td>
     </tr>
     <tr>
-      <td class="tg-us36">A(T)</td>
-      <td class="tg-us36">Anomyzed version of T.</td>
+      <td class="tg-us36">$`A(T)`$</td>
+      <td class="tg-us36">Anomyzed version of $`T`$.</td>
     </tr>
     <tr>
-      <td class="tg-us36">S</td>
-      <td class="tg-us36">A(T) with row shuffled</td>
+      <td class="tg-us36">$`S`$</td>
+      <td class="tg-us36">$`A(T)`$ with row shuffled</td>
     </tr>
     <tr>
-      <td class="tg-us36">F</td>
-      <td class="tg-us36">Mapping table between orginal ID (in `M`) and
-      anonymized ID (in A(T)) : it's a generated File</td>
+      <td class="tg-us36">$`F`$</td>
+      <td class="tg-us36">Mapping table between orginal ID (in $`M`$) and
+      anonymized ID (in $`A(T)`$) : it's a generated File</td>
     </tr>
     <tr>
-      <td class="tg-us36">F hat</td>
+      <td class="tg-us36">$`F`$ hat</td>
       <td class="tg-us36">Guess Mapping table by the adversary : Generated File</td>
     </tr>
     <tr>
-      <td class="tg-us36">R</td>
-      <td class="tg-us36">Correspondance between ID and Pseudo in S and A</td>
+      <td class="tg-us36">$`R`$</td>
+      <td class="tg-us36">Correspondance between ID and Pseudo in $`S`$ and $`A`$</td>
     </tr>
     <tr>
-      <td class="tg-us36">P</td>
-      <td class="tg-us36">Correspondance between line shuffle in S and A(T)</td>
+      <td class="tg-us36">$`P`$</td>
+      <td class="tg-us36">Correspondance between line shuffle in $`S`$ and $`A(T)`$</td>
     </tr>
     <tr>
-      <td class="tg-us36">J(X,Y)</td>
-      <td class="tg-us36">Concatenation of file X and Y</td>
+      <td class="tg-us36">$`J(X,Y)`$</td>
+      <td class="tg-us36">Concatenation of file $`X`$ and $`Y`$</td>
     </tr>
   </table>
 
@@ -105,33 +104,33 @@ Readme.
       <th class="tg-us36">Purpose</th>
     </tr>
     <tr>
-      <td class="tg-us36">S1</td>
-      <td class="tg-us36">Try to reconstruct F_h by comparing Purchase Date and
-      Quantity in T_a and S</td>
+      <td class="tg-us36">$`S_1`$</td>
+      <td class="tg-us36">Try to reconstruct $`F_h`$ by comparing Purchase Date and
+      Quantity in $`T_a`$ and $`S`$</td>
     </tr>
     <tr>
-      <td class="tg-us36">S2</td>
-      <td class="tg-us36">Try to reconstruct F_h by comparing ID item and Unit
-      price in T_a and S</td>
+      <td class="tg-us36">$`S_2`$</td>
+      <td class="tg-us36">Try to reconstruct $`F_h`$ by comparing ID item and Unit
+      price in $`T_a`$ and $`S`$</td>
     </tr>
     <tr>
-      <td class="tg-us36">S3</td>
-      <td class="tg-us36">Try to reconstruct F_H by comparing (egality) ID item
+      <td class="tg-us36">$`S_3`$</td>
+      <td class="tg-us36">Try to reconstruct $`F_H`$ by comparing (egality) ID item
       and quantity</td>
     </tr>
     <tr>
-      <td class="tg-us36">S4</td>
-      <td class="tg-us36">Try to reconstruct F_h by comparing (egality) ID item
+      <td class="tg-us36">$`S_4`$</td>
+      <td class="tg-us36">Try to reconstruct $`F_h`$ by comparing (egality) ID item
       and Purchase Date</td>
     </tr>
     <tr>
-      <td class="tg-us36">S5</td>
-      <td class="tg-us36">Try to reconstruct F_h by comparing (egality) the
+      <td class="tg-us36">$`S_5`$</td>
+      <td class="tg-us36">Try to reconstruct $`F_h`$ by comparing (egality) the
       first two digit of the ID item, quantity and price</td>
     </tr>
     <tr>
-      <td class="tg-us36">S6</td>
-      <td class="tg-us36">Try to reconstruct F_h by comparing (egality) the
+      <td class="tg-us36">$`S_6`$</td>
+      <td class="tg-us36">Try to reconstruct $`F_h`$ by comparing (egality) the
       first two digit of the ID item, Purchased Date and price</td>
     </tr>
   </table>
@@ -146,39 +145,39 @@ There is 6 utility metrics, which are :
       <th class="tg-us36">Purpose</th>
     </tr>
     <tr>
-      <td class="tg-us36">E1</td>
+      <td class="tg-us36">$`E_1`$</td>
       <td class="tg-us36">Construct a similarity matrix of item buyed (User that
       have bought this item also bought item_i). Here the score is maximized if
       the quantity is high (calculated by dozen). We calculate the difference
       between the two matrix of item buyed as a score.
-      <br> More precisly we construct two matrix M1 and M2, one for the original dataset
-      and one for the anonymised one. Both are of size `n x n` where `n` is the
-      number of item. For M_ij represent the number of people who have bought
-      the item i and have also bought the item j.<br>
+      <br> More precisly we construct two matrix $`M_1`$ and $`M_2`$, one for
+      the original dataset and one for the anonymised one. Both are of size $`n
+      \times n`$ where $`n`$ is the number of item. For $`M_{ij}`$ represent the number of
+      people who have bought the item i and have also bought the item $`j`$.<br>
       This procede is called a <a href="https://en.wikipedia.org/wiki/Collaborative_filtering">collaborative filtering</a>.
       </td>
     </tr>
     <tr>
-      <td class="tg-us36">E2</td>
-      <td class="tg-us36">Idem than E1 but here but only for item with a
-      quantity <= 11.</td>
+      <td class="tg-us36">$`E_2`$</td>
+      <td class="tg-us36">Idem than $`E_1`$ but here but only for item with a
+      quantity $`\le 11`$.</td>
     </tr>
     <tr>
-      <td class="tg-us36">E3</td>
-      <td class="tg-us36">Caluclate the difference (as in set difference) and similarity matrix between top-`k` items
+      <td class="tg-us36">$`E_3`$</td>
+      <td class="tg-us36">Caluclate the difference (as in set difference) and similarity matrix between top-$`k`$ items
       bought from ground truth and anonymised dataset.</td>
     </tr>
     <tr>
-      <td class="tg-us36">E4</td>
+      <td class="tg-us36">$`E_4`$</td>
       <td class="tg-us36">Calculate the mean distance in day between
       anonymised and ground truth transactions.</td>
     </tr>
     <tr>
-      <td class="tg-us36">E5</td>
+      <td class="tg-us36">$`E_5`$</td>
       <td class="tg-us36">Calculate the difference, as the ratio, of all item prices</td>
     </tr>
     <tr>
-      <td class="tg-us36">E6</td>
+      <td class="tg-us36">$`E_6`$</td>
       <td class="tg-us36">Calculate the ratio between the number of lines
       removed in the anonymized table over the number of lines in the original dataset.</td>
     </tr>
@@ -255,7 +254,7 @@ python metrics.py
 This module serve the purpose of calculating the metrics used in the 1st phase.
 You can find the UtilityMetrics class, the ReidentificationMetrics class and a
 CollaborativeFiltering class. This last one is used in the utility metrics for
-metrics E1, E2 and E3.
+metrics $`E_1`$, $`E_2`$ and $`E_3`$.
 
 An example of how to use this module is given in a `main()` function.
 
@@ -263,7 +262,7 @@ An example of how to use this module is given in a `main()` function.
 
 This file serve the purpose of stocking some configuration and function that
 will be used in both phase and are not considered as metrics. For example you
-can found a variable `T_COL` that store the name of the columns you want to use
+can found a variable $`T_{COL}`$ that store the name of the columns you want to use
 for your ground truth DataFrame.
 
 Also you can found the method to compare two F files, which is useful in both
