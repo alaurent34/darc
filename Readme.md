@@ -226,7 +226,14 @@ you need to format the name of your submission like said above, in order for
 be saved with this naming automatically.
 
 **Round2**
-In utils.py you will find the function `compute_all_f_orig(folder_path, ground_truth_file_path)` to generate all the F_files of your submission. Then you just have to enter the path of your files and the name and attempt nb you want to attack in `_client_payload["submission_file_path"]`, `_context["team_attacked"]`, `_context["attempt_attacked"]` respectively.
+In utils.py you will find the function `compute_all_f_orig(folder_path,
+ground_truth_file_path)` to generate all the F_files of your submission. Then
+you just have to enter the path of your files and the name and attempt nb you
+want to attack in `_client_payload["submission_file_path"]`,
+`_context["team_attacked"]`, `_context["attempt_attacked"]` respectively.
+
+**NB**: In utils.py you'll also have to enter all the information about your
+redis storage.
 
 ## Metrics testing
 
