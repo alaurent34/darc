@@ -102,7 +102,7 @@ Readme.
 
 ## Metrics
 
-### <a name="security"></a>Re-identification metrics
+### Re-identification metrics
 
 There is 6 re-indentification metrics (all the comparaison done here are
 eguality comparision), which are:
@@ -144,7 +144,7 @@ eguality comparision), which are:
     </tr>
   </table>
 
-### <a name="utility"></a>Utility metrics
+### Utility metrics
 
 There is 6 utility metrics, which are:
 
