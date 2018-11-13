@@ -13,7 +13,7 @@ specifically it contains:
 
 What need to be done:
 
-1. The integration of the code in the [CrowdAI evaluator][crowd-eval] to
+1. The integration of the code in the [CrowdAI evaluator][crowd-eval] to
    automatize the phases procedure (Mostly done).
 2. Amelioration of the functions which check the file format submitted by the
    participants for each phases, they also provide detailed informations to
@@ -219,6 +219,8 @@ For more informations about PWSCup 2017, you can visit this [site][pws] for now
 We describe here how you can test the scripts written.
 
 ## Requirements
+
+**You need python3.6**
 
 First, install the requirements on your system using the `pip3` python package
 manager.
