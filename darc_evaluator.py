@@ -173,6 +173,7 @@ class RedisConnection():
         # Save re-identification score in redis BDD
         pipe.set("score_reid_{}_submission_id_{}".format(team_name, crowdai_submission_id),\
                                                        score_reid)
+        pipe.execute()
 
     def set_value(self, value, adress):
         """ Set the value into redis BDD.
@@ -290,6 +291,9 @@ class DarcEvaluator:
             _result_object = {
                 "reidentification_score": reidentification_score,
                 }
+
+            # Remove submission_file extracted
+            os.remove(submission_file_path)
 
             return _result_object
 
