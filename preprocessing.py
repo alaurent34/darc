@@ -55,14 +55,7 @@ def round2_preprocessing(submission_file_path, attempt_attacked, team_attacked):
                              na_filter=False, low_memory=False)
     submission.columns = F_COL
 
-    # Read the ground truth file for this attack
-    ground_truth = pd.read_csv(
-        "{}/F_{}_attempt_{}.csv".format(
-            PATH_F, team_attacked, attempt_attacked
-            )
-        )
-
-    return ground_truth, submission
+    return submission
 
 def read_tar(tar_path):
     """Open tar file, recover submission_file_path and infos about the submission in a json file
