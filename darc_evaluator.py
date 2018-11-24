@@ -210,13 +210,16 @@ class DarcEvaluator:
         self.answer_file_path = answer_file_path
         self.round = round
         # Determine the score depending on the round
-        self.redis_co = RedisConnection(HOST, PORT, PASSWORD)
+        self.redis_co = ""
 
-    def evaluate(self, client_payload, _context={}):
+    def evaluate(self, client_payload, _context={}, redis_host="", redis_port="", redis_password=""):
         """
         `client_payload` will be a dict with (atleast) the following keys :
           - submission_file_path : local file path of the submitted file
         """
+
+        # Initialize redis_co
+        self.redis_co = RedisConnection(redis_host, redis_port, redis_password)
 
         # Initialize directory variable
         team_name = _context['team_name']
@@ -316,7 +319,9 @@ def main():
     # Instantiate an evaluator
     crowdai_evaluator = DarcEvaluator(answer_file_path, round=1)
     # Evaluate
-    result = crowdai_evaluator.evaluate(_client_payload, _context)
+    result = crowdai_evaluator.evaluate(
+        _client_payload, _context, redis_host=HOST, redis_port=PORT, redis_password=PASSWORD
+        )
     print(result)
 
     print("TESTING : Round 2")
@@ -331,7 +336,9 @@ def main():
     # Instantiate an evaluator
     crowdai_evaluator = DarcEvaluator(answer_file_path, round=2)
     #Evaluate
-    result = crowdai_evaluator.evaluate(_client_payload, _context)
+    result = crowdai_evaluator.evaluate(
+        _client_payload, _context, redis_host=HOST, redis_port=PORT, redis_password=PASSWORD
+        )
     print(result)
 
 if __name__ == "__main__":
