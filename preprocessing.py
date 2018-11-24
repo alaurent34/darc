@@ -6,6 +6,10 @@ Github: https://github.com/Drayer34
 Description:
 """
 
+import os
+import tarfile
+import json
+
 import pandas as pd
 
 from utils import T_COL, F_COL, M_COL, PATH_F
@@ -67,17 +71,20 @@ def read_tar(tar_path):
     :returns: submission_file_path, team_attacked, sumbission_id of the file attacked
 
     """
+    # Extract path
+    path = '/'.join(tar_path.split('/')[0:-1])
+
     # Open and extract the tarfile
     tar = tarfile.open(tar_path, "r")
-    tar.extractall()
+    tar.extractall(path)
 
     # Recover the path of the submission and informations
     json_path = "crowdai.json"
     for member in tar.members:
         if member.name.split('.')[-1] == 'csv':
-            submission_file_path = member.name
+            submission_file_path = "{}/{}".format(path, member.name)
         elif member.name.split('.')[-1] == 'json':
-            json_path = member.name
+            json_path = "{}/{}".format(path, member.name)
 
     # Open json file
     try:
