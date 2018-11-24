@@ -322,13 +322,14 @@ def main():
     #                       'submission_id_attacked' and 'submission_id_attacked'
     #
 
+    _client_payload["crowdai_participant_id"] = "a"
+
     print("TESTING: Round 1")
 
     # Ground truth path for round 1
-    _client_payload["submission_file_path"] = "data/submission.csv"
+    _client_payload["submission_file_path"] = "data/example_files/submission.csv"
     # Name of the current team who is submitting the file
     # It **SHALL** not contains "_" char.
-    _client_payload["crowdai_participant_id"] = "a"
     _client_payload["crowdai_submission_id"] = 2
 
     _context = {}
@@ -345,7 +346,7 @@ def main():
     # It is recovered during the round2 in method evaluate
 
     # Submission file for round 2
-    _client_payload["submission_file_path"] = "./data/f_files/F_a_attempt_2.tar"
+    _client_payload["submission_file_path"] = "./data/example_files/F_a_attempt_2.tar"
 
     # Instantiate an evaluator
     crowdai_evaluator = DarcEvaluator(answer_file_path, round=2)
