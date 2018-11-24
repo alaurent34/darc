@@ -261,19 +261,28 @@ class DarcEvaluator:
         elif self.round == 2:
 
             #Read tar file
-            submission_file_path, team_attacked, attempt_attacked = preprocessing.read_tar(
+            submission_file_path, team_attacked, crowdai_submission_id = preprocessing.read_tar(
                 submission_file_path
                 )
 
+            # Recover ground Truth from Redis database
+            try:
+                ground_truth = pd.read_msgpack(self.redis_co.get_value(
+                    "F_{}_submission_id_{}".format(team_attacked, crowdai_submission_id)
+                    ))
+            except ValueError:
+                raise Exception("There is no team {} with submission number {}".format(
+                    team_attacked, crowdai_submission_id
+                    ))
+
             # Read submitted files and ground truth
-            ground_truth,\
-                submission = preprocessing.round2_preprocessing(submission_file_path,\
-                                                                attempt_attacked,\
+            submission = preprocessing.round2_preprocessing(submission_file_path,\
+                                                                crowdai_submission_id,\
                                                                 team_attacked)
 
             # Check if they've attacked them 10 times already
             nb_atcks = self.redis_co.get_nb_try_reid(
-                crowdai_submission_uid, team_attacked, attempt_attacked
+                crowdai_submission_uid, team_attacked, crowdai_submission_id
                 )
             if nb_atcks >= 10:
                 raise Exception("You've reach your 10 attempts on this file.")
@@ -284,7 +293,7 @@ class DarcEvaluator:
 
             # Increment by 1 the number of attempts
             self.redis_co.set_nb_try_reid(
-                nb_atcks+1, crowdai_submission_uid, team_attacked, attempt_attacked
+                nb_atcks+1, crowdai_submission_uid, team_attacked, crowdai_submission_id
                 )
 
             # Return object
