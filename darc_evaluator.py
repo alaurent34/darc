@@ -267,7 +267,6 @@ class DarcEvaluator:
             # Read submitted files and ground truth
             ground_truth,\
                 submission = preprocessing.round2_preprocessing(submission_file_path,\
-                                                                self.redis_co,\
                                                                 attempt_attacked,\
                                                                 team_attacked)
 
