@@ -138,7 +138,8 @@ class RedisConnection():
         redis_set = "{}_vs_{}_file_{}".format(team_name, opponent_name, attempt_attacked)
         self._redis_co.set(redis_set, nb_trys)
 
-    def save_first_round_attempt(self, team_name, at_data, s_data, f_data, score_util, score_reid):
+    def save_first_round_attempt(self, team_name, at_data, s_data, f_data, score_util, score_reid,\
+                                 crowdai_submission_id):
         """Save the attempt of team `team_name`. Attempt are stored as Y_TEAM_NAME_attempt_X
         with Y in :
                 - AT : the submission
@@ -156,29 +157,22 @@ class RedisConnection():
         :score_reid: re-identification score for S
 
         """
-        nb_attempts = int(self._redis_co.get("{}_nb_attempts_ano".format(team_name)))
-
-        if not nb_attempts:
-            nb_attempts = 0
-
         pipe = self._redis_co.pipeline()
         # Save AT on redis BDD
-        pipe.set("AT_{}_attempt_{}".format(team_name, nb_attempts),\
+        pipe.set("AT_{}_submission_id_{}".format(team_name, crowdai_submission_id),\
                                                at_data.to_msgpack(compress='zlib'))
         # Save S on redis BDD
-        pipe.set("S_{}_attempt_{}".format(team_name, nb_attempts),\
+        pipe.set("S_{}_submission_id_{}".format(team_name, crowdai_submission_id),\
                                               s_data.to_msgpack(compress='zlib'))
         # Save F on redis BDD
-        pipe.set("F_{}_attempt_{}".format(team_name, nb_attempts),\
+        pipe.set("F_{}_submission_id_{}".format(team_name, crowdai_submission_id),\
                                               f_data.to_msgpack(compress='zlib'))
         # Save utility score in redis BDD
-        pipe.set("score_util_{}_attempt_{}".format(team_name, nb_attempts),\
+        pipe.set("score_util_{}_submission_id_{}".format(team_name, crowdai_submission_id),\
                                                        score_util)
         # Save re-identification score in redis BDD
-        pipe.set("score_reid_{}_attempt_{}".format(team_name, nb_attempts),\
+        pipe.set("score_reid_{}_submission_id_{}".format(team_name, crowdai_submission_id),\
                                                        score_reid)
-
-        pipe.set("{}_nb_attempts_ano".format(team_name), (nb_attempts + 1)%3)
 
     def set_value(self, value, adress):
         """ Set the value into redis BDD.
@@ -216,14 +210,18 @@ class DarcEvaluator:
         """
         `client_payload` will be a dict with (atleast) the following keys :
           - submission_file_path : local file path of the submitted file
+          - crowdai_submission_id : A unique id representing the submission
+          - crowdai_participant_id : A unique id for participant/team submitting (if enabled)
         """
 
         # Initialize redis_co
         self.redis_co = RedisConnection(redis_host, redis_port, redis_password)
 
         # Initialize directory variable
-        team_name = _context['team_name']
         submission_file_path = client_payload["submission_file_path"]
+        crowdai_submission_uid = client_payload["crowdai_participant_id"]
+        crowdai_submission_id = client_payload["crowdai_submission_id"]
+
 
         ## ROUND 1
         if self.round == 1:
@@ -244,12 +242,13 @@ class DarcEvaluator:
 
             # Save all informations about this attempt and get 3 last scores, it's a **list of dic**
             print("Saving scores and files")
-            self.redis_co.save_first_round_attempt(team_name,\
+            self.redis_co.save_first_round_attempt(crowdai_submission_uid,\
                                                    submission,\
                                                    s_file,\
                                                    f_file,\
                                                    utility_scores,\
-                                                   reid_scores)
+                                                   reid_scores,\
+                                                   crowdai_submission_id)
 
             _result_object = {
                 "utility_score" : max(utility_scores),
@@ -260,8 +259,10 @@ class DarcEvaluator:
         # ROUND 2
         elif self.round == 2:
 
-            team_attacked = _context["team_attacked"]
-            attempt_attacked = _context["attempt_attacked"]
+            #Read tar file
+            submission_file_path, team_attacked, attempt_attacked = preprocessing.read_tar(
+                submission_file_path
+                )
 
             # Read submitted files and ground truth
             ground_truth,\
@@ -271,7 +272,9 @@ class DarcEvaluator:
                                                                 team_attacked)
 
             # Check if they've attacked them 10 times already
-            nb_atcks = self.redis_co.get_nb_try_reid(team_name, team_attacked, attempt_attacked)
+            nb_atcks = self.redis_co.get_nb_try_reid(
+                crowdai_submission_uid, team_attacked, attempt_attacked
+                )
             if nb_atcks >= 10:
                 raise Exception("You've reach your 10 attempts on this file.")
 
@@ -280,7 +283,9 @@ class DarcEvaluator:
             reidentification_score = compute_score_round2(ground_truth, submission)
 
             # Increment by 1 the number of attempts
-            self.redis_co.set_nb_try_reid(nb_atcks+1, team_name, team_attacked, attempt_attacked)
+            self.redis_co.set_nb_try_reid(
+                nb_atcks+1, crowdai_submission_uid, team_attacked, attempt_attacked
+                )
 
             # Return object
             _result_object = {
@@ -294,28 +299,27 @@ class DarcEvaluator:
 def main():
     """Main loop
     """
-    print("TESTING: Round 1")
-    # Ground truth path for round 1
     answer_file_path = "data/ground_truth.csv"
 
     _client_payload = {}
     # The submission file of the team
     # For the round 1 : the anonymized transactional database
-    # For the round 2 : the F_hat guessed by the team
-    #                   It consist on the attack done by team submitting to the anonymized
-    #                   transaction of an other team (S).
+    # For the round 2 : a tar file containing :
+    #                       - The F_file of the team attacked.
+    #                       - A json file containing the two following attributes :
+    #                       'submission_id_attacked' and 'submission_id_attacked'
     #
-    #                   The name of the S file is formatted as follow :
-    #                   S_[team_name]_attempt_[attempt_nb] and the F_hat file shall have the same
-    #                   format as the S file attacked. For example if S file is :
-    #                   S_mySuperTeam_attempt_1.csv, then the F_hat file should be
-    #                   F_mySuperTeam_attemot_1.csv
-    _client_payload["submission_file_path"] = "data/submission.csv"
 
-    _context = {}
+    print("TESTING: Round 1")
+
+    # Ground truth path for round 1
+    _client_payload["submission_file_path"] = "data/submission.csv"
     # Name of the current team who is submitting the file
     # It **SHALL** not contains "_" char.
-    _context["team_name"] = "a"
+    _client_payload["crowdai_participant_id"] = "a"
+    _client_payload["crowdai_submission_id"] = 2
+
+    _context = {}
     # Instantiate an evaluator
     crowdai_evaluator = DarcEvaluator(answer_file_path, round=1)
     # Evaluate
@@ -329,9 +333,7 @@ def main():
     # It is recovered during the round2 in method evaluate
 
     # Submission file for round 2
-    _client_payload["submission_file_path"] = "./data/f_files/F_a_attempt_1.csv"
-    _context["team_attacked"] = "a"
-    _context["attempt_attacked"] = "1"
+    _client_payload["submission_file_path"] = "./data/f_files/F_a_attempt_2.tar"
 
     # Instantiate an evaluator
     crowdai_evaluator = DarcEvaluator(answer_file_path, round=2)
