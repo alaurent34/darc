@@ -1,4 +1,13 @@
+"""
+File: preprocessing.py
+Author: Antoine Laurent
+Email: laurent.antoine@courrier.uqam.ca
+Github: https://github.com/Drayer34
+Description:
+"""
+
 import pandas as pd
+
 from utils import T_COL, F_COL, M_COL, PATH_F
 
 """
@@ -33,7 +42,7 @@ def round1_preprocessing(ground_truth_file_path, submission_file_path):
 
     return ground_truth, aux_database, submission
 
-def round2_preprocessing(submission_file_path, redis_co, attempt_attacked, team_attacked):
+def round2_preprocessing(submission_file_path, attempt_attacked, team_attacked):
     """Read data for round 2 for Darc Evaluator.
     :returns: all data read.
 
@@ -43,6 +52,10 @@ def round2_preprocessing(submission_file_path, redis_co, attempt_attacked, team_
     submission.columns = F_COL
 
     # Read the ground truth file for this attack
-    ground_truth = pd.read_csv("{}/F_{}_attempt_{}.csv".format(PATH_F, team_attacked, attempt_attacked))
+    ground_truth = pd.read_csv(
+        "{}/F_{}_attempt_{}.csv".format(
+            PATH_F, team_attacked, attempt_attacked
+            )
+        )
 
     return ground_truth, submission
