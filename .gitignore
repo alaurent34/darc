@@ -12,6 +12,12 @@ data/uci_dataset_original/*
 data/tsne_vizualisation/*
 !data/tsne_vizualisation/plt/
 
+!data/example_files/
+data/example_files/*
+!data/example_files/*.csv
+!data/example_files/*.tar
+
+
 !data/*.csv
 
 data/testing/*
