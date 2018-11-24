@@ -59,3 +59,33 @@ def round2_preprocessing(submission_file_path, attempt_attacked, team_attacked):
         )
 
     return ground_truth, submission
+
+def read_tar(tar_path):
+    """Open tar file, recover submission_file_path and infos about the submission in a json file
+
+    :tar_path: path of the tarball
+    :returns: submission_file_path, team_attacked, sumbission_id of the file attacked
+
+    """
+    # Open and extract the tarfile
+    tar = tarfile.open(tar_path, "r")
+    tar.extractall()
+
+    # Recover the path of the submission and informations
+    json_path = "crowdai.json"
+    for member in tar.members:
+        if member.name.split('.')[-1] == 'csv':
+            submission_file_path = member.name
+        elif member.name.split('.')[-1] == 'json':
+            json_path = member.name
+
+    # Open json file
+    try:
+        json_f = json.load(open(json_path, "r"))
+    except FileNotFoundError:
+        raise Exception("{} not found in {}".format(json_path, tar_path))
+
+    # Remove json extracted
+    os.remove(json_path)
+
+    return submission_file_path, json_f['name_team_attacked'], json_f['submission_id_attacked']
