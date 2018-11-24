@@ -7,12 +7,10 @@ Description: Evaluator used in the context of the DARC (Data Anonymization and R
 Competition).
 """
 
-import time
-from multiprocessing import Process, Pool
+from multiprocessing import Pool
 from functools import partial
 
 import pandas as pd
-import numpy as np
 import redis
 
 from utils import *
