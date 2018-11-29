@@ -100,6 +100,7 @@ def compare_f_files(f_orig, f_hat):
     map_error = 0
     score = 0
     count = 0
+    total = 0
 
     #we want the same list of users
     if set(f_orig['id_user']).difference(set(f_hat['id_user'])):
@@ -107,25 +108,24 @@ def compare_f_files(f_orig, f_hat):
 
     if map_error == 0:
         for row in f_orig.itertuples():
-            # Compare each tuple, if they are egual over all month then gain 12 point
+            # Compare each tuple, if they are egual over all month then gain 12 points
             # One points per similarities
             f_ori_tuple = row[1:]
             f_hat_tuple = tuple(f_hat[f_hat['id_user'] == row[1]].iloc[0])
-            if f_ori_tuple == f_hat_tuple:
-                count += 12
-            else:
-                for i in range(1,13):
-                    if f_ori_tuple[i] == f_hat_tuple[i]:
-                        count+=1
+            for i in range(1, 13):
+                if f_ori_tuple[i] != "DEL":
+                    total += 1
+                if f_ori_tuple[i] == f_hat_tuple[i] and f_ori_tuple[i] != "DEL":
+                    count += 1
 
     if map_error == 0:
-        score += round(float(count)/float(f_orig.shape[0]*12), 6)
+        score += round(float(count)/float(total), 6)
 
     return score
 
 def check_format_trans_file(dataframe):
     """ Check the format of an Anonymized Transaction dataset submitted by a participant. Raise an
-    Exception if there is something that does not match the format requiered.
+    Exception if there is something that does not match the format required.
 
     :dataframe: The dataframe that represent the participant data.
 
