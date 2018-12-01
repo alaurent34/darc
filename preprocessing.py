@@ -46,7 +46,7 @@ def round1_preprocessing(ground_truth_file_path, submission_file_path):
 
     return ground_truth, aux_database, submission
 
-def round2_preprocessing(submission_file_path, attempt_attacked, team_attacked):
+def round2_preprocessing(submission_file_path):
     """Read data for round 2 for Darc Evaluator.
     :returns: all data read.
 
