@@ -274,9 +274,7 @@ class DarcEvaluator:
                     ))
 
             # Read submitted files and ground truth
-            submission = preprocessing.round2_preprocessing(submission_file_path,\
-                                                                crowdai_submission_id,\
-                                                                team_attacked)
+            submission = preprocessing.round2_preprocessing(submission_file_path)
 
             # Check if they've attacked them 10 times already
             nb_atcks = self.redis_co.get_nb_try_reid(
