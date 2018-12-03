@@ -123,7 +123,7 @@ def compare_f_files(f_orig, f_hat):
 
     return score
 
-def check_format_trans_file(dataframe):
+def check_format_trans_file(ground_truth, dataframe):
     """ Check the format of an Anonymized Transaction dataset submitted by a participant. Raise an
     Exception if there is something that does not match the format required.
 
@@ -136,21 +136,26 @@ def check_format_trans_file(dataframe):
     #  Good Man !".<19-06-18, Antoine L.> #
 
     df_copy = dataframe.copy()
-
-    # Check the columns format : should be string, string, string, string, float, int
     columns = df_copy.columns
+
+    # Check the number of lines of the dataframe
+    if df_copy.shape[0] != ground_truth.shape[0]:
+        raise Exception(
+            "The number of transaction is not the same in the ground_truth and the anonymized file"
+        )
 
     # Remove DEL row before value_check
     df_copy = df_copy[df_copy[columns[0]] != 'DEL']
 
     # Check the number of DEL Row :
-    if df_copy.shape[0] < dataframe.shape[0]/2:
+    if df_copy.shape[0] < ground_truth.shape[0]/2:
         raise Exception("You cannot suppress more than 50% of the data")
 
     # Check the number of columns of the DataFrame
     if df_copy.shape[1] != 6:
         raise Exception("Dataset should have 6 columns")
 
+    # Check the columns format : should be string, string, string, string, float, int
     try:
         error_type = []
         for i in range(0, 6):
@@ -165,6 +170,26 @@ def check_format_trans_file(dataframe):
                 df_copy[columns[i]] = df_copy[columns[i]].apply(lambda x: float(x))
     except Exception:
         raise Exception("Column numero {} should be of type {}".format(i, error_type[i]))
+
+
+    # Check that dates stay in the same month
+    try:
+        gt_dates = pd.to_datetime(
+            ground_truth[T_COL['date']], format="%Y/%m/%d"
+        ).apply(lambda x: x.month)
+
+        at_dates = pd.to_datetime(
+            dataframe[T_COL['date']], format="%Y/%m/%d"
+        ).apply(lambda x: x.month)
+    except ValueError:
+        raise Exception("Date wrong format, should be YYYY/MM/DD")
+
+    if abs(gt_dates - at_dates).max() > 0:
+        raise Exception("Date should stay in the same month")
+
+    # Check price value
+    if df_copy[T_COL['price']].min() < 0:
+        raise Exception("Price should be >= 0 ")
 
     # Check for NaN value
     # We don't want to choose a way to interpret a NaN value
