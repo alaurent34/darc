@@ -231,7 +231,7 @@ class DarcEvaluator:
                                                             submission_file_path)
 
             # Check the format of the Anonymized Transaction file
-            check_format_trans_file(submission)
+            check_format_trans_file(ground_truth, submission)
 
             # Determine all the scores for a anonymization transaction file
             utility_scores, reid_scores, f_file, s_file = compute_score_round1(\
@@ -323,7 +323,7 @@ def main():
     print("TESTING: Round 1")
 
     # Ground truth path for round 1
-    _client_payload["submission_file_path"] = "data/example_files/submission.csv"
+    _client_payload["submission_file_path"] = "data/example_files/submission_DEL.csv"
     # Name of the current team who is submitting the file
     # It **SHALL** not contains "_" char.
     _client_payload["crowdai_submission_id"] = 2
