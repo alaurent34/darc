@@ -702,13 +702,9 @@ class UtilityMetrics(Metrics):
 
             #  TODO: Mettre ça dans un fichier qui test tous les formats et fait des messages
             #  d'erreurs approprié  <12-06-18, Antoine> #
-            try:
-                gt_day = pd.datetime.strptime(gt_day, '%Y/%m/%d')
-                anon_day = pd.datetime.strptime(anon_day, '%Y/%m/%d')
-            except:
-                raise Exception("Date wrong format, should be YYYY/MM/DD")
+            gt_day = pd.datetime.strptime(gt_day, '%Y/%m/%d')
+            anon_day = pd.datetime.strptime(anon_day, '%Y/%m/%d')
 
-            # Get the difference between date1 and date2 in days
             score += abs((gt_day - anon_day).days)
 
         score = np.round(float(score)/float(31 * self._anon_trans.shape[0]), 10)
@@ -733,15 +729,8 @@ class UtilityMetrics(Metrics):
             gt_price = float(self._ground_truth.loc[idx, self._gt_t_col['price']])
             anon_price = float(self._anon_trans.loc[idx, self._gt_t_col['price']])
 
-            #  TODO: Mettre ça dans un fichier qui test tous les formats et fait des messages
-            #  d'erreurs approprié  <12-06-18, Antoine> #
-            try:
-                if gt_price <= 0 or anon_price < 0:
-                    raise Exception("Price should be >= 0 ")
-                # Get the difference between date1 and date2 in days
-                score += (1 - min(gt_price, anon_price)/max(gt_price, anon_price))
-            except:
-                raise Exception("Price wrong format")
+            # Get the difference between date1 and date2 in days
+            score += (1 - min(gt_price, anon_price)/max(gt_price, anon_price))
 
         score = np.round(float(score)/float(self._anon_trans.shape[0]), 10)
 
