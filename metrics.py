@@ -912,7 +912,7 @@ def main():
     M = list(M.index)
     M.sort()
     M = pd.DataFrame(M, columns=M_COL.values())
-    AT = pd.read_csv('./data/submission.csv', sep=',', engine='c', na_filter=False, low_memory=False)
+    AT = pd.read_csv('./data/example_files/submission_DEL.csv', sep=',', engine='c', na_filter=False, low_memory=False)
     AT.columns = T_COL.values()
     print("Temps de lecture : {}".format(time.process_time() - start))
 
