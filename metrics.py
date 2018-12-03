@@ -379,12 +379,12 @@ class CollaborativeFiltering(object):
         """
         if self._item_table_exist:
             for item_id in self._item_table.keys():
-               self._item_user_dic.append({})
+                self._item_user_dic.append({})
 
         for row in self._data.itertuples():
-            user_id = row[self._columns['id_user']]
-            item_id = row[self._columns['id_item']]
-            quantity = row[self._columns['qty']]
+            user_id = str(row[self._columns['id_user']])
+            item_id = str(row[self._columns['id_item']])
+            quantity = int(row[self._columns['qty']]) if user_id != "DEL" else ''
 
             if top_k_ids:
                 if item_id not in top_k_ids:
@@ -553,14 +553,14 @@ class CollaborativeFiltering(object):
         item2_vec_size = 0
         inner_product = 0
 
-        for user_no,score in self._item_user_dic[item_no].items():
+        for user_no, score in self._item_user_dic[item_no].items():
             item_vec_size += score*score
 
             if user_no in self._item_user_dic[item2_no]:
                 score2 = self._item_user_dic[item2_no][user_no]
                 inner_product += score*score2
 
-        for user_no,score2 in self._item_user_dic[item2_no].items():
+        for user_no, score2 in self._item_user_dic[item2_no].items():
             item2_vec_size += score2*score2
 
         cos_sim = float(inner_product) / float(math.sqrt(item_vec_size) * math.sqrt(item2_vec_size))
@@ -580,11 +580,11 @@ class CollaborativeFiltering(object):
         for item_no in range(len(self._item_user_dic)):
             for user_no in self._item_user_dic[item_no].keys():
                 for item2_no in self._user_item_dic[user_no].keys():
-                     if item_no != item2_no:
-                        item_item_dic[(item_no,item2_no)] = 1
+                    if item_no != item2_no:
+                        item_item_dic[(item_no, item2_no)] = 1
 
-        for item_no,item2_no in item_item_dic.keys():
-            item_item_dic[(item_no,item2_no)] = self._calc_cos_sim(item_no,item2_no)
+        for item_no, item2_no in item_item_dic.keys():
+            item_item_dic[(item_no, item2_no)] = self._calc_cos_sim(item_no, item2_no)
 
         return item_item_dic
 
@@ -666,13 +666,13 @@ class UtilityMetrics(Metrics):
         sim_dist = 0
         item_item_dic1_sum = 0
 
-        for item_no,item2_no in item_item_dic1:
-            item_item_dic1_sum += item_item_dic1[(item_no,item2_no)]
+        for item_no, item2_no in item_item_dic1:
+            item_item_dic1_sum += item_item_dic1[(item_no, item2_no)]
 
-            if (item_no,item2_no) in item_item_dic2:
-                sim_dist += math.fabs(item_item_dic1[(item_no,item2_no)] - item_item_dic2[(item_no,item2_no)])
+            if (item_no, item2_no) in item_item_dic2:
+                sim_dist += math.fabs(item_item_dic1[(item_no, item2_no)] - item_item_dic2[(item_no, item2_no)])
             else:
-                sim_dist += item_item_dic1[(item_no,item2_no)]
+                sim_dist += item_item_dic1[(item_no, item2_no)]
 
         sim_dist /= item_item_dic1_sum
 
@@ -691,7 +691,7 @@ class UtilityMetrics(Metrics):
 
         for idx in range(self._anon_trans.shape[0]):
             # Skip this loop if id_user == DEL
-            if self._anon_trans.iloc[idx, self._gt_t_col['id_user']] == "DEL":
+            if self._anon_trans.iloc[idx, self._gt_t_col['id_user']-1] == "DEL":
                 continue
 
             # Get the date from the data at index idx
@@ -726,7 +726,7 @@ class UtilityMetrics(Metrics):
 
         for idx in range(self._anon_trans.shape[0]):
             # Skip this loop if id_user == DEL
-            if self._anon_trans.iloc[idx, self._gt_t_col['id_user']] == "DEL":
+            if self._anon_trans.iloc[idx, self._gt_t_col['id_user']-1] == "DEL":
                 continue
 
             # Get the date from the data at index idx
