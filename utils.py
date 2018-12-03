@@ -135,31 +135,40 @@ def check_format_trans_file(dataframe):
     #  TODO: Complete the format check if needed otherwise perform some test so we can say "It's all
     #  Good Man !".<19-06-18, Antoine L.> #
 
-    # Check the number of columns of the DataFrame
-    if dataframe.shape[1] != 6:
-        raise Exception("Dataset should have 6 columns")
+    df_copy = dataframe.copy()
 
     # Check the columns format : should be string, string, string, string, float, int
-    columns = dataframe.columns
+    columns = df_copy.columns
+
+    # Remove DEL row before value_check
+    df_copy = df_copy[df_copy[columns[0]] != 'DEL']
+
+    # Check the number of DEL Row :
+    if df_copy.shape[0] < dataframe.shape[0]/2:
+        raise Exception("You cannot suppress more than 50% of the data")
+
+    # Check the number of columns of the DataFrame
+    if df_copy.shape[1] != 6:
+        raise Exception("Dataset should have 6 columns")
+
     try:
         error_type = []
         for i in range(0, 6):
             if i < 4:
                 error_type.append("string")
-                dataframe[columns[i]] = dataframe[columns[i]].apply(lambda x: str(x))
+                df_copy[columns[i]] = df_copy[columns[i]].apply(lambda x: str(x))
             elif i == 5:
                 error_type.append("int")
-                dataframe[columns[i]] = dataframe[columns[i]].apply(lambda x: int(x))
+                df_copy[columns[i]] = df_copy[columns[i]].apply(lambda x: int(x))
             else:
                 error_type.append("float")
-                dataframe[columns[i]] = dataframe[columns[i]].apply(lambda x: float(x))
+                df_copy[columns[i]] = df_copy[columns[i]].apply(lambda x: float(x))
     except Exception:
         raise Exception("Column numero {} should be of type {}".format(i, error_type[i]))
 
     # Check for NaN value
     # We don't want to choose a way to interpret a NaN value
     # It should be done by the participant
-    df_copy = dataframe[dataframe[columns[0]] != 'DEL']
     size_before = df_copy.shape[0]
 
     # Remove NaN
