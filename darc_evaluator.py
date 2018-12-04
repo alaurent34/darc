@@ -236,28 +236,28 @@ class DarcEvaluator:
         if self.round == 1:
 
             # Read database from files
-            ground_truth, aux_database, submission = round1_preprocessing(\
-                                                            self.answer_file_path,\
-                                                            submission_file_path)
+            ground_truth, aux_database, submission = round1_preprocessing(
+                self.answer_file_path, submission_file_path
+            )
 
             # Check the format of the Anonymized Transaction file
             check_format_trans_file(ground_truth, submission)
 
             # Determine all the scores for a anonymization transaction file
-            utility_scores, reid_scores, f_file, s_file = compute_score_round1(\
-                                                               ground_truth,\
-                                                               aux_database,\
-                                                               submission)
+            utility_scores, reid_scores, f_file, s_file = compute_score_round1(
+                ground_truth, aux_database, submission
+            )
 
             # Save all informations about this attempt and get 3 last scores, it's a **list of dic**
             print("Saving scores and files")
-            self.redis_co.save_first_round_attempt(crowdai_submission_uid,\
-                                                   submission,\
-                                                   s_file,\
-                                                   f_file,\
-                                                   utility_scores,\
-                                                   reid_scores,\
-                                                   crowdai_submission_id)
+            self.redis_co.set_value(
+                f_file.to_msgpack(compress='zlib'),
+                "F_{}_submission_id_{}".format(crowdai_submission_uid, crowdai_submission_id)
+            )
+            self.redis_co.set_value(
+                s_file.to_msgpack(compress='zlib'),
+                "S_{}_submission_id_{}".format(crowdai_submission_uid, crowdai_submission_id)
+            )
 
             _result_object = {
                 "score" : max(utility_scores),
