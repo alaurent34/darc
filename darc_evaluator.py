@@ -14,13 +14,13 @@ import pandas as pd
 import redis
 
 try:
-	from utils import *
 	from metrics import UtilityMetrics, ReidentificationMetrics
 	from preprocessing import round1_preprocessing, round2_preprocessing, read_tar
+	from utils import *
 except ImportError:
-	from .utils import *
 	from .metrics import UtilityMetrics, ReidentificationMetrics
 	from .preprocessing import round1_preprocessing, round2_preprocessing, read_tar
+	from .utils import *
 
 import os
 
@@ -215,7 +215,7 @@ class DarcEvaluator:
         self.redis_port = redis_port
         self.redis_password = redis_password
 
-    def evaluate(self, client_payload, _context={}):
+    def _evaluate(self, client_payload, _context={}):
         """
         `client_payload` will be a dict with (atleast) the following keys :
           - submission_file_path : local file path of the submitted file
@@ -348,7 +348,7 @@ def main():
     # Instantiate an evaluator
     crowdai_evaluator = DarcEvaluator(answer_file_path, round=1, redis_host=HOST, redis_port=PORT, redis_password=PASSWORD)
     # Evaluate
-    result = crowdai_evaluator.evaluate(
+    result = crowdai_evaluator._evaluate(
         _client_payload, _context
         )
     print(result)
@@ -363,7 +363,7 @@ def main():
     # Instantiate an evaluator
     crowdai_evaluator = DarcEvaluator(answer_file_path, round=2, redis_host=HOST, redis_port=PORT, redis_password=PASSWORD)
     #Evaluate
-    result = crowdai_evaluator.evaluate(
+    result = crowdai_evaluator._evaluate(
         _client_payload, _context
         )
     print(result)

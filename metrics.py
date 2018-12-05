@@ -15,8 +15,10 @@ import pandas as pd
 import numpy as np
 
 try:
+	from utils import M_COL, T_COL
 	from utils import *
 except ImportError:
+	from .utils import M_COL, T_COL
 	from .utils import *
 
 class Metrics(object):
