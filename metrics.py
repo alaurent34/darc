@@ -14,7 +14,11 @@ import math
 import pandas as pd
 import numpy as np
 
-from utils import *
+try:
+	from utils import *
+except ImportError:
+	from .utils import *
+
 class Metrics(object):
 
     """Super class Metrics for ReidentificationMetrics and UtilityMetrics. It genreate the S data

@@ -12,7 +12,11 @@ import json
 
 import pandas as pd
 
-from utils import T_COL, F_COL, M_COL, PATH_F
+try:
+        from utils import T_COL, F_COL, M_COL, PATH_F
+except ImportError:
+        from .utils import T_COL, F_COL, M_COL, PATH_F
+
 
 """
 File: preprocessing.py

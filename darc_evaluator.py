@@ -13,9 +13,16 @@ from functools import partial
 import pandas as pd
 import redis
 
-from utils import *
-import metrics
-import preprocessing
+try:
+	from utils import *
+	from metrics import UtilityMetrics, ReidentificationMetrics
+	from preprocessing import round1_preprocessing, round2_preprocessing, read_tar
+except ImportError:
+	from .utils import *
+	from .metrics import UtilityMetrics, ReidentificationMetrics
+	from .preprocessing import round1_preprocessing, round2_preprocessing, read_tar
+
+import os
 
 def metric_wrapper(metric, instance, numero):
     """Launch a metric in function of instance metric and the number of the later.
@@ -42,7 +49,7 @@ def compute_score_round1(ground_truth, aux_database, submission):
 
     """
     # Initialize utility metrics
-    utility_m = metrics.UtilityMetrics(aux_database, ground_truth, submission)
+    utility_m = UtilityMetrics(aux_database, ground_truth, submission)
 
     #Compute utility metrics as subprocesses
     print("Compute Utility metrics")
@@ -51,7 +58,7 @@ def compute_score_round1(ground_truth, aux_database, submission):
     utility_scores = metric_pool.map(utility_wrapper, range(1, 7))
 
     # Initialize re-identification metrics
-    reid_m = metrics.ReidentificationMetrics(aux_database, ground_truth, submission)
+    reid_m = ReidentificationMetrics(aux_database, ground_truth, submission)
 
     #Compute reidentification metrics as subprocesses
     print("Compute Reidentification metrics")
@@ -229,7 +236,7 @@ class DarcEvaluator:
         if self.round == 1:
 
             # Read database from files
-            ground_truth, aux_database, submission = preprocessing.round1_preprocessing(\
+            ground_truth, aux_database, submission = round1_preprocessing(\
                                                             self.answer_file_path,\
                                                             submission_file_path)
 
@@ -262,7 +269,7 @@ class DarcEvaluator:
         elif self.round == 2:
 
             #Read tar file
-            submission_file_path, team_attacked, crowdai_submission_id = preprocessing.read_tar(
+            submission_file_path, team_attacked, crowdai_submission_id = read_tar(
                 submission_file_path
                 )
 
@@ -277,7 +284,7 @@ class DarcEvaluator:
                     ))
 
             # Read submitted files and ground truth
-            submission = preprocessing.round2_preprocessing(submission_file_path)
+            submission = round2_preprocessing(submission_file_path)
 
             # Check if they've attacked them 10 times already
             nb_atcks = self.redis_co.get_nb_try_reid(
@@ -331,6 +338,12 @@ def main():
     # It **SHALL** not contains "_" char.
     _client_payload["crowdai_submission_id"] = 2
 
+    HOST = os.getenv("REDIS_HOST", False)
+    PORT = int(os.getenv("REDIS_PORT", 6379))
+    PASSWORD = os.getenv("REDIS_PASSWORD", False)
+
+    if HOST == False:
+        raise Exception("Please provide the Redis Host and other credentials, by providing the following environment variables : REDIS_HOST, REDIS_PORT, REDIS_PASSWORD")
     _context = {}
     # Instantiate an evaluator
     crowdai_evaluator = DarcEvaluator(answer_file_path, round=1, redis_host=HOST, redis_port=PORT, redis_password=PASSWORD)
@@ -357,3 +370,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
