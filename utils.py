@@ -20,9 +20,8 @@ F_COL = ['id_user', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 PATH_F = "./data/f_files/"
 
 # Redis identifiant : do not disclause to participants
-HOST = "YourHostHERE"
-PORT = 0
-PASSWORD = "YourPasswordHERE"
+# HOST, PORT and PASSWORD have bveen removed from here 
+# and are instead being picked up as environment variables
 
 def month_passed(date):
     """ Get the month from a date, month should be between 0 and 11

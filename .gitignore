@@ -25,3 +25,4 @@ data/testing/*
 __pycache__/
 
 source/
+*.pyc

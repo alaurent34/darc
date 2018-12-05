@@ -194,7 +194,7 @@ class DarcEvaluator:
     Evaluate submission file of users in the context od DARC competition
     This is a fork from crowdai_evaluator https://github.com/crowdAI/crowdai-example-evaluator
     """
-    def __init__(self, answer_file_path, round=1):
+    def __init__(self, answer_file_path, round=1, redis_host='127.0.0.1', redis_port=6379, redis_password=False):
         """
         `round` : Holds the round for which the evaluation is being done.
         can be 1, 2...upto the number of rounds the challenge has.
@@ -204,8 +204,11 @@ class DarcEvaluator:
         self.round = round
         # Determine the score depending on the round
         self.redis_co = ""
+        self.redis_host = redis_host
+        self.redis_port = redis_port
+        self.redis_password = redis_password
 
-    def evaluate(self, client_payload, _context={}, redis_host="", redis_port="", redis_password=""):
+    def evaluate(self, client_payload, _context={}):
         """
         `client_payload` will be a dict with (atleast) the following keys :
           - submission_file_path : local file path of the submitted file
@@ -214,7 +217,7 @@ class DarcEvaluator:
         """
 
         # Initialize redis_co
-        self.redis_co = RedisConnection(redis_host, redis_port, redis_password)
+        self.redis_co = RedisConnection(self.redis_host, self.redis_port, self.redis_password)
 
         # Initialize directory variable
         submission_file_path = client_payload["submission_file_path"]
@@ -330,10 +333,10 @@ def main():
 
     _context = {}
     # Instantiate an evaluator
-    crowdai_evaluator = DarcEvaluator(answer_file_path, round=1)
+    crowdai_evaluator = DarcEvaluator(answer_file_path, round=1, redis_host=HOST, redis_port=PORT, redis_password=PASSWORD)
     # Evaluate
     result = crowdai_evaluator.evaluate(
-        _client_payload, _context, redis_host=HOST, redis_port=PORT, redis_password=PASSWORD
+        _client_payload, _context
         )
     print(result)
 
@@ -345,10 +348,10 @@ def main():
     _client_payload["submission_file_path"] = "./data/example_files/F_a_attempt_2.tar"
 
     # Instantiate an evaluator
-    crowdai_evaluator = DarcEvaluator(answer_file_path, round=2)
+    crowdai_evaluator = DarcEvaluator(answer_file_path, round=2, redis_host=HOST, redis_port=PORT, redis_password=PASSWORD)
     #Evaluate
     result = crowdai_evaluator.evaluate(
-        _client_payload, _context, redis_host=HOST, redis_port=PORT, redis_password=PASSWORD
+        _client_payload, _context
         )
     print(result)
 
