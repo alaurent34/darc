@@ -260,8 +260,8 @@ class DarcEvaluator:
                                                    crowdai_submission_id)
 
             _result_object = {
-                "utility_score" : max(utility_scores),
-                "reidentification_score": max(reid_scores)
+                "score" : max(utility_scores),
+                "score_secondary": max(reid_scores)
                 }
             return _result_object
 
@@ -304,7 +304,8 @@ class DarcEvaluator:
 
             # Return object
             _result_object = {
-                "reidentification_score": reidentification_score,
+                "score": reidentification_score,
+                "score_secondary": 0
                 }
 
             # Remove submission_file extracted
