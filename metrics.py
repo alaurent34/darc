@@ -163,7 +163,7 @@ class ReidentificationMetrics(Metrics):
         guess = OrderedDict()
         for row in self._users.itertuples():
             # Fill dic[id] with DEL
-            guess[row[self._users_t_col['id_user']]] = ['DEL' for i in range(12)]
+            guess[str(row[self._users_t_col['id_user']])] = ['DEL' for i in range(12)]
         return guess
 
     def _tronc_product_id(self, num):
