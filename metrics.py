@@ -50,6 +50,11 @@ class Metrics(object):
         self._users_t_col = M_col
         self._gt_t_col = T_col
         self._current_score = []
+
+        #  TODO: Cast all data into a fonction  <07-12-18, yourname> #
+        self._ground_truth[self._gt_t_col['id_user']] = self._ground_truth[self._gt_t_col['id_user']].apply(lambda x: str(x))
+        self._anon_trans[self._gt_t_col['id_user']] = self._anon_trans[self._gt_t_col['id_user']].apply(lambda x: str(x))
+
         self._anonymized = self.generate_S_data()
 
     def generate_S_data(self):
