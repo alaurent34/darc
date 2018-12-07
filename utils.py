@@ -20,7 +20,7 @@ F_COL = ['id_user', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 PATH_F = "./data/f_files/"
 
 # Redis identifiant : do not disclause to participants
-# HOST, PORT and PASSWORD have bveen removed from here 
+# HOST, PORT and PASSWORD have bveen removed from here
 # and are instead being picked up as environment variables
 
 def month_passed(date):
@@ -143,6 +143,12 @@ def check_format_trans_file(ground_truth, dataframe):
             "The number of transaction is not the same in the ground_truth and the anonymized file"
         )
 
+    # ID USER should be string before DEL comparision
+    try:
+        df_copy[columns[0]] = df_copy[columns[0]].apply(lambda x: str(x))
+    except Exception:
+        raise Exception("Column numero 0 should be of type string")
+
     # Remove DEL row before value_check
     df_copy = df_copy[df_copy[columns[0]] != 'DEL']
 
@@ -157,7 +163,7 @@ def check_format_trans_file(ground_truth, dataframe):
     # Check the columns format : should be string, string, string, string, float, int
     try:
         error_type = []
-        for i in range(0, 6):
+        for i in range(1, 6):
             if i < 4:
                 error_type.append("string")
                 df_copy[columns[i]] = df_copy[columns[i]].apply(lambda x: str(x))
