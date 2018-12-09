@@ -62,13 +62,13 @@ class Metrics(object):
         :returns: S
 
         """
-        data = self._anon_trans
+        data = self._anon_trans.copy()
         # Remove NaN value from DataFrame
         data = data.dropna()
         # Remove 'DEL' row in DataFrame
         data = data[data[self._gt_t_col['id_user']] != "DEL"]
         #  TODO:check si il y a une seed pour l'aléa  <30-05-18, yourname> #
-        data = data.reindex(np.random.permutation(data.index))
+        data = data.sample(frac=1).reset_index(drop=True)
 
         return data
 
