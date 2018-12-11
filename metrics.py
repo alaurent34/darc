@@ -37,13 +37,14 @@ class Metrics(object):
         :_current_score: current score calculated by the metric already processed.
     """
 
-    def __init__(self, M, T, AT, M_col=M_COL, T_col=T_COL):
+    def __init__(self, M, T, AT, M_col=M_COL, T_col=T_COL, T_col_it=T_COL_IT):
         """
         :_users: M table containing all users present in the transaction data T (pandas DataFrame).
         :_ground_truth: T table containing all transaction of all user for one year (pandas DataFrame).
         :_anonymized: S table, the anonymized version of the _ground_truth (pandas DataFrame).
         :_users_t_col: the name of the columns in the csv file M.
         :_gt_t_col: the name of the columns in the csv file T.
+        :_gt_t_col: the name of the columns in the csv file T for iteration.
         :_current_score: current score calculated by the metric already processed.
         """
         self._users = M
@@ -51,11 +52,12 @@ class Metrics(object):
         self._anon_trans = AT
         self._users_t_col = M_col
         self._gt_t_col = T_col
+        self._gt_t_col_it = T_col_it
         self._current_score = []
 
         #  TODO: Cast all data into a fonction  <07-12-18, yourname> #
-        self._ground_truth[self._gt_t_col['id_user']] = self._ground_truth[self._gt_t_col['id_user']].apply(lambda x: str(x))
-        self._anon_trans[self._gt_t_col['id_user']] = self._anon_trans[self._gt_t_col['id_user']].apply(lambda x: str(x))
+        self._ground_truth[self._gt_t_col['id_user']] = self._ground_truth[self._gt_t_col['id_user']].apply(str)
+        self._anon_trans[self._gt_t_col['id_user']] = self._anon_trans[self._gt_t_col['id_user']].apply(str)
 
         self._anonymized = self.generate_S_data()
 
@@ -131,7 +133,7 @@ class ReidentificationMetrics(Metrics):
         :_current_score: current score calculated by the metric already processed.
     """
 
-    def __init__(self, M, T, AT, M_col=M_COL, T_col=T_COL):
+    def __init__(self, M, T, AT, M_col=M_COL, T_col=T_COL, T_col_it=T_COL_IT):
         """
         :_users: M table containing all users present in the transaction data T (pandas DataFrame).
         :_ground_truth: T table containing all transaction of all user for one year (pandas DataFrame).
@@ -140,7 +142,7 @@ class ReidentificationMetrics(Metrics):
         :_gt_t_col: the name of the columns in the csv file T.
         :_current_score: current score calculated by the metric already processed.
         """
-        Metrics.__init__(self, M, T, AT, M_col, T_col)
+        Metrics.__init__(self, M, T, AT, M_col, T_col, T_col_it)
         self._f_orig = generate_f_orig(self._ground_truth, self._anon_trans, self._gt_t_col)
 
     def _gen_value_id_dic(self, attrs):
@@ -154,7 +156,7 @@ class ReidentificationMetrics(Metrics):
         for row in self._anonymized.itertuples():
             # Create the value with all the row[attrs] concat with ":"
             value = ':'.join([str(row[elt]) for elt in attrs])
-            value_dic[value] = row[self._gt_t_col['id_user']]
+            value_dic[value] = row[self._gt_t_col_it['id_user']]
         return value_dic
 
     def _guess_inialisation(self):
@@ -194,10 +196,10 @@ class ReidentificationMetrics(Metrics):
         for row in self._ground_truth.itertuples():
             #create the concat of the attributes to watch
             value = ':'.join([str(row[i]) for i in attrs])
-            id_user = row[self._gt_t_col['id_user']]
+            id_user = row[self._gt_t_col_it['id_user']]
             if value in dic_value_anon.keys():
                 #recover month of the transaction
-                month = month_passed(row[self._gt_t_col['date']])
+                month = month_passed(row[self._gt_t_col_it['date']])
                 #affect pseudo for id_user where value == value
                 guess[id_user][month] = dic_value_anon[value]
 
@@ -214,8 +216,8 @@ class ReidentificationMetrics(Metrics):
         :returns: the score on this metric (between 0 and 1)
 
         """
-        date_col = self._gt_t_col['date']
-        qty_col = self._gt_t_col['qty']
+        date_col = self._gt_t_col_it['date']
+        qty_col = self._gt_t_col_it['qty']
 
         f_hat = self._evaluate([date_col, qty_col])
 
@@ -231,8 +233,8 @@ class ReidentificationMetrics(Metrics):
         :returns: the score on this metric (between 0 and 1)
 
         """
-        id_item_col = self._gt_t_col['id_item']
-        price_col = self._gt_t_col['price']
+        id_item_col = self._gt_t_col_it['id_item']
+        price_col = self._gt_t_col_it['price']
 
         f_hat = self._evaluate([id_item_col, price_col])
 
@@ -248,8 +250,8 @@ class ReidentificationMetrics(Metrics):
         :returns: the score on this metric (between 0 and 1)
 
         """
-        id_item_col = self._gt_t_col['id_item']
-        qty_col = self._gt_t_col['qty']
+        id_item_col = self._gt_t_col_it['id_item']
+        qty_col = self._gt_t_col_it['qty']
 
         f_hat = self._evaluate([id_item_col, qty_col])
 
@@ -265,8 +267,8 @@ class ReidentificationMetrics(Metrics):
         :returns: the score on this metric (between 0 and 1)
 
         """
-        date_col = self._gt_t_col['date']
-        id_item_col = self._gt_t_col['id_item']
+        date_col = self._gt_t_col_it['date']
+        id_item_col = self._gt_t_col_it['id_item']
 
         f_hat = self._evaluate([date_col, id_item_col])
 
@@ -282,9 +284,9 @@ class ReidentificationMetrics(Metrics):
         :returns: the score on this metric (between 0 and 1)
 
         """
-        id_item_col = self._gt_t_col['id_item']
-        price_col = self._gt_t_col['price']
-        qty_col = self._gt_t_col['qty']
+        id_item_col = self._gt_t_col_it['id_item']
+        price_col = self._gt_t_col_it['price']
+        qty_col = self._gt_t_col_it['qty']
 
         f_hat = self._evaluate([id_item_col, price_col, qty_col])
 
@@ -300,9 +302,9 @@ class ReidentificationMetrics(Metrics):
         :returns: the score on this metric (between 0 and 1)
 
         """
-        id_item_col = self._gt_t_col['id_item']
-        date_col = self._gt_t_col['date']
-        price_col = self._gt_t_col['price']
+        id_item_col = self._gt_t_col_it['id_item']
+        date_col = self._gt_t_col_it['date']
+        price_col = self._gt_t_col_it['price']
 
         f_hat = self._evaluate([id_item_col, date_col, price_col])
 
@@ -659,7 +661,7 @@ class UtilityMetrics(Metrics):
         :_current_score: current score calculated by the metric already processed.
     """
 
-    def __init__(self, M, T, AT, M_col=M_COL, T_col=T_COL):
+    def __init__(self, M, T, AT, M_col=M_COL, T_col=T_COL, T_col_it=T_COL_IT):
         """
         :_users: M table containing all users present in the transaction data T (pandas DataFrame).
         :_ground_truth: T table containing all transaction of all user for one year (pandas DataFrame).
@@ -668,7 +670,7 @@ class UtilityMetrics(Metrics):
         :_gt_t_col: the name of the columns in the csv file T.
         :_current_score: current score calculated by the metric already processed.
         """
-        Metrics.__init__(self, M, T, AT, M_col, T_col)
+        Metrics.__init__(self, M, T, AT, M_col, T_col, T_col_it)
 
 
     def _calc_sim_mat_dist(self, item_item_dic1, item_item_dic2):
@@ -704,7 +706,7 @@ class UtilityMetrics(Metrics):
 
         for idx in range(self._anon_trans.shape[0]):
             # Skip this loop if id_user == DEL
-            if self._anon_trans.iloc[idx, self._gt_t_col['id_user']-1] == "DEL":
+            if self._anon_trans.iloc[idx, self._gt_t_col_it['id_user']-1] == "DEL":
                 continue
 
             # Get the date from the data at index idx
@@ -735,7 +737,7 @@ class UtilityMetrics(Metrics):
 
         for idx in range(self._anon_trans.shape[0]):
             # Skip this loop if id_user == DEL
-            if self._anon_trans.iloc[idx, self._gt_t_col['id_user']-1] == "DEL":
+            if self._anon_trans.iloc[idx, self._gt_t_col_it['id_user']-1] == "DEL":
                 continue
 
             # Get the date from the data at index idx
