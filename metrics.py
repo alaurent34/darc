@@ -13,6 +13,8 @@ import math
 
 import pandas as pd
 import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+from scipy.sparse import coo_matrix
 
 try:
 	from utils import M_COL, T_COL
@@ -764,21 +766,41 @@ class UtilityMetrics(Metrics):
 
         """
 
-        # Processing of Ground Truth Database
-        gt_colab_fi = CollaborativeFiltering(self._ground_truth)
+        # Copy dataframe
+        ground_truth = self._ground_truth.copy()
+        anon_trans = self._anon_trans.copy()
+        anon_trans = anon_trans.drop(
+            anon_trans[anon_trans[self._gt_t_col['id_user']] == 'DEL'].index, axis=0
+        ).reset_index(drop=True)
+        anon_trans[self._gt_t_col['qty']] = anon_trans[self._gt_t_col['qty']].apply(int)
 
-        gt_colab_fi.preprocessing_data([12, 24, 36, 48], 1, max_qty_score=True)
-        item_item_dic1 = gt_colab_fi.calc_item2item_dic()
+        # Creating item x user sparse matrix for the ground_truth
+        gt_id_item_id_user = ground_truth.groupby(
+            [self._gt_t_col['id_item'], self._gt_t_col['id_user']]
+        )[self._gt_t_col['qty']].sum()
 
-        # Processing of Anonymized Database
-        anon_colab_fi = CollaborativeFiltering(self._anon_trans,\
-                item_table=gt_colab_fi.item_table)
+        gt_x_item_user = gt_id_item_id_user.to_xarray()
+        gt_x_item_user = gt_x_item_user.fillna(0)
+        gt_sparse_item_user = coo_matrix(gt_x_item_user)
 
-        anon_colab_fi.preprocessing_data([12, 24, 36, 48], 1, max_qty_score=True)
-        item_item_dic2 = anon_colab_fi.calc_item2item_dic()
+        # Compute the cosinus similarity item x item
+        gt_cos_sim = cosine_similarity(gt_sparse_item_user)
 
-        # Calcul of the distance
-        score = self._calc_sim_mat_dist(item_item_dic1, item_item_dic2)
+        # Creating item x user sparse matrix for the ground_truth
+        at_id_item_id_user = anon_trans.groupby(
+            [self._gt_t_col['id_item'], self._gt_t_col['id_user']]
+        )[self._gt_t_col['qty']].sum()
+
+        at_x_item_user = at_id_item_id_user.to_xarray()
+        at_x_item_user = at_x_item_user.fillna(0)
+        at_sparse_item_user = coo_matrix(at_x_item_user)
+
+        # Compute the cosinus similarity item x item
+        at_cos_sim = cosine_similarity(at_sparse_item_user)
+
+        # Compute score
+        diff_cos = abs(gt_cos_sim - at_cos_sim)
+        score = min(1, diff_cos.sum() / gt_cos_sim.sum())
 
         # Add the score to the global score for this metric
         self._current_score.append(score)
@@ -801,76 +823,130 @@ class UtilityMetrics(Metrics):
 
         """
 
-        # Processing of Ground Truth Database
-        gt_colab_fi = CollaborativeFiltering(self._ground_truth)
+        # Copy dataframe
+        ground_truth = self._ground_truth.copy()
+        anon_trans = self._anon_trans.copy()
+        anon_trans = anon_trans.drop(
+            anon_trans[anon_trans[self._gt_t_col['id_user']] == 'DEL'].index, axis=0
+        ).reset_index(drop=True)
+        anon_trans[self._gt_t_col['qty']] = anon_trans[self._gt_t_col['qty']].apply(int)
 
-        gt_colab_fi.preprocessing_data([12], 1, max_qty_score=False)
-        item_item_dic1 = gt_colab_fi.calc_item2item_dic()
+        # Creating item x user sparse matrix for the ground_truth
+        gt_id_item_id_user = ground_truth.groupby(
+            [self._gt_t_col['id_item'], self._gt_t_col['id_user']]
+        )[self._gt_t_col['qty']].sum()
 
-        # Processing of Anonymized Database
-        anon_colab_fi = CollaborativeFiltering(self._anon_trans,\
-                item_table=gt_colab_fi.item_table)
+        # Recovering median
+        median = gt_id_item_id_user.median()
+        # item x user < median
+        gt_id_item_id_user = gt_id_item_id_user[gt_id_item_id_user < median]
 
-        anon_colab_fi.preprocessing_data([12], 1, max_qty_score=False)
-        item_item_dic2 = anon_colab_fi.calc_item2item_dic()
+        gt_x_item_user = gt_id_item_id_user.to_xarray()
+        gt_x_item_user = gt_x_item_user.fillna(0)
+        gt_sparse_item_user = coo_matrix(gt_x_item_user)
 
-        # Calcul of the distance
-        score = self._calc_sim_mat_dist(item_item_dic1, item_item_dic2)
+        # Compute the cosinus similarity item x item
+        gt_cos_sim = cosine_similarity(gt_sparse_item_user)
+
+        # Creating item x user sparse matrix for the ground_truth
+        at_id_item_id_user = anon_trans.groupby(
+            [self._gt_t_col['id_item'], self._gt_t_col['id_user']]
+        )[self._gt_t_col['qty']].sum()
+
+        # item x user < median
+        at_id_item_id_user = at_id_item_id_user[at_id_item_id_user < median]
+
+        at_x_item_user = at_id_item_id_user.to_xarray()
+        at_x_item_user = at_x_item_user.fillna(0)
+        at_sparse_item_user = coo_matrix(at_x_item_user)
+
+        # Compute the cosinus similarity item x item
+        at_cos_sim = cosine_similarity(at_sparse_item_user)
+
+        # Compute score
+        diff_cos = abs(gt_cos_sim - at_cos_sim)
+        score = min(1, diff_cos.sum() / gt_cos_sim.sum())
 
         # Add the score to the global score for this metric
         self._current_score.append(score)
 
         return score
 
-    def e3_metric(self, param_k=100):
-        """ Caluclate the difference (as in set difference) and similarity matrix between top-`k` items
-        bought from ground truth and anonymised dataset.
+    def e3_metric(self):
+        """ Caluclate the difference (as in set difference) and similarity matrix between top-`k`
+        items bought from ground truth and anonymised dataset.
 
         :returns: score of the metric.
 
         """
-        # Processing of Ground Truth Database
-        ## Creation of Collaborative Filter object
-        gt_colab_fi = CollaborativeFiltering(self._ground_truth)
 
-        ## Preprocessing and determination of top k items for GT
-        gt_colab_fi.preprocessing_data(max_qty_score=True, top_k=True)
-        gt_tok_k_ids = gt_colab_fi.make_topk_item_list(k=param_k)
+        # Copy dataframe
+        ground_truth = self._ground_truth.copy()
+        anon_trans = self._anon_trans.copy()
+        anon_trans = anon_trans.drop(
+            anon_trans[anon_trans[self._gt_t_col['id_user']] == 'DEL'].index, axis=0
+        ).reset_index(drop=True)
+        anon_trans[self._gt_t_col['qty']] = anon_trans[self._gt_t_col['qty']].apply(int)
 
-        #Preprocessing of Anonymized DataBase
-        ## Creation of Collaborative Filter object
-        anon_colab_fi = CollaborativeFiltering(self._anon_trans,\
-                item_table=gt_colab_fi.item_table)
+        # Computing top 5% of most purchased item by customer
+        item_count = ground_truth.groupby(self._gt_t_col['id_item']).size()
+        gt_top_k = list(
+            item_count.sort_values(ascending=False).head(int(item_count.shape[0]*0.05)).index
+        )
 
-        ## Preprocessing and determination of top k items for AT
-        anon_colab_fi.preprocessing_data(max_qty_score=False, top_k=True)
-        anon_tok_k_ids = anon_colab_fi.make_topk_item_list(k=param_k)
+        # Ground Truth is now with top k items
+        ground_truth = ground_truth.set_index(self._gt_t_col['id_item'])
+        ground_truth = ground_truth.loc[gt_top_k]
+        ground_truth = ground_truth.reset_index()
 
-        # Calcul score for top k items only and retrieve item_table for top k
-        gt_colab_fi = CollaborativeFiltering(self._ground_truth)
-        gt_colab_fi.preprocessing_data(max_qty_score=True, top_k=True, top_k_ids=gt_tok_k_ids)
+        # Creating item x user sparse matrix for the ground_truth
+        gt_id_item_id_user = ground_truth.groupby(
+            [self._gt_t_col['id_item'], self._gt_t_col['id_user']]
+        )[self._gt_t_col['qty']].sum()
 
-        # Obtention of item_item_GT
-        item_item_dic1 = gt_colab_fi.calc_item2item_dic()
+        gt_x_item_user = gt_id_item_id_user.to_xarray()
+        gt_x_item_user = gt_x_item_user.fillna(0)
+        gt_sparse_item_user = coo_matrix(gt_x_item_user)
 
-        # Processing of Anonymized Database for top k item with item_table
-        anon_colab_fi = CollaborativeFiltering(self._anon_trans,\
-                item_table=gt_colab_fi.item_table)
+        # Compute the cosinus similarity item x item
+        gt_cos_sim = cosine_similarity(gt_sparse_item_user)
 
-        anon_colab_fi.preprocessing_data(max_qty_score=True, top_k=True, top_k_ids=gt_tok_k_ids)
+        # Computing top 5% of most purchased item by customer
+        item_count = anon_trans.groupby(self._gt_t_col['id_item']).size()
+        at_top_k = list(
+            item_count.sort_values(ascending=False).head(int(item_count.shape[0]*0.05)).index
+        )
 
-        # Obtention of item_item_GT
-        item_item_dic2 = anon_colab_fi.calc_item2item_dic()
+        # Ground Truth is now with top k items
+        anon_trans = anon_trans.set_index(self._gt_t_col['id_item'])
+        anon_trans = anon_trans.loc[at_top_k]
+        anon_trans = anon_trans.reset_index()
 
-        # Calcul of the score
-        score = []
-        score.append(len(set(gt_tok_k_ids).difference(set(anon_tok_k_ids))) / param_k)
-        score.append(self._calc_sim_mat_dist(item_item_dic1, item_item_dic2))
+        # Creating item x user sparse matrix for the ground_truth
+        at_id_item_id_user = anon_trans.groupby(
+            [self._gt_t_col['id_item'], self._gt_t_col['id_user']]
+        )[self._gt_t_col['qty']].sum()
+
+        at_x_item_user = at_id_item_id_user.to_xarray()
+        at_x_item_user = at_x_item_user.fillna(0)
+        at_sparse_item_user = coo_matrix(at_x_item_user)
+
+        # Compute the cosinus similarity item x item
+        at_cos_sim = cosine_similarity(at_sparse_item_user)
+
+        # Compute score
+        diff_cos = min(1, (abs(gt_cos_sim - at_cos_sim).sum()) / gt_cos_sim.sum())
+        # Jaccard distance
+        diff_top_k = (
+            len(set(gt_top_k).union(at_top_k)) - len(set(gt_top_k).intersection(set(at_top_k)))
+        )/ len(set(gt_top_k).union(at_top_k))
+
+        score = max(diff_cos, diff_top_k)
 
         # Add the score to the global score for this metric
-        self._current_score.append(max(score))
+        self._current_score.append(score)
 
-        return max(score)
+        return score
 
     def e4_metric(self):
         """ Calculate the mean distance in day between anonymised and ground truth
