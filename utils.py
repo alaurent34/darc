@@ -14,7 +14,8 @@ import progressbar
 
 # for itertuples which is A LOT faster than iterrows
 M_COL = {'id_user':1}
-T_COL = {'id_user':1, 'date':2, 'hours':3, 'id_item':4, 'price':5, 'qty':6}
+T_COL = {'id_user': 'id_user', 'date': 'date', 'hours': 'hours', 'id_item': 'id_item', 'price': 'price', 'qty': 'qty'}
+T_COL_IT = {'id_user':1, 'date':2, 'hours':3, 'id_item':4, 'price':5, 'qty':6}
 F_COL = ['id_user', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
 PATH_F = "./data/f_files/"
@@ -30,7 +31,7 @@ def month_passed(date):
     :return: integer between 0 and 11 """
     return int(date.split('/')[1]) % 12
 
-def generate_f_orig(ground_truth_trans, anon_trans, gt_t_col=T_COL):
+def generate_f_orig(ground_truth_trans, anon_trans, gt_t_col=T_COL, gt_t_col_it=T_COL_IT):
     """Generate the F file for the original data, to compare it with the F^ file.
 
     :returns: F file original
@@ -46,8 +47,8 @@ def generate_f_orig(ground_truth_trans, anon_trans, gt_t_col=T_COL):
 
     seen = set()
     for row in ground_truth_trans.itertuples():
-        id_orig = row[gt_t_col['id_user']]
-        month = month_passed(row[gt_t_col['date']])
+        id_orig = row[gt_t_col_it['id_user']]
+        month = month_passed(row[gt_t_col_it['date']])
         id_ano = anon_trans.loc[row[0], gt_t_col['id_user']]
         item = "{}-{}-{}".format(id_orig, month, id_ano)
         if item not in seen:
