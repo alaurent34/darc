@@ -244,7 +244,7 @@ class DarcEvaluator:
             check_format_trans_file(ground_truth, submission)
 
             # Determine all the scores for a anonymization transaction file
-            utility_scores, reid_scores, f_file, s_file = compute_score_round1(
+            utility_scores, reid_scores, f_file, _ = compute_score_round1(
                 ground_truth, aux_database, submission
             )
 
@@ -253,10 +253,6 @@ class DarcEvaluator:
             self.redis_co.set_value(
                 f_file.to_msgpack(compress='zlib'),
                 "F_{}_submission_id_{}".format(crowdai_submission_uid, crowdai_submission_id)
-            )
-            self.redis_co.set_value(
-                s_file.to_msgpack(compress='zlib'),
-                "S_{}_submission_id_{}".format(crowdai_submission_uid, crowdai_submission_id)
             )
 
             _result_object = {
