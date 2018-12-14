@@ -29,7 +29,7 @@ def month_passed(date):
 
     :date: a date in format YYYY/MM/DD
     :return: integer between 0 and 11 """
-    return int(date.split('/')[1]) % 12
+    return int(date.split('/')[1]) if date.split('/')[0] != '2011' else 0
 
 def generate_f_orig(ground_truth_trans, anon_trans, gt_t_col=T_COL, gt_t_col_it=T_COL_IT):
     """Generate the F file for the original data, to compare it with the F^ file.
@@ -39,10 +39,10 @@ def generate_f_orig(ground_truth_trans, anon_trans, gt_t_col=T_COL, gt_t_col_it=
     """
 
     # Initialization
-    f_orig = pd.DataFrame(columns=['id_user', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
+    f_orig = pd.DataFrame(columns=['id_user', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
     f_orig.id_user = ground_truth_trans[gt_t_col['id_user']].value_counts().index
     f_orig = f_orig.sort_values('id_user').reset_index(drop=True)
-    f_orig.loc[:, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]] = "DEL"
+    f_orig.loc[:, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]] = "DEL"
 
 
     seen = set()
