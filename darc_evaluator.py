@@ -248,13 +248,6 @@ class DarcEvaluator:
                 ground_truth, aux_database, submission
             )
 
-            # Save all informations about this attempt and get 3 last scores, it's a **list of dic**
-            print("Saving scores and files")
-            self.redis_co.set_value(
-                f_file.to_msgpack(compress='zlib'),
-                "F_{}_submission_id_{}".format(crowdai_submission_uid, crowdai_submission_id)
-            )
-
             _result_object = {
                 "score" : max(utility_scores),
                 "score_secondary": max(reid_scores)
