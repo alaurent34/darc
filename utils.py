@@ -185,7 +185,7 @@ def check_format_trans_file(ground_truth, dataframe):
         ).apply(lambda x: x.month)
 
         at_dates = pd.to_datetime(
-            dataframe[T_COL['date']], format="%Y/%m/%d"
+            df_copy[T_COL['date']], format="%Y/%m/%d"
         ).apply(lambda x: x.month)
     except ValueError:
         raise Exception("Date wrong format, should be YYYY/MM/DD")
@@ -196,6 +196,16 @@ def check_format_trans_file(ground_truth, dataframe):
     # Check price value
     if df_copy[T_COL['price']].min() < 0:
         raise Exception("Price should be >= 0 ")
+
+    # Check id products
+    gt_products = set(list(ground_truth[T_COL['id_item']]))
+    at_products = set(list(df_copy[T_COL['id_item']]))
+    if not at_products.issubset(gt_products):
+        raise Exception(
+            "id_item {} : id_items should be real".format(at_products.difference(ground_truth))
+            )
+
+    # Check number of pseudonyms
 
     # Check for NaN value
     # We don't want to choose a way to interpret a NaN value
