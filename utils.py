@@ -51,7 +51,7 @@ def generate_f_orig(ground_truth_trans, anon_trans, gt_t_col=T_COL, gt_t_col_it=
         month = month_passed(row[gt_t_col_it['date']])
         id_ano = anon_trans.loc[row[0], gt_t_col['id_user']]
         item = "{}-{}-{}".format(id_orig, month, id_ano)
-        if item not in seen:
+        if item not in seen and id_ano != "DEL":
             seen.add(item)
             f_orig.loc[f_orig.id_user == id_orig, month] = id_ano
 
