@@ -29,7 +29,7 @@ def month_passed(date):
 
     :date: a date in format YYYY/MM/DD
     :return: integer between 0 and 11 """
-    return int(date.split('/')[1]) if date.split('/')[0] != '2011' else 0
+    return 0 if date.split('/')[0] == '2010' else int(date.split('/')[1])
 
 def generate_f_orig(ground_truth_trans, anon_trans, gt_t_col=T_COL, gt_t_col_it=T_COL_IT):
     """Generate the F file for the original data, to compare it with the F^ file.
