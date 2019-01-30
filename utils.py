@@ -206,6 +206,17 @@ def check_format_trans_file(ground_truth, dataframe):
             )
 
     # Check number of pseudonyms
+    gt_copy = ground_truth.copy()
+    df_copy = dataframe.copy()
+
+    gt_copy = gt_copy[df_copy[T_COL['id_user']] != "DEL"]
+    df_copy = df_copy[df_copy[T_COL['id_user']] != "DEL"]
+
+    gt_copy['month'] = pd.to_datetime(gt_copy[T_COL['date']]).dt.to_period('M')
+    gt_copy['id_anon'] = df_copy[T_COL['id_user']]
+
+    if max(gt_copy.groupby(['month', 'id_user'])['id_anon'].unique().apply(len) > 1):
+        raise Exception("You cannot use two pseudonymes for one user ID in one month.")
 
     # Check for NaN value
     # We don't want to choose a way to interpret a NaN value
