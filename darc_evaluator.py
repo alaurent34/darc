@@ -82,6 +82,84 @@ def compute_score_round2(ground_truth, submission):
     """
     return compare_f_files(ground_truth, submission)
 
+def save_first_round_attempt(team_id, at_data, s_data, f_data,\
+                             crowdai_submission_id, redis_c, oc):
+    """Save the attempt of team `team_id`. Attempt are stored as Y_CROWDAI_SUBMISSION_ID
+    with Y in :
+            - AT : the submission
+            - S : AT with DEL row deleted
+            - F : correspondance between id and pseudo
+
+    :team_id: The id of the team submitting the anonymized file.
+    :at_data: the submission
+    :s_data: AT with DEL row deleted
+    :f_data: correspondance between id and pseudo
+    :crowdai_submission_id: the submission id in crowdai
+    :redis_c: one working redis connection
+    :oc: one working owncloud connection
+
+    """
+    nb_try = redis_c.llen("{}_id_sub".format(team_id))
+
+    if nb_try == 3:
+        id_sub = int(redis_c.lpop("{}_id_sub").format(team_id))
+
+        oc.delete("AT_{}.csv".format(id_sub))
+        oc.delete("S_{}.csv".format(id_sub))
+        oc.delete("F_{}.csv".format(id_sub))
+
+        # ENLEVER id sub
+
+    err = []
+    err.append(oc.put_file_contents(
+        data=at_data.to_csv(index=False),
+        remote_path="AT_{}.csv".format(crowdai_submission_id)
+        ))
+    err.append(oc.put_file_contents(
+        data=s_data.to_csv(index=False),
+        remote_path="S_{}.csv".format(crowdai_submission_id)
+        ))
+    err.append(oc.put_file_contents(
+        data=f_data.to_csv(index=False),
+        remote_path="F_{}.csv".format(crowdai_submission_id)
+        ))
+
+    err.append(redis_c.rpush("{}_id_sub".format(team_id), crowdai_submission_id))
+
+    if not min(err):
+        raise Exception("Error while saving files for round 1")
+        return False
+    return True
+
+class OwnCloudConnection():
+    """
+    Do the connection to owncloud data base
+    """
+
+    def __init__(self, host, usr, password):
+        """
+        init function
+        """
+        self._host = host
+        self._usr = usr
+        self._password = password
+        self._oc = self._connect_to_bdd()
+
+    def _connect_to_bdd(self):
+        """Set the first connection
+        :returns: connection
+
+        """
+        oc_client = owncloud.Client(self._host)
+        oc_client.login(self._usr, self._password)
+
+        return oc_client
+
+    def get_oc_connection(self):
+        """Return the connection to the owncloud data base
+        """
+        return self._oc
+
 class RedisConnection():
 
     """Class to control redis data base and stock team submission scores.
@@ -140,45 +218,9 @@ class RedisConnection():
         :attempt_attacked: the file (1, 2, or 3) of the opponent team attacked.
 
         """
-        redis_set = "{}_vs_{}_file_{}".format(team_name, opponent_name, attempt_attacked)
-        self._redis_co.set(redis_set, nb_trys)
+        redis_set = "{}_vs_file_{}".format(team_name, attempt_attacked)
+        self._redis_co.set(redis_set, nb_tries)
 
-    def save_first_round_attempt(self, team_name, at_data, s_data, f_data, score_util, score_reid,\
-                                 crowdai_submission_id):
-        """Save the attempt of team `team_name`. Attempt are stored as Y_TEAM_NAME_attempt_X
-        with Y in :
-                - AT : the submission
-                - S : AT with DEL row deleted
-                - F : correspondance between id and pseudo
-                - score_util : utility score for AT
-                - score_reid : re-identification score for S
-        and X in {0, 1, 2}, the attempt number
-
-        :team_name: The name of the team submitting the anonymized file.
-        :at_data: the submission
-        :s_data: AT with DEL row deleted
-        :f_data: correspondance between id and pseudo
-        :score_util: utility score for AT
-        :score_reid: re-identification score for S
-
-        """
-        pipe = self._redis_co.pipeline()
-        # Save AT on redis BDD
-        pipe.set("AT_{}_submission_id_{}".format(team_name, crowdai_submission_id),\
-                                               at_data.to_msgpack(compress='zlib'))
-        # Save S on redis BDD
-        pipe.set("S_{}_submission_id_{}".format(team_name, crowdai_submission_id),\
-                                              s_data.to_msgpack(compress='zlib'))
-        # Save F on redis BDD
-        pipe.set("F_{}_submission_id_{}".format(team_name, crowdai_submission_id),\
-                                              f_data.to_msgpack(compress='zlib'))
-        # Save utility score in redis BDD
-        pipe.set("score_util_{}_submission_id_{}".format(team_name, crowdai_submission_id),\
-                                                       score_util)
-        # Save re-identification score in redis BDD
-        pipe.set("score_reid_{}_submission_id_{}".format(team_name, crowdai_submission_id),\
-                                                       score_reid)
-        pipe.execute()
 
     def set_value(self, value, adress):
         """ Set the value into redis BDD.
@@ -215,6 +257,12 @@ class DarcEvaluator:
         self.redis_port = redis_port
         self.redis_password = redis_password
 
+        self.oc_co = ""
+        self.oc_host = oc_host
+        self.oc_usr = oc_usr
+        self.oc_password = oc_password
+
+
     def _evaluate(self, client_payload, _context={}):
         """
         `client_payload` will be a dict with (atleast) the following keys :
@@ -225,6 +273,7 @@ class DarcEvaluator:
 
         # Initialize redis_co
         self.redis_co = RedisConnection(self.redis_host, self.redis_port, self.redis_password)
+        self.oc_co = OwnCloudConnection(self.oc_host, self.oc_usr, self.oc_password)
 
         # Initialize directory variable
         submission_file_path = client_payload["submission_file_path"]
@@ -328,12 +377,19 @@ def main():
     # It **SHALL** not contains "_" char.
     _client_payload["crowdai_submission_id"] = 2
 
-    HOST = os.getenv("REDIS_HOST", False)
-    PORT = int(os.getenv("REDIS_PORT", 6379))
-    PASSWORD = os.getenv("REDIS_PASSWORD", False)
+    RHOST = os.getenv("REDIS_HOST", False)
+    RPORT = int(os.getenv("REDIS_PORT", 6379))
+    RPASSWORD = os.getenv("REDIS_PASSWORD", False)
+
+    OCHOST = os.getenv("OC_HOST", False)
+    OCUSR = os.getenv("OC_USR", False)
+    OCPASSWORD = os.getenv("OC_PASSWORD", False)
 
     if HOST == False:
         raise Exception("Please provide the Redis Host and other credentials, by providing the following environment variables : REDIS_HOST, REDIS_PORT, REDIS_PASSWORD")
+    if OCHOST == False:
+        raise Exception("Please provide the OwnCloud Host and other credentials, by providing the following environment variables : OC_HOST, OC_USR, OC_PASSWORD")
+
     _context = {}
     # Instantiate an evaluator
     crowdai_evaluator = DarcEvaluator(answer_file_path, round=1, redis_host=HOST, redis_port=PORT, redis_password=PASSWORD)
