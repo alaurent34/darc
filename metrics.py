@@ -449,6 +449,8 @@ class UtilityMetrics(Metrics):
         anon_trans = anon_trans.drop(
             anon_trans[anon_trans[self._gt_t_col['id_user']] == 'DEL'].index, axis=0
         ).reset_index(drop=True)
+
+        #  TODO: can be done one time only  <21-12-18, yourname> #
         anon_trans[self._gt_t_col['qty']] = anon_trans[self._gt_t_col['qty']].apply(int)
 
         # Creating item x user sparse matrix for the ground_truth
@@ -506,6 +508,8 @@ class UtilityMetrics(Metrics):
         anon_trans = anon_trans.drop(
             anon_trans[anon_trans[self._gt_t_col['id_user']] == 'DEL'].index, axis=0
         ).reset_index(drop=True)
+
+        #  TODO: can be done one time only  <21-12-18, yourname> #
         anon_trans[self._gt_t_col['qty']] = anon_trans[self._gt_t_col['qty']].apply(int)
 
         # Creating item x user sparse matrix for the ground_truth
@@ -563,6 +567,8 @@ class UtilityMetrics(Metrics):
         anon_trans = anon_trans.drop(
             anon_trans[anon_trans[self._gt_t_col['id_user']] == 'DEL'].index, axis=0
         ).reset_index(drop=True)
+
+        #  TODO: can be done one time only  <21-12-18, yourname> #
         anon_trans[self._gt_t_col['qty']] = anon_trans[self._gt_t_col['qty']].apply(int)
 
         # Computing top 5% of most purchased item by customer
