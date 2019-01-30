@@ -92,4 +92,4 @@ def read_tar(tar_path):
     # Remove json extracted
     os.remove(json_path)
 
-    return submission_file_path, json_f['name_team_attacked'], json_f['submission_id_attacked']
+    return submission_file_path, json_f['submission_id_attacked']
