@@ -12,6 +12,7 @@ from functools import partial
 
 import pandas as pd
 import redis
+import owncloud
 
 try:
 	from metrics import UtilityMetrics, ReidentificationMetrics
@@ -177,10 +178,10 @@ class RedisConnection():
         self._host = host
         self._port = port
         self._password = password
-        self._redis_co = self.connect_to_bdd()
+        self._redis_co = self._connect_to_bdd()
 
 
-    def connect_to_bdd(self):
+    def _connect_to_bdd(self):
         """Connect to the online BDD redis
 
         :returns: an instance of redis bdd
@@ -193,7 +194,12 @@ class RedisConnection():
 
         return redis_co
 
-    def get_nb_try_reid(self, team_name, opponent_name, attempt_attacked):
+    def get_redis_connection(self):
+        """Return the connection to the redis data base
+        """
+        return self._redis_co
+
+    def get_nb_try_reid(self, team_name, attempt_attacked):
         """ Return the number of attempts the team as made against one opponent team and their
         submission dataset.
 
@@ -228,7 +234,7 @@ class RedisConnection():
         :value: the value to set into the redis BDD.
         :adress: the adress where to set the value.
         """
-        self._redis_co.set(adress, value)
+        return self._redis_co.set(adress, value)
 
     def get_value(self, adress):
         """ Get the value at adress `adress` into redis BDD.
@@ -238,12 +244,15 @@ class RedisConnection():
         return self._redis_co.get(adress)
 
 
-class DarcEvaluator:
+class DarcEvaluator():
     """
     Evaluate submission file of users in the context od DARC competition
     This is a fork from crowdai_evaluator https://github.com/crowdAI/crowdai-example-evaluator
     """
-    def __init__(self, answer_file_path, round=1, redis_host='127.0.0.1', redis_port=6379, redis_password=False):
+    def __init__(self, answer_file_path, round=1,
+                 redis_host='127.0.0.1', redis_port=6379, redis_password=False,
+                 oc_host="http://http://redisdarc.insa-cvl.fr:8080", oc_usr=False, oc_password=False
+                ):
         """
         `round` : Holds the round for which the evaluation is being done.
         can be 1, 2...upto the number of rounds the challenge has.
@@ -293,9 +302,22 @@ class DarcEvaluator:
             check_format_trans_file(ground_truth, submission)
 
             # Determine all the scores for a anonymization transaction file
-            utility_scores, reid_scores, f_file, _ = compute_score_round1(
+            utility_scores, reid_scores, f_file, s_file = compute_score_round1(
                 ground_truth, aux_database, submission
             )
+
+            err = save_first_round_attempt(
+                crowdai_submission_uid,
+                submission,
+                s_file,
+                f_file,
+                crowdai_submission_id,
+                self.redis_co.get_redis_connection(),
+                self.oc_co.get_oc_connection()
+                )
+
+            if not err :
+                raise Exception("Error while saving the files in first round")
 
             _result_object = {
                 "score" : max(utility_scores),
@@ -392,7 +414,11 @@ def main():
 
     _context = {}
     # Instantiate an evaluator
-    crowdai_evaluator = DarcEvaluator(answer_file_path, round=1, redis_host=HOST, redis_port=PORT, redis_password=PASSWORD)
+    crowdai_evaluator = DarcEvaluator(
+        answer_file_path, round=1,
+        redis_host=RHOST, redis_port=RPORT, redis_password=RPASSWORD,
+        oc_host=OCHOST, oc_usr=OCUSR, oc_password=OCPASSWORD
+        )
     # Evaluate
     result = crowdai_evaluator._evaluate(
         _client_payload, _context
@@ -407,7 +433,11 @@ def main():
     _client_payload["submission_file_path"] = "./data/example_files/F_a_attempt_2.tar"
 
     # Instantiate an evaluator
-    crowdai_evaluator = DarcEvaluator(answer_file_path, round=2, redis_host=HOST, redis_port=PORT, redis_password=PASSWORD)
+    crowdai_evaluator = DarcEvaluator(
+        answer_file_path, round=2,
+        redis_host=RHOST, redis_port=RPORT, redis_password=RPASSWORD,
+        oc_host=OCHOST, oc_usr=OCUSR, oc_password=OCPASSWORD
+        )
     #Evaluate
     result = crowdai_evaluator._evaluate(
         _client_payload, _context
