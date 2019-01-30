@@ -9,21 +9,22 @@ Competition).
 
 from multiprocessing import Pool
 from functools import partial
+import os
+from io import BytesIO
 
 import pandas as pd
 import redis
 import owncloud
 
 try:
-	from metrics import UtilityMetrics, ReidentificationMetrics
-	from preprocessing import round1_preprocessing, round2_preprocessing, read_tar
-	from utils import *
+    from metrics import UtilityMetrics, ReidentificationMetrics
+    from preprocessing import round1_preprocessing, round2_preprocessing, read_tar
+    from utils import *
 except ImportError:
-	from .metrics import UtilityMetrics, ReidentificationMetrics
-	from .preprocessing import round1_preprocessing, round2_preprocessing, read_tar
-	from .utils import *
+    from .metrics import UtilityMetrics, ReidentificationMetrics
+    from .preprocessing import round1_preprocessing, round2_preprocessing, read_tar
+    from .utils import *
 
-import os
 
 def metric_wrapper(metric, instance, numero):
     """Launch a metric in function of instance metric and the number of the later.
@@ -204,21 +205,20 @@ class RedisConnection():
         submission dataset.
 
         :team_name: the name of the attacking team.
-        :opponent_name: the name of the opponent team
         :attempt_attacked: the file (1, 2, or 3) of the opponent team attacked.
 
         :return: Number of attempts made by team A against team B file.
         """
 
         # Return the number of attempts or 0 if there is no value at regis_get address.
-        redis_get = "{}_vs_{}_file_{}".format(team_name, opponent_name, attempt_attacked)
+        redis_get = "{}_vs_file_{}".format(team_name, attempt_attacked)
         return int(self._redis_co.get(redis_get) or 0)
 
-    def set_nb_try_reid(self, nb_trys, team_name, opponent_name, attempt_attacked):
+    def set_nb_try_reid(self, nb_tries, team_name, attempt_attacked):
         """Set the number of attempts the team as made against one opponent team and their
         submission dataset.
 
-        :nb_trys: the number of attempts to set
+        :nb_tries: the number of attempts to set
         :team_name: the name of the attacking team.
         :opponent_name: the name of the opponent team
         :attempt_attacked: the file (1, 2, or 3) of the opponent team attacked.
@@ -329,18 +329,20 @@ class DarcEvaluator():
         elif self.round == 2:
 
             #Read tar file
-            submission_file_path, team_attacked, crowdai_submission_id = read_tar(
+            submission_file_path, crowdai_submission_id_attacked = read_tar(
                 submission_file_path
                 )
 
             # Recover ground Truth from Redis database
             try:
-                ground_truth = pd.read_msgpack(self.redis_co.get_value(
-                    "F_{}_submission_id_{}".format(team_attacked, crowdai_submission_id)
+                ground_truth = pd.read_csv(io.BytesIO(
+                    self.oc_co.get_oc_connection().get_file_contents(
+                        "F_{}".format(crowdai_submission_id_attacked)
+                        )
                     ))
             except ValueError:
-                raise Exception("There is no team {} with submission number {}".format(
-                    team_attacked, crowdai_submission_id
+                raise Exception("There is no team with submission number {}".format(
+                    crowdai_submission_id_attacked
                     ))
 
             # Read submitted files and ground truth
@@ -348,7 +350,7 @@ class DarcEvaluator():
 
             # Check if they've attacked them 10 times already
             nb_atcks = self.redis_co.get_nb_try_reid(
-                crowdai_submission_uid, team_attacked, crowdai_submission_id
+                crowdai_submission_uid, crowdai_submission_id_attacked
                 )
             if nb_atcks >= 10:
                 raise Exception("You've reach your 10 attempts on this file.")
@@ -359,7 +361,7 @@ class DarcEvaluator():
 
             # Increment by 1 the number of attempts
             self.redis_co.set_nb_try_reid(
-                nb_atcks+1, crowdai_submission_uid, team_attacked, crowdai_submission_id
+                nb_atcks+1, crowdai_submission_uid, crowdai_submission_id_attacked
                 )
 
             # Return object
@@ -407,7 +409,7 @@ def main():
     OCUSR = os.getenv("OC_USR", False)
     OCPASSWORD = os.getenv("OC_PASSWORD", False)
 
-    if HOST == False:
+    if RHOST == False:
         raise Exception("Please provide the Redis Host and other credentials, by providing the following environment variables : REDIS_HOST, REDIS_PORT, REDIS_PASSWORD")
     if OCHOST == False:
         raise Exception("Please provide the OwnCloud Host and other credentials, by providing the following environment variables : OC_HOST, OC_USR, OC_PASSWORD")
