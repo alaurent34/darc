@@ -335,7 +335,7 @@ class DarcEvaluator():
 
             # Recover ground Truth from Redis database
             try:
-                ground_truth = pd.read_csv(io.BytesIO(
+                ground_truth = pd.read_csv(BytesIO(
                     self.oc_co.get_oc_connection().get_file_contents(
                         "F_{}".format(crowdai_submission_id_attacked)
                         )
