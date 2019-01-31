@@ -337,7 +337,7 @@ class DarcEvaluator():
             try:
                 ground_truth = pd.read_csv(BytesIO(
                     self.oc_co.get_oc_connection().get_file_contents(
-                        "F_{}".format(crowdai_submission_id_attacked)
+                        "F_{}.csv".format(crowdai_submission_id_attacked)
                         )
                     ))
             except ValueError:
