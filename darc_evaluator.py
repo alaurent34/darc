@@ -20,10 +20,12 @@ try:
     from metrics import UtilityMetrics, ReidentificationMetrics
     from preprocessing import round1_preprocessing, round2_preprocessing, read_tar
     from utils import *
+    from config import Config as config
 except ImportError:
     from .metrics import UtilityMetrics, ReidentificationMetrics
     from .preprocessing import round1_preprocessing, round2_preprocessing, read_tar
     from .utils import *
+    from .config import Config as config
 
 
 def metric_wrapper(metric, instance, numero):
@@ -401,13 +403,12 @@ def main():
     # It **SHALL** not contains "_" char.
     _client_payload["aicrowd_submission_id"] = 2
 
-    RHOST = os.getenv("REDIS_HOST", False)
-    RPORT = int(os.getenv("REDIS_PORT", 6379))
-    RPASSWORD = os.getenv("REDIS_PASSWORD", False)
-
-    OCHOST = os.getenv("OC_HOST", False)
-    OCUSR = os.getenv("OC_USR", False)
-    OCPASSWORD = os.getenv("OC_PASSWORD", False)
+    RHOST = config.REDIS_HOST
+    RPORT = config.REDIS_PORT
+    RPASSWORD = config.REDIS_PASSWORD
+    OCHOST = config.OC_HOST
+    OCUSR = config.OC_USR
+    OCPASSWORD = config.OC_PASSWORD
 
     if RHOST == False:
         raise Exception("Please provide the Redis Host and other credentials, by providing the following environment variables : REDIS_HOST, REDIS_PORT, REDIS_PASSWORD")
