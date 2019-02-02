@@ -2,7 +2,7 @@
   "evaluator_name" : "darc_evaluator",
   "evaluator_class" : "DarcEvaluator",
   "challenge_client_name" : "DARC_challenge_2018",
-  "challenge_grader_id" : "crowdAI_GRADER_POOL",
+  "challenge_grader_id" : "AIcrowd_GRADER_POOL",
   "evaluation_pipeline_version" : "1.0",
   "authors" : [
     {

@@ -85,8 +85,8 @@ def compute_score_round2(ground_truth, submission):
     return compare_f_files(ground_truth, submission)
 
 def save_first_round_attempt(team_id, at_data, s_data, f_data,\
-                             crowdai_submission_id, redis_c, oc):
-    """Save the attempt of team `team_id`. Attempt are stored as Y_CROWDAI_SUBMISSION_ID
+                             aicrowd_submission_id, redis_c, oc):
+    """Save the attempt of team `team_id`. Attempt are stored as Y_AICROWD_SUBMISSION_ID
     with Y in :
             - AT : the submission
             - S : AT with DEL row deleted
@@ -96,7 +96,7 @@ def save_first_round_attempt(team_id, at_data, s_data, f_data,\
     :at_data: the submission
     :s_data: AT with DEL row deleted
     :f_data: correspondance between id and pseudo
-    :crowdai_submission_id: the submission id in crowdai
+    :aicrowd_submission_id: the submission id in AIcrowd
     :redis_c: one working redis connection
     :oc: one working owncloud connection
 
@@ -115,18 +115,18 @@ def save_first_round_attempt(team_id, at_data, s_data, f_data,\
     err = []
     err.append(oc.put_file_contents(
         data=at_data.to_csv(index=False),
-        remote_path="AT_{}.csv".format(crowdai_submission_id)
+        remote_path="AT_{}.csv".format(aicrowd_submission_id)
         ))
     err.append(oc.put_file_contents(
         data=s_data.to_csv(index=False),
-        remote_path="S_{}.csv".format(crowdai_submission_id)
+        remote_path="S_{}.csv".format(aicrowd_submission_id)
         ))
     err.append(oc.put_file_contents(
         data=f_data.to_csv(index=False),
-        remote_path="F_{}.csv".format(crowdai_submission_id)
+        remote_path="F_{}.csv".format(aicrowd_submission_id)
         ))
 
-    err.append(redis_c.rpush("{}_id_sub".format(team_id), crowdai_submission_id))
+    err.append(redis_c.rpush("{}_id_sub".format(team_id), aicrowd_submission_id))
 
     if not min(err):
         raise Exception("Error while saving files for round 1")
@@ -247,7 +247,7 @@ class RedisConnection():
 class DarcEvaluator():
     """
     Evaluate submission file of users in the context od DARC competition
-    This is a fork from crowdai_evaluator https://github.com/crowdAI/crowdai-example-evaluator
+    This is a fork from aicrowd_evaluator https://github.com/AIcrowd/AIcrowd-example-evaluator
     """
     def __init__(self, answer_file_path, round=1,
                  redis_host='127.0.0.1', redis_port=6379, redis_password=False,
@@ -276,8 +276,8 @@ class DarcEvaluator():
         """
         `client_payload` will be a dict with (atleast) the following keys :
           - submission_file_path : local file path of the submitted file
-          - crowdai_submission_id : A unique id representing the submission
-          - crowdai_participant_id : A unique id for participant/team submitting (if enabled)
+          - aicrowd_submission_id : A unique id representing the submission
+          - aicrowd_participant_id : A unique id for participant/team submitting (if enabled)
         """
 
         # Initialize redis_co
@@ -286,8 +286,8 @@ class DarcEvaluator():
 
         # Initialize directory variable
         submission_file_path = client_payload["submission_file_path"]
-        crowdai_submission_uid = client_payload["crowdai_participant_id"]
-        crowdai_submission_id = client_payload["crowdai_submission_id"]
+        aicrowd_submission_uid = client_payload["aicrowd_participant_id"]
+        aicrowd_submission_id = client_payload["aicrowd_submission_id"]
 
 
         ## ROUND 1
@@ -307,11 +307,11 @@ class DarcEvaluator():
             )
 
             err = save_first_round_attempt(
-                crowdai_submission_uid,
+                aicrowd_submission_uid,
                 submission,
                 s_file,
                 f_file,
-                crowdai_submission_id,
+                aicrowd_submission_id,
                 self.redis_co.get_redis_connection(),
                 self.oc_co.get_oc_connection()
                 )
@@ -329,7 +329,7 @@ class DarcEvaluator():
         elif self.round == 2:
 
             #Read tar file
-            submission_file_path, crowdai_submission_id_attacked = read_tar(
+            submission_file_path, aicrowd_submission_id_attacked = read_tar(
                 submission_file_path
                 )
 
@@ -337,12 +337,12 @@ class DarcEvaluator():
             try:
                 ground_truth = pd.read_csv(BytesIO(
                     self.oc_co.get_oc_connection().get_file_contents(
-                        "F_{}.csv".format(crowdai_submission_id_attacked)
+                        "F_{}.csv".format(aicrowd_submission_id_attacked)
                         )
                     ))
             except ValueError:
                 raise Exception("There is no team with submission number {}".format(
-                    crowdai_submission_id_attacked
+                    aicrowd_submission_id_attacked
                     ))
 
             # Read submitted files and ground truth
@@ -350,7 +350,7 @@ class DarcEvaluator():
 
             # Check if they've attacked them 10 times already
             nb_atcks = self.redis_co.get_nb_try_reid(
-                crowdai_submission_uid, crowdai_submission_id_attacked
+                aicrowd_submission_uid, aicrowd_submission_id_attacked
                 )
             if nb_atcks >= 10:
                 raise Exception("You've reach your 10 attempts on this file.")
@@ -361,7 +361,7 @@ class DarcEvaluator():
 
             # Increment by 1 the number of attempts
             self.redis_co.set_nb_try_reid(
-                nb_atcks+1, crowdai_submission_uid, crowdai_submission_id_attacked
+                nb_atcks+1, aicrowd_submission_uid, aicrowd_submission_id_attacked
                 )
 
             # Return object
@@ -391,7 +391,7 @@ def main():
     #                       'submission_id_attacked' and 'submission_id_attacked'
     #
 
-    _client_payload["crowdai_participant_id"] = "a"
+    _client_payload["aicrowd_participant_id"] = "a"
 
     print("TESTING: Round 1")
 
@@ -399,7 +399,7 @@ def main():
     _client_payload["submission_file_path"] = "data/example_files/submission_DEL.csv"
     # Name of the current team who is submitting the file
     # It **SHALL** not contains "_" char.
-    _client_payload["crowdai_submission_id"] = 2
+    _client_payload["aicrowd_submission_id"] = 2
 
     RHOST = os.getenv("REDIS_HOST", False)
     RPORT = int(os.getenv("REDIS_PORT", 6379))
@@ -416,13 +416,13 @@ def main():
 
     _context = {}
     # Instantiate an evaluator
-    crowdai_evaluator = DarcEvaluator(
+    aicrowd_evaluator = DarcEvaluator(
         answer_file_path, round=1,
         redis_host=RHOST, redis_port=RPORT, redis_password=RPASSWORD,
         oc_host=OCHOST, oc_usr=OCUSR, oc_password=OCPASSWORD
         )
     # Evaluate
-    result = crowdai_evaluator._evaluate(
+    result = aicrowd_evaluator._evaluate(
         _client_payload, _context
         )
     print(result)
@@ -435,17 +435,16 @@ def main():
     _client_payload["submission_file_path"] = "./data/example_files/F_a_attempt_2.tar"
 
     # Instantiate an evaluator
-    crowdai_evaluator = DarcEvaluator(
+    aicrowd_evaluator = DarcEvaluator(
         answer_file_path, round=2,
         redis_host=RHOST, redis_port=RPORT, redis_password=RPASSWORD,
         oc_host=OCHOST, oc_usr=OCUSR, oc_password=OCPASSWORD
         )
     #Evaluate
-    result = crowdai_evaluator._evaluate(
+    result = aicrowd_evaluator._evaluate(
         _client_payload, _context
         )
     print(result)
 
 if __name__ == "__main__":
     main()
-
