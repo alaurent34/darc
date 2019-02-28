@@ -209,7 +209,10 @@ def check_format_trans_file(ground_truth, dataframe):
     gt_copy = ground_truth.copy()
     df_copy = dataframe.copy()
 
-    gt_copy = gt_copy[df_copy[T_COL['id_user']] != "DEL"]
+    gt_copy[T_COL["id_user"]] = gt_copy[T_COL["id_user"]].apply(str)
+    df_copy[T_COL["id_user"]] = df_copy[T_COL["id_user"]].apply(str)
+
+    gt_copy = gt_copy[gt_copy[T_COL['id_user']] != "DEL"]
     df_copy = df_copy[df_copy[T_COL['id_user']] != "DEL"]
 
     gt_copy['month'] = pd.to_datetime(gt_copy[T_COL['date']]).dt.to_period('M')
