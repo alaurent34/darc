@@ -104,7 +104,7 @@ def save_first_round_attempt(team_id, at_data, s_data, f_data,\
     nb_try = redis_c.llen("{}_id_sub".format(team_id))
 
     if nb_try == 3:
-        id_sub = int(redis_c.lpop("{}_id_sub").format(team_id))
+        id_sub = int(redis_c.lpop("{}_id_sub".format(team_id)))
 
         oc.delete("AT_{}.csv".format(id_sub))
         oc.delete("S_{}.csv".format(id_sub))
