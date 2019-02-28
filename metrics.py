@@ -441,6 +441,39 @@ class UtilityMetrics(Metrics):
 
         return median
 
+    def collaborative_filtering_item_user(self, data, e2=False):
+        """Compute the matrix of cosine similarity between all items
+
+        :data: dataframe from which to compute the collaborative_filtering
+        :returns: matrix |col_item|x|col_item|
+
+        """
+
+        id_items_ori = self.ground_truth[self.gt_t_col["id_item"]].unique()
+
+        # Creating item x user sparse matrix for the ground_truth
+        data_id_item_id_user = data.groupby(
+            [self._gt_t_col['id_item'], self._gt_t_col['id_user']]
+        )[self._gt_t_col['qty']].sum()
+
+        if e2:
+            # item x user < median
+            data_id_item_id_user = data_id_item_id_user[
+                data_id_item_id_user < self.compute_median_qty()
+            ]
+
+        # Create dataframe matrix
+        data_id_item_id_user = data_id_item_id_user.unstack(level=1).to_sparse()
+
+        items_differ = set(id_items_ori) - set(data_id_item_id_user.index)
+
+        if items_differ:
+            df_temp = pd.DataFrame(index=items_differ, columns=data_id_item_id_user.columns)
+            data_id_item_id_user = data_id_item_id_user.append(df_temp)
+
+        data_id_item_id_user = data_id_item_id_user.sort_index()
+
+        return cosine_similarity(data_id_item_id_user.fillna(0))
 
     def e1_metric(self):
         """ Construct a similarity matrix of item buyed (User that have bought this item also bought
