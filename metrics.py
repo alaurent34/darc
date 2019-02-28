@@ -501,29 +501,11 @@ class UtilityMetrics(Metrics):
         #  TODO: can be done one time only  <21-12-18, yourname> #
         anon_trans[self._gt_t_col['qty']] = anon_trans[self._gt_t_col['qty']].apply(int)
 
-        # Creating item x user sparse matrix for the ground_truth
-        gt_id_item_id_user = ground_truth.groupby(
-            [self._gt_t_col['id_item'], self._gt_t_col['id_user']]
-        )[self._gt_t_col['qty']].sum()
-
-        gt_x_item_user = gt_id_item_id_user.to_xarray()
-        gt_x_item_user = gt_x_item_user.fillna(0)
-        gt_sparse_item_user = coo_matrix(gt_x_item_user)
+        # Compute the cosinus similarity item x item
+        gt_cos_sim = self.collaborative_filtering_item_user(ground_truth)
 
         # Compute the cosinus similarity item x item
-        gt_cos_sim = cosine_similarity(gt_sparse_item_user)
-
-        # Creating item x user sparse matrix for the ground_truth
-        at_id_item_id_user = anon_trans.groupby(
-            [self._gt_t_col['id_item'], self._gt_t_col['id_user']]
-        )[self._gt_t_col['qty']].sum()
-
-        at_x_item_user = at_id_item_id_user.to_xarray()
-        at_x_item_user = at_x_item_user.fillna(0)
-        at_sparse_item_user = coo_matrix(at_x_item_user)
-
-        # Compute the cosinus similarity item x item
-        at_cos_sim = cosine_similarity(at_sparse_item_user)
+        at_cos_sim = self.collaborative_filtering_item_user(anon_trans)
 
         # Compute score
         diff_cos = abs(gt_cos_sim - at_cos_sim)
@@ -560,37 +542,11 @@ class UtilityMetrics(Metrics):
         #  TODO: can be done one time only  <21-12-18, yourname> #
         anon_trans[self._gt_t_col['qty']] = anon_trans[self._gt_t_col['qty']].apply(int)
 
-        # Creating item x user sparse matrix for the ground_truth
-        gt_id_item_id_user = ground_truth.groupby(
-            [self._gt_t_col['id_item'], self._gt_t_col['id_user']]
-        )[self._gt_t_col['qty']].sum()
-
-        # Recovering median
-        median = gt_id_item_id_user.median()
-        # item x user < median
-        gt_id_item_id_user = gt_id_item_id_user[gt_id_item_id_user < median]
-
-        gt_x_item_user = gt_id_item_id_user.to_xarray()
-        gt_x_item_user = gt_x_item_user.fillna(0)
-        gt_sparse_item_user = coo_matrix(gt_x_item_user)
+        # Compute the cosinus similarity item x item
+        gt_cos_sim = self.collaborative_filtering_item_user(ground_truth, e2=True)
 
         # Compute the cosinus similarity item x item
-        gt_cos_sim = cosine_similarity(gt_sparse_item_user)
-
-        # Creating item x user sparse matrix for the ground_truth
-        at_id_item_id_user = anon_trans.groupby(
-            [self._gt_t_col['id_item'], self._gt_t_col['id_user']]
-        )[self._gt_t_col['qty']].sum()
-
-        # item x user < median
-        at_id_item_id_user = at_id_item_id_user[at_id_item_id_user < median]
-
-        at_x_item_user = at_id_item_id_user.to_xarray()
-        at_x_item_user = at_x_item_user.fillna(0)
-        at_sparse_item_user = coo_matrix(at_x_item_user)
-
-        # Compute the cosinus similarity item x item
-        at_cos_sim = cosine_similarity(at_sparse_item_user)
+        at_cos_sim = self.collaborative_filtering_item_user(anon_trans, e2=True)
 
         # Compute score
         diff_cos = abs(gt_cos_sim - at_cos_sim)
@@ -630,17 +586,8 @@ class UtilityMetrics(Metrics):
         ground_truth = ground_truth.loc[gt_top_k]
         ground_truth = ground_truth.reset_index()
 
-        # Creating item x user sparse matrix for the ground_truth
-        gt_id_item_id_user = ground_truth.groupby(
-            [self._gt_t_col['id_item'], self._gt_t_col['id_user']]
-        )[self._gt_t_col['qty']].sum()
-
-        gt_x_item_user = gt_id_item_id_user.to_xarray()
-        gt_x_item_user = gt_x_item_user.fillna(0)
-        gt_sparse_item_user = coo_matrix(gt_x_item_user)
-
         # Compute the cosinus similarity item x item
-        gt_cos_sim = cosine_similarity(gt_sparse_item_user)
+        gt_cos_sim = self.collaborative_filtering_item_user(ground_truth)
 
         # Computing top 5% of most purchased item by customer
         item_count = anon_trans.groupby(self._gt_t_col['id_item']).size()
@@ -648,22 +595,13 @@ class UtilityMetrics(Metrics):
             item_count.sort_values(ascending=False).head(int(item_count.shape[0]*0.05)).index
         )
 
-        # Ground Truth is now with top k items
+        # Anonymized File is now with top k items
         anon_trans = anon_trans.set_index(self._gt_t_col['id_item'])
         anon_trans = anon_trans.loc[at_top_k]
         anon_trans = anon_trans.reset_index()
 
-        # Creating item x user sparse matrix for the ground_truth
-        at_id_item_id_user = anon_trans.groupby(
-            [self._gt_t_col['id_item'], self._gt_t_col['id_user']]
-        )[self._gt_t_col['qty']].sum()
-
-        at_x_item_user = at_id_item_id_user.to_xarray()
-        at_x_item_user = at_x_item_user.fillna(0)
-        at_sparse_item_user = coo_matrix(at_x_item_user)
-
         # Compute the cosinus similarity item x item
-        at_cos_sim = cosine_similarity(at_sparse_item_user)
+        at_cos_sim = self.collaborative_filtering_item_user(anon_trans)
 
         # Compute score
         diff_cos = min(1, (abs(gt_cos_sim - at_cos_sim).sum()) / gt_cos_sim.sum())
