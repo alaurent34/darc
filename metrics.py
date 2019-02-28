@@ -426,6 +426,21 @@ class UtilityMetrics(Metrics):
 
         return score
 
+    def compute_median_qty(self):
+        """Compute the median of all qty of item buyed
+
+        :return: median of all qty of item buyed
+        """
+        # Creating item x user sparse matrix for the ground_truth
+        gt_id_item_id_user = self.ground_truth.groupby(
+            [self._gt_t_col['id_item'], self._gt_t_col['id_user']]
+        )[self._gt_t_col['qty']].sum()
+
+        # Recovering median
+        median = gt_id_item_id_user.median()
+
+        return median
+
 
     def e1_metric(self):
         """ Construct a similarity matrix of item buyed (User that have bought this item also bought
