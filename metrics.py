@@ -597,7 +597,7 @@ class UtilityMetrics(Metrics):
 
         # Anonymized File is now with top k items
         anon_trans = anon_trans.set_index(self._gt_t_col['id_item'])
-        anon_trans = anon_trans.loc[at_top_k]
+        anon_trans = anon_trans.loc[gt_top_k]
         anon_trans = anon_trans.reset_index()
 
         # Compute the cosinus similarity item x item
