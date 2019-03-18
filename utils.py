@@ -16,7 +16,7 @@ import progressbar
 M_COL = {'id_user':1}
 T_COL = {'id_user': 'id_user', 'date': 'date', 'hours': 'hours', 'id_item': 'id_item', 'price': 'price', 'qty': 'qty'}
 T_COL_IT = {'id_user':1, 'date':2, 'hours':3, 'id_item':4, 'price':5, 'qty':6}
-F_COL = ['id_user', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+F_COL = ['id_user', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
 PATH_F = "./data/f_files/"
 
