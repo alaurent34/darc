@@ -326,8 +326,8 @@ class DarcEvaluator():
                 raise Exception("Error while saving the files in first round")
 
             _result_object = {
-                "score" : max(utility_scores),
-                "score_secondary": max(reid_scores)
+                "score" : (max(utility_scores) + max(reid_scores))/2,
+                "score_secondary": max(utility_scores)
                 }
             return _result_object
 
