@@ -532,6 +532,9 @@ class UtilityMetrics(Metrics):
 
         """
 
+        if True:
+            return 0
+
         # Copy dataframe
         ground_truth = self._ground_truth.copy()
         anon_trans = self._anon_trans.copy()
