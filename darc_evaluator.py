@@ -289,11 +289,11 @@ class DarcEvaluator():
         # Initialize directory variable
         submission_file_path = client_payload["submission_file_path"]
         try:
-            crowdai_submission_uid = client_payload["crowdai_participant_id"]
-            crowdai_submission_id = client_payload["crowdai_submission_id"]
+            aicrowd_submission_uid = client_payload["crowdai_participant_id"]
+            aicrowd_submission_id = client_payload["crowdai_submission_id"]
         except Exception as e:
-            crowdai_submission_uid = client_payload["aicrowd_participant_id"]
-            crowdai_submission_id = client_payload["aicrowd_submission_id"]
+            aicrowd_submission_uid = client_payload["aicrowd_participant_id"]
+            aicrowd_submission_id = client_payload["aicrowd_submission_id"]
 
 
         ## ROUND 1
