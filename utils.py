@@ -201,9 +201,7 @@ def check_format_trans_file(ground_truth, dataframe):
     gt_products = set(list(ground_truth[T_COL['id_item']]))
     at_products = set(list(df_copy[T_COL['id_item']]))
     if not at_products.issubset(gt_products):
-        raise Exception(
-            "id_item {} : id_items should be real".format(at_products.difference(ground_truth))
-            )
+        raise Exception("id_item : ALL id_items should be real")
 
     # Check number of pseudonyms
     gt_copy = ground_truth.copy()
