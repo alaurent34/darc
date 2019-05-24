@@ -11,13 +11,13 @@ import glob
 
 import pandas as pd
 import progressbar
-
+import time
 # for itertuples which is A LOT faster than iterrows
 M_COL = {'id_user':1}
 T_COL = {'id_user': 'id_user', 'date': 'date', 'hours': 'hours', 'id_item': 'id_item', 'price': 'price', 'qty': 'qty'}
 T_COL_IT = {'id_user':1, 'date':2, 'hours':3, 'id_item':4, 'price':5, 'qty':6}
 F_COL = ['id_user', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-
+NB_GUESS = 3
 PATH_F = "./data/f_files/"
 
 # Redis identifiant : do not disclause to participants
@@ -97,6 +97,7 @@ def compare_f_files(f_orig, f_hat):
     :returns: score
     """
 
+    #tps1 = time.clock()
     map_error = 0
     score = 0
     count = 0
@@ -115,13 +116,25 @@ def compare_f_files(f_orig, f_hat):
             for i in range(1, 13):
                 if f_ori_tuple[i] != "DEL":
                     total += 1
-                if f_ori_tuple[i] == f_hat_tuple[i] and f_ori_tuple[i] != "DEL":
-                    count += 1
+                if compare_row_f_file(f_ori_tuple[i],f_hat_tuple[i]) and f_ori_tuple[i] != "DEL":
+                    count +=1
+    #            if f_ori_tuple[i] == f_hat_tuple[i] and f_ori_tuple[i] != "DEL":
+    #                count += 1
+
 
     if map_error == 0:
         score += round(float(count)/float(total), 6)
 
+    #tps2 = time.clock()
+    #print("Le code a mis : ",tps2 -tps1, "secondes")
     return score
+
+def compare_row_f_file(row_orig, row_sub):
+    """
+    Check if row_orig is a substring of row_sub, i.e did the participant submit
+    the good id among all id submitted
+    """
+    return row_orig in row_sub
 
 def check_format_trans_file(ground_truth, dataframe):
     """ Check the format of an Anonymized Transaction dataset submitted by a participant. Raise an
@@ -230,6 +243,11 @@ def check_format_trans_file(ground_truth, dataframe):
 
     if size_before != size_after:
         raise Exception("There should be no NaN value in the data")
+    # Check for ':' in id 
+    id_list = df_copy.id_user.unique()
+    for id in id_list:
+        if ':' in id:
+            raise Exception("There should be no \":\" in id")
 
 def check_format_f_file(dataframe):
     """ Check the format of a guessed F file submitted by a participant. Raise an
@@ -257,4 +275,8 @@ def check_format_f_file(dataframe):
 
     if size_before != size_after:
         raise Exception("There should be no NaN value in the data")
-
+    for row in dataframe.itertuples():
+        for i in range(2,15):
+            x = row[i].split(':')
+            if len(x) > NB_GUESS:
+                raise Exception("More guess than allowed")
