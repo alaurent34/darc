@@ -116,8 +116,7 @@ def compare_f_files(f_orig, f_hat):
             for i in range(1, 13):
                 if f_ori_tuple[i] != "DEL":
                     total += 1
-                if compare_row_f_file(f_ori_tuple[i],f_hat_tuple[i]) and f_ori_tuple[i] != "DEL":
-                    count +=1
+                    count += compare_row_f_file(f_ori_tuple[i],f_hat_tuple[i])
     #            if f_ori_tuple[i] == f_hat_tuple[i] and f_ori_tuple[i] != "DEL":
     #                count += 1
 
@@ -134,7 +133,14 @@ def compare_row_f_file(row_orig, row_sub):
     Check if row_orig is a substring of row_sub, i.e did the participant submit
     the good id among all id submitted
     """
-    return row_orig in row_sub
+    row_sub = row_sub.split(':')
+    count = 0
+    for i in range(len(row_sub)):
+        if row_orig in row_sub[i]:
+            count = (NB_GUESS - i)/NB_GUESS
+    return count
+         
+            
 
 def check_format_trans_file(ground_truth, dataframe):
     """ Check the format of an Anonymized Transaction dataset submitted by a participant. Raise an
@@ -243,11 +249,14 @@ def check_format_trans_file(ground_truth, dataframe):
 
     if size_before != size_after:
         raise Exception("There should be no NaN value in the data")
-    # Check for ':' in id 
+    # Check for ':' in id
+    tps1 = time.clock()
     id_list = df_copy.id_user.unique()
     for id in id_list:
         if ':' in id:
             raise Exception("There should be no \":\" in id")
+    tps2 = time.clock()
+    print("Le code a mis : ",tps2 -tps1, "secondes")
 
 def check_format_f_file(dataframe):
     """ Check the format of a guessed F file submitted by a participant. Raise an
