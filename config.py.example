@@ -1,9 +1,16 @@
 import os
+from darc_evalutator import compute_score_round1, compute_score_round2
+
 class Config:
     REDIS_HOST=os.environ.get("REDIS_HOST", "localhost")
     REDIS_PORT=os.environ.get("REDIS_PORT", 6379)
     REDIS_PASSWORD=os.environ.get("REDIS_PASSWORD", False)
-    
+
     OC_HOST=os.environ.get("OC_HOST", "localhost")
     OC_USR=os.environ.get("OC_USR", "test")
     OC_PASSWORD=os.environ.get("OC_PASSWORD", "password")
+
+    TEST_U_METRICS = compute_score_round1
+    TEST_R_METRICS = compute_score_round2
+
+    TESTING = True
