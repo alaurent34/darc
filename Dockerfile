@@ -1,6 +1,6 @@
 FROM ubuntu:latest
 
-RUN apt-get update
+RUN apt-get update --fix-missing
 RUN apt-get install -y python3.6 python3-distutils build-essential python3.6-dev curl
 RUN curl https://bootstrap.pypa.io/get-pip.py | python3.6
 
