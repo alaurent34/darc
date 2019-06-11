@@ -139,8 +139,8 @@ def compare_row_f_file(row_orig, row_sub):
         if row_orig in row_sub[i]:
             count = (NB_GUESS - i)/NB_GUESS
     return count
-         
-            
+
+
 
 def check_format_trans_file(ground_truth, dataframe):
     """ Check the format of an Anonymized Transaction dataset submitted by a participant. Raise an
@@ -183,7 +183,7 @@ def check_format_trans_file(ground_truth, dataframe):
     # Check the columns format : should be string, string, string, string, float, int
     try:
         error_type = []
-        for i in range(1, 6):
+        for i in range(0, 6):
             if i < 4:
                 error_type.append("string")
                 df_copy[columns[i]] = df_copy[columns[i]].apply(lambda x: str(x))
