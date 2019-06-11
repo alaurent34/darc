@@ -17,6 +17,14 @@ data/example_files/*
 !data/example_files/*.csv
 !data/example_files/*.tar
 
+!data/testing_files/
+data/testing_files/*
+!data/example_files/AT/
+!data/example_files/F/
+data/example_files/AT/*
+data/example_files/F/*
+!data/example_files/AT/*.csv
+!data/example_files/F/*.csv
 
 !data/*.csv
 
