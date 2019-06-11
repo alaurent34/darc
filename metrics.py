@@ -10,6 +10,8 @@ import sys
 from collections import OrderedDict
 import time
 import math
+from multiprocessing import Pool
+from functools import partial
 
 import pandas as pd
 import numpy as np
@@ -654,6 +656,44 @@ class UtilityMetrics(Metrics):
         self._current_score.append(score)
 
         return score
+
+def metric_wrapper(metric, instance, numero):
+    """Launch a metric in function of instance metric and the number of the later.
+
+    :metric: a single char wich is 's' or 'e', respectivly for reid and utility metrics.
+    :instance: the instance of a Metric class containing methods `metric`.
+    :numero: the ieme method of the instance you want to call.
+
+    :returns: Result of the metric method called.
+
+    """
+    method = "{}{}_metric".format(metric, numero)
+    return getattr(instance, method)()
+
+def utility_metric(ground_truth, aux, sub):
+    """TODO: Docstring for utility_metric.
+
+    :arg1: TODO
+    :returns: TODO
+
+    """
+    # Initialize utility metrics
+    utility_m = UtilityMetrics(aux, ground_truth, sub)
+
+    #Compute utility metrics as subprocesses
+    metric_pool = Pool()
+    utility_wrapper = partial(metric_wrapper, "e", utility_m)
+    utility_scores = metric_pool.map(utility_wrapper, range(1, 7))
+
+    # Initialize re-identification metrics
+    reid_m = ReidentificationMetrics(aux, ground_truth, sub)
+
+    #Compute reidentification metrics as subprocesses
+    metric_pool = Pool()
+    reid_wrapper = partial(metric_wrapper, "s", reid_m)
+    reid_scores = metric_pool.map(reid_wrapper, range(1, 7))
+
+    return utility_scores + reid_scores
 
 
 def main():
