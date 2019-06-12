@@ -11,9 +11,6 @@ RUN locale-gen en_US.UTF-8
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 ENV PYTHONIOENCODING=utf-8
 
-COPY wait-for-it.sh /wait-for-it.sh
-RUN chmod +x /wait-for-it.sh
-
 COPY requirements.txt /requirements.txt
 
 RUN pip3.6 install -r /requirements.txt
@@ -22,4 +19,4 @@ ADD . /DARC-CORE
 RUN git clone --branch tested https://gitlab.ikb.info.uqam.ca/alaurent/darc_aicrowd.git /DARC-CORE/darc_compare
 COPY ./config.py /DARC-CORE/darc_compare/config.py
 
-WORKDIR /DARC
+WORKDIR /DARC-CORE
