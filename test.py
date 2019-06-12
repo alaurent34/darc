@@ -14,12 +14,10 @@ only one float for the reid_metric
 import logging
 import glob
 
-import darc_core as darc1
-import darc_compare as darc2
+from darc_core.config import Config as config
+from darc_core.utils import T_COL, F_COL, check_format_trans_file
 
-from darc1 import Config as config
-from darc1.utils import T_COL, F_COL, check_format_trans_file
-from darc2.metrics import compute_score_round1 as utiliy_metric
+from darc_compare.metrics import compute_score_round1 as utiliy_metric
 
 import pandas as pd
 
