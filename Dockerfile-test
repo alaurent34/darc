@@ -15,8 +15,15 @@ COPY requirements.txt /requirements.txt
 
 RUN pip3.6 install -r /requirements.txt
 
-ADD . /DARC-CORE
-RUN git clone --branch tested https://gitlab.ikb.info.uqam.ca/alaurent/darc_aicrowd.git /DARC-CORE/darc_compare
-COPY ./config.py /DARC-CORE/darc_compare/config.py
+ADD ./darc_core /DARC
+ADD ./test.py /DARC
+ADD . /DARC/darc_compare
+WORKDIR /DARC/darc_compare
+RUN git checkout tested
+# RUN git clone --branch tested https://gitlab.ikb.info.uqam.ca/alaurent/darc_aicrowd.git /DARC/darc_compare
+COPY ./config.py.example /DARC-CORE/darc_compare/config.py
 
-WORKDIR /DARC-CORE
+WORKDIR /DARC
+RUN ls
+
+# vi: ft=dockerfile
