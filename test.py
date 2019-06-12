@@ -11,11 +11,16 @@ only one float for the reid_metric
 # from config import Config as config
 # from utils import T_COL, F_COL, check_format_trans_file
 
-import metrics as darc1
-import darc_compare.metrics as darc2
-
 import logging
 import glob
+
+import darc_core as darc1
+import darc_compare as darc2
+
+from darc1 import Config as config
+from darc1.utils import T_COL, F_COL, check_format_trans_file
+from darc2.metrics import compute_score_round1 as utiliy_metric
+
 import pandas as pd
 
 from sklearn.metrics.pairwise import cosine_similarity
@@ -29,9 +34,10 @@ def check_format_test(ground_truth):
     error = []
     for file_path in glob.glob(f"{config.TESTING_DIR}/AT/*.csv"):
         sub = pd.read_csv(file_path, names=T_COL.values(), skiprows=1)
-        try: check_format_trans_file(ground_truth, sub)
-        except Exception as e:
-            error.append(e)
+        try:
+            check_format_trans_file(ground_truth, sub)
+        except Exception as err:
+            error.append(err)
 
     if not error:
         logging.info("Format check: No errors")
