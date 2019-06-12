@@ -1,5 +1,5 @@
 import os
-from .metrics import Metrics
+from darc_core.metrics import Metrics
 
 class Config:
     REDIS_HOST=os.environ.get("REDIS_HOST", "localhost")
