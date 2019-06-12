@@ -8,27 +8,27 @@ services:
     depends_on:
       - redis
       - owncloud
-    command: ["/wait-for-it.sh", "10.5.0.6:8080", "--", "python3.6", "/DARC/darc_evaluator.py"]
+    command: ["/wait-for-it.sh", "10.6.0.6:8080", "--", "python3.6", "/DARC/test.py"]
     environment:
-      - REDIS_HOST=10.5.0.5
+      - REDIS_HOST=10.6.0.5
       - REDIS_PORT=6379
       - REDIS_PASSWORD=
-      - OC_HOST=http://10.5.0.6:8080
+      - OC_HOST=http://10.6.0.6:8080
       - OC_USR=admin
       - OC_PASSWORD=admin
     networks:
       back:
-        ipv4_address: 10.5.0.4
+        ipv4_address: 10.6.0.4
   redis:
     image: "redis"
     networks:
       back:
-        ipv4_address: 10.5.0.5
+        ipv4_address: 10.6.0.5
   owncloud:
     image: owncloud/server:10.0
     networks:
       back:
-        ipv4_address: 10.5.0.6
+        ipv4_address: 10.6.0.6
     environment:
       - OWNCLOUD_DOMAIN=localhost
       - OWNCLOUD_DB_TYPE=sqlite
@@ -38,4 +38,4 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 10.5.0.0/16
+        - subnet: 10.6.0.0/16
