@@ -7,8 +7,6 @@ Description: Evaluator used in the context of the DARC (Data Anonymization and R
 Competition).
 """
 
-from multiprocessing import Pool
-from functools import partial
 import os
 from io import BytesIO
 
@@ -17,77 +15,17 @@ import redis
 import owncloud
 
 try:
-    from metrics import UtilityMetrics, ReidentificationMetrics
+    from metrics import Metrics, utiliy_metric
     from preprocessing import round1_preprocessing, round2_preprocessing, read_tar
     from utils import *
     from config import Config as config
 except ImportError:
-    from .metrics import UtilityMetrics, ReidentificationMetrics
+    from .metrics import Metrics, utiliy_metric
     from .preprocessing import round1_preprocessing, round2_preprocessing, read_tar
     from .utils import *
     from .config import Config as config
 
-
-def metric_wrapper(metric, instance, numero):
-    """Launch a metric in function of instance metric and the number of the later.
-
-    :metric: a single char wich is 's' or 'e', respectivly for reid and utility metrics.
-    :instance: the instance of a Metric class containing methods `metric`.
-    :numero: the ieme method of the instance you want to call.
-
-    :returns: Result of the metric method called.
-
-    """
-    method = "{}{}_metric".format(metric, numero)
-    return getattr(instance, method)()
-
-def compute_score_round1(ground_truth, aux_database, submission):
-    """Compute score for the 1st round of the competition. Score are based on utility metrics
-    and Re-identification metrics. The score kept is the max of each category. Score go from 0
-    (best) to 1 (worst).
-
-    :ground_truth: DataFrame representing the ground truth data
-    :aux_database: DataFrame containing a list of users present in the ground truth
-    :submission: DataFrame representing the anonymized transaction database
-    :returns: both utility and the f_file
-
-    """
-    # Initialize utility metrics
-    utility_m = UtilityMetrics(aux_database, ground_truth, submission)
-
-    #Compute utility metrics as subprocesses
-    print("Compute Utility metrics")
-    metric_pool = Pool()
-    utility_wrapper = partial(metric_wrapper, "e", utility_m)
-    utility_scores = metric_pool.map(utility_wrapper, range(1, 7))
-
-    # Initialize re-identification metrics
-    reid_m = ReidentificationMetrics(aux_database, ground_truth, submission)
-
-    #Compute reidentification metrics as subprocesses
-    print("Compute Reidentification metrics")
-    metric_pool = Pool()
-    reid_wrapper = partial(metric_wrapper, "s", reid_m)
-    reid_scores = metric_pool.map(reid_wrapper, range(1, 7))
-
-    # Recover F_orig file
-    f_file = reid_m.f_orig
-    s_file = reid_m.anonymized
-
-    return utility_scores, reid_scores, f_file, s_file
-
-def compute_score_round2(ground_truth, submission):
-    """ Return the re-identification score done by the team submitting on the file anonymized by
-    another team.
-
-    It's the score of this team we have to move in the classement.
-    :returns: the re-identification score obtained by the anonymized file.
-
-    """
-    return compare_f_files(ground_truth, submission)
-
-def save_first_round_attempt(team_id, at_data, s_data, f_data,\
-                             aicrowd_submission_id, redis_c, oc):
+def save_first_round_attempt(team_id, at_data, aicrowd_submission_id, redis_c, oc):
     """Save the attempt of team `team_id`. Attempt are stored as Y_AICROWD_SUBMISSION_ID
     with Y in :
             - AT : the submission
@@ -119,20 +57,12 @@ def save_first_round_attempt(team_id, at_data, s_data, f_data,\
         data=at_data.to_csv(index=False),
         remote_path="AT_{}.csv".format(aicrowd_submission_id)
         ))
-    err.append(oc.put_file_contents(
-        data=s_data.to_csv(index=False),
-        remote_path="S_{}.csv".format(aicrowd_submission_id)
-        ))
-    err.append(oc.put_file_contents(
-        data=f_data.to_csv(index=False),
-        remote_path="F_{}.csv".format(aicrowd_submission_id)
-        ))
 
     err.append(redis_c.rpush("{}_id_sub".format(team_id), aicrowd_submission_id))
 
     if not min(err):
         raise Exception("Error while saving files for round 1")
-        return False
+
     return True
 
 class OwnCloudConnection():
@@ -300,7 +230,7 @@ class DarcEvaluator():
         if self.round == 1:
 
             # Read database from files
-            ground_truth, aux_database, submission = round1_preprocessing(
+            ground_truth, submission = round1_preprocessing(
                 self.answer_file_path, submission_file_path
             )
 
@@ -308,15 +238,13 @@ class DarcEvaluator():
             check_format_trans_file(ground_truth, submission)
 
             # Determine all the scores for a anonymization transaction file
-            utility_scores, reid_scores, f_file, s_file = compute_score_round1(
-                ground_truth, aux_database, submission
+            scores = utiliy_metric(
+                ground_truth, submission
             )
 
             err = save_first_round_attempt(
                 aicrowd_submission_uid,
                 submission,
-                s_file,
-                f_file,
                 aicrowd_submission_id,
                 self.redis_co.get_redis_connection(),
                 self.oc_co.get_oc_connection()
@@ -339,20 +267,23 @@ class DarcEvaluator():
                 submission_file_path
                 )
 
+            # Recover ground_truth
+            ground_truth = round1_preprocessing(self.answer_file_path)
+
+            # Read submitted files and ground truth
+            submission = round2_preprocessing(submission_file_path)
+
             # Recover ground Truth from Redis database
             try:
-                ground_truth = pd.read_csv(BytesIO(
+                at_origin = pd.read_csv(BytesIO(
                     self.oc_co.get_oc_connection().get_file_contents(
-                        "F_{}.csv".format(aicrowd_submission_id_attacked)
+                        "AT_{}.csv".format(aicrowd_submission_id_attacked)
                         )
                     ))
             except ValueError:
                 raise Exception("There is no team with submission number {}".format(
                     aicrowd_submission_id_attacked
                     ))
-
-            # Read submitted files and ground truth
-            submission = round2_preprocessing(submission_file_path)
 
             # Check if they've attacked them 10 times already
             nb_atcks = self.redis_co.get_nb_try_reid(
@@ -363,7 +294,9 @@ class DarcEvaluator():
 
             # Compute score for round 2
             check_format_f_file(submission)
-            reidentification_score = compute_score_round2(ground_truth, submission)
+
+            metrics = Metrics(ground_truth, at_origin)
+            reidentification_score = metrics.compare_f_files(submission)
 
             # Increment by 1 the number of attempts
             self.redis_co.set_nb_try_reid(
