@@ -37,7 +37,7 @@ class Metrics(object):
         :_current_score: current score calculated by the metric already processed.
     """
 
-    def __init__(self, T, AT, T_col=T_COL, T_col_it=T_COL_IT):
+    def __init__(self, T, AT, M_col=M_COL, T_col=T_COL, T_col_it=T_COL_IT):
         """
         :_users: M table containing all users present in the transaction data T (pandas DataFrame).
         :_ground_truth: T table containing all transaction of all user for one year (pandas DataFrame).

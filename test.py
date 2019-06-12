@@ -136,7 +136,7 @@ def main():
         logging.info(f"{scores_reid.to_string()}")
 
     logging.info("---------------: Reid Scores :---------------")
-    logging.info(f"{scores_reid.to_string()}")
+    logging.info(f"\n{scores_reid.to_string()}")
 
 if __name__ == "__main__":
     main()
