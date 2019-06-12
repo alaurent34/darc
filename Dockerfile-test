@@ -17,6 +17,7 @@ RUN pip3.6 install -r /requirements.txt
 
 ADD ./darc_core /DARC/darc_core/
 ADD ./test.py /DARC
+ADD ./data /DARC/data
 ADD . /DARC/darc_compare
 WORKDIR /DARC/darc_compare
 RUN git checkout tested
