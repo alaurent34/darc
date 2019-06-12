@@ -33,6 +33,15 @@ services:
       - OWNCLOUD_DOMAIN=localhost
       - OWNCLOUD_DB_TYPE=sqlite
 
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile-test
+    volumes:
+      - .:/test
+    command: ["python3.6", "/DARC/test.py"]
+
+
 networks:
   back:
     driver: bridge
