@@ -15,15 +15,15 @@ import redis
 import owncloud
 
 try:
-    from metrics import Metrics, utiliy_metric
-    from preprocessing import round1_preprocessing, round2_preprocessing, read_tar
-    from utils import *
+    from darc_core.metrics import Metrics, utiliy_metric
+    from darc_core.preprocessing import round1_preprocessing, round2_preprocessing, read_tar
+    from darc_core.utils import *
     from config import Config as config
 except ImportError:
-    from .metrics import Metrics, utiliy_metric
-    from .preprocessing import round1_preprocessing, round2_preprocessing, read_tar
-    from .utils import *
-    from .config import Config as config
+    from .darc_core.metrics import Metrics, utiliy_metric
+    from .darc_core.preprocessing import round1_preprocessing, round2_preprocessing, read_tar
+    from .darc_core.utils import *
+    from .darc_core.config import Config as config
 
 def save_first_round_attempt(team_id, at_data, aicrowd_submission_id, redis_c, oc):
     """Save the attempt of team `team_id`. Attempt are stored as Y_AICROWD_SUBMISSION_ID
