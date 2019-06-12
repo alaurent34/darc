@@ -14,7 +14,7 @@ only one float for the reid_metric
 import logging
 import glob
 
-from darc_core.config import Config as config
+from config import Config as config
 from darc_core.utils import T_COL, F_COL, check_format_trans_file
 
 from darc_compare.metrics import compute_score_round1 as utiliy_metric
