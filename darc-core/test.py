@@ -6,11 +6,13 @@ Thoose metrics should take the same arguments and return a list of result (for t
 only one float for the reid_metric
 """
 
-from darc_compare.darc_evaluator import compute_score_round1 as utiliy_metric
-from darc_compare.darc_evaluator import compute_score_round2 as reid_metric
-from config import Config as config
-from preprocessing import round1_preprocessing
-from utils import T_COL, F_COL, check_format_trans_file
+# from darc_compare.darc_evaluator import compute_score_round1 as utiliy_metric
+# from darc_compare.darc_evaluator import compute_score_round2 as reid_metric
+# from config import Config as config
+# from utils import T_COL, F_COL, check_format_trans_file
+
+import metrics as darc1
+import darc_compare.metrics as darc2
 
 import logging
 import glob
