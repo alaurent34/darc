@@ -15,7 +15,7 @@ COPY requirements.txt /requirements.txt
 
 RUN pip3.6 install -r /requirements.txt
 
-ADD ./darc_core /DARC
+ADD ./darc_core /DARC/darc_core/
 ADD ./test.py /DARC
 ADD . /DARC/darc_compare
 WORKDIR /DARC/darc_compare
