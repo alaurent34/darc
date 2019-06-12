@@ -33,9 +33,9 @@ services:
     #   - OWNCLOUD_DOMAIN=localhost
     #   - OWNCLOUD_DB_TYPE=sqlite
 
-networks:
-  back:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 10.6.0.0/16
+# networks:
+#   back:
+#     driver: bridge
+#     ipam:
+#       config:
+#         - subnet: 10.6.0.0/16
