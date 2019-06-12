@@ -1,0 +1,28 @@
+
+#Not all the generated files will be stored
+!data/
+data/*
+
+#csv files needed that will not be recomputed are stored
+#becaue the time to compute them is huge
+!data/uci_dataset_original/
+data/uci_dataset_original/*
+!data/uci_dataset_original/*.csv
+
+!data/tsne_vizualisation/
+data/tsne_vizualisation/*
+!data/tsne_vizualisation/plt/
+
+!data/example_files/
+data/example_files/*
+!data/example_files/*.csv
+!data/example_files/*.tar
+
+!data/testing_files/
+data/testing_files/*
+!data/testing_files/AT/
+!data/testing_files/F/
+data/testing_files/AT/*
+data/testing_files/F/*
+!data/testing_files/AT/*.csv
+!data/testing_files/F/*.csv
