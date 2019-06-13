@@ -37,7 +37,7 @@ def round1_preprocessing(ground_truth_file_path, submission_file_path=None):
                                na_filter=False, low_memory=False)
     ground_truth.columns = T_COL.values()
 
-    if not submission_file_path:
+    if submission_file_path:
         # Read the submission file
         submission = pd.read_csv(submission_file_path, sep=',', engine='c',\
                                  na_filter=False, low_memory=False)
