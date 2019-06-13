@@ -16,7 +16,7 @@ import redis
 import owncloud
 
 try:
-    from darc_core.metrics import Metrics, utiliy_metric
+    from darc_core.metrics import Metrics, utility_metric
     from darc_core.preprocessing import round1_preprocessing, round2_preprocessing, read_tar
     from darc_core.utils import *
     from config import Config as config
@@ -24,7 +24,7 @@ except ImportError:
     from .darc_core.metrics import Metrics, utiliy_metric
     from .darc_core.preprocessing import round1_preprocessing, round2_preprocessing, read_tar
     from .darc_core.utils import *
-    from .darc_core.config import Config as config
+    from .config import Config as config
 
 def save_first_round_attempt(team_id, at_data, aicrowd_submission_id, redis_c, oc):
     """Save the attempt of team `team_id`. Attempt are stored as Y_AICROWD_SUBMISSION_ID
@@ -239,7 +239,7 @@ class DarcEvaluator():
             check_format_trans_file(ground_truth, submission)
 
             # Determine all the scores for a anonymization transaction file
-            scores = utiliy_metric(
+            scores = utility_metric(
                 ground_truth, submission
             )
 
@@ -255,8 +255,8 @@ class DarcEvaluator():
                 raise Exception("Error while saving the files in first round")
 
             _result_object = {
-                "score" : (max(utility_scores) + max(reid_scores))/2,
-                "score_secondary": max(utility_scores)
+                "score" : (max(scores[0:6]) + max(scores[6:12]))/2,
+                "score_secondary": max(scores[0:6])
                 }
             return _result_object
 
@@ -324,7 +324,7 @@ def main():
     try:
         logging.basicConfig(filename='/test/darc.log', level=logging.DEBUG)
     except Exception:
-        continue
+        pass
 
     answer_file_path = config.GROUND_TRUTH
 
