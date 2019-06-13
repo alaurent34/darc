@@ -8,6 +8,7 @@ Competition).
 """
 
 import os
+import logging
 from io import BytesIO
 
 import pandas as pd
@@ -319,27 +320,28 @@ class DarcEvaluator():
 def main():
     """Main loop
     """
-    answer_file_path = "data/ground_truth.csv"
+    #log file when Docker is launch
+    try:
+        logging.basicConfig(filename='/test/darc.log', level=logging.DEBUG)
+    except Exception:
+        continue
+
+    answer_file_path = config.GROUND_TRUTH
 
     _client_payload = {}
-    # The submission file of the team
-    # For the round 1 : the anonymized transactional database
-    # For the round 2 : a tar file containing :
-    #                       - The F_file of the team attacked.
-    #                       - A json file containing the two following attributes :
-    #                       'submission_id_attacked' and 'submission_id_attacked'
-    #
 
+    # Setting name of submitting team
     _client_payload["aicrowd_participant_id"] = "a"
 
-    print("TESTING: Round 1")
+    logging.info("TESTING: Round 1")
 
     # Ground truth path for round 1
-    _client_payload["submission_file_path"] = "data/example_files/submission_DEL.csv"
-    # Name of the current team who is submitting the file
-    # It **SHALL** not contains "_" char.
+    _client_payload["submission_file_path"] = config.R1_SUBMISSION_FILE
+
+    # Setting the submission id
     _client_payload["aicrowd_submission_id"] = 2
 
+    # Reading info for stockage server
     RHOST = config.REDIS_HOST
     RPORT = config.REDIS_PORT
     RPASSWORD = config.REDIS_PASSWORD
@@ -353,24 +355,25 @@ def main():
         raise Exception("Please provide the OwnCloud Host and other credentials, by providing the following environment variables : OC_HOST, OC_USR, OC_PASSWORD")
 
     _context = {}
+
     # Instantiate an evaluator
     aicrowd_evaluator = DarcEvaluator(
         answer_file_path, round=1,
         redis_host=RHOST, redis_port=RPORT, redis_password=RPASSWORD,
         oc_host=OCHOST, oc_usr=OCUSR, oc_password=OCPASSWORD
         )
+
     # Evaluate
     result = aicrowd_evaluator._evaluate(
         _client_payload, _context
         )
-    print(result)
 
-    print("TESTING : Round 2")
-    # Ground truth path for round 2
-    # It is recovered during the round2 in method evaluate
+    logging.info(f"Scores : {result}")
+
+    logging.info("TESTING : Round 2")
 
     # Submission file for round 2
-    _client_payload["submission_file_path"] = "./data/example_files/F_a_attempt_2.tar"
+    _client_payload["submission_file_path"] = config.R2_SUBMISSION_FILE
 
     # Instantiate an evaluator
     aicrowd_evaluator = DarcEvaluator(
@@ -378,11 +381,13 @@ def main():
         redis_host=RHOST, redis_port=RPORT, redis_password=RPASSWORD,
         oc_host=OCHOST, oc_usr=OCUSR, oc_password=OCPASSWORD
         )
+
     #Evaluate
     result = aicrowd_evaluator._evaluate(
         _client_payload, _context
         )
-    print(result)
+
+    logging.info(f"Scores : {result}")
 
 if __name__ == "__main__":
     main()
