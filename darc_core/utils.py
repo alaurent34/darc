@@ -198,13 +198,16 @@ def check_format_trans_file(ground_truth, dataframe):
     if size_before != size_after:
         raise Exception("There should be no NaN value in the data")
     # Check for ':' in id
-    tps1 = time.clock()
+
+    # TODO: put time in the logs
+
+    # tps1 = time.clock()
     id_list = df_copy.id_user.unique()
     for id in id_list:
         if ':' in id:
             raise Exception("There should be no \":\" in id")
-    tps2 = time.clock()
-    print("Le code a mis : ",tps2 -tps1, "secondes")
+    # tps2 = time.clock()
+    # print("Le code a mis : ",tps2 -tps1, "secondes")
 
 def check_format_f_file(dataframe):
     """ Check the format of a guessed F file submitted by a participant. Raise an
