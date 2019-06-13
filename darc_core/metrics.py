@@ -709,7 +709,7 @@ def metric_wrapper(metric, instance, numero):
     :returns: Result of the metric method called.
 
     """
-    method = "{}{}_metric".format(metric, numero)
+    method = "_{}{}_metric".format(metric, numero)
     return getattr(instance, method)()
 
 def utility_metric(ground_truth, sub):
