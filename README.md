@@ -14,8 +14,11 @@ how to deploy the project on a live system.
 
 In order to run the tests and to test your submission you need to do the following:
 
+**If you want to use DARC core**
 -[python3.6](https://www.python.org/downloads/release/python-366/) or **higher**
 -[pip](https://pip.pypa.io/en/stable/)
+
+**If you only want to test it with docker**
 -[docker](https://docs.docker.com/get-started/) and docker-compose
 
 On linux you can use your package manager to intall them as below
@@ -45,7 +48,7 @@ docker-compose up --build --remove-orphans --renew-anon-volumes --abort-on-conta
 
 It will run test to check if the current version of the DARC core and the older
 one behaves in the same way. To check the result consult the file
-./data/testing\_files/testing.log
+`./data/testing\_files/testing.log`
 
 **TODO : Make some unit test to check the methods**
 
@@ -54,6 +57,18 @@ To test if the platform (darc\_evaluator) is working do:
 
 ```bash
 docker-compose up --build --remove-orphans --renew-anon-volumes --abort-on-container-exit darc
+```
+
+To set the path of the submission for both round 1 and 2 during the test of
+the platefrom, change the following variables in `config.py`:
+
+```python
+class Config()
+
+#...
+
+R1_SUBMISSION_FILE = "data/example_files/submission_DEL.csv"
+R2_SUBMISSION_FILE = "./data/example_files/F_a_attempt_2.tar"
 ```
 
 ## Usage of the DARC core
