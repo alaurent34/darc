@@ -11,6 +11,8 @@ class Config:
     OC_PASSWORD=os.environ.get("OC_PASSWORD", "password")
 
     GROUND_TRUTH = "data/ground_truth.csv"
+    R1_SUBMISSION_FILE = "data/example_files/submission_DEL.csv"
+    R2_SUBMISSION_FILE = "./data/example_files/F_a_attempt_2.tar"
     TESTING_DIR = "data/testing_files/"
 
     metric_class = Metrics
