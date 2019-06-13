@@ -14,12 +14,14 @@ how to deploy the project on a live system.
 
 In order to run the tests and to test your submission you need to do the following:
 
-**If you want to use DARC core**
--[python3.6](https://www.python.org/downloads/release/python-366/) or **higher**
--[pip](https://pip.pypa.io/en/stable/)
+**If you want to use DARC core**:
 
-**If you only want to test it with docker**
--[docker](https://docs.docker.com/get-started/) and docker-compose
+- [python3.6](https://www.python.org/downloads/release/python-366/) or **higher**
+- [pip](https://pip.pypa.io/en/stable/)
+
+**If you only want to test it with docker**:
+
+- [docker](https://docs.docker.com/get-started/) and docker-compose
 
 On linux you can use your package manager to intall them as below
 ```bash
@@ -48,7 +50,7 @@ docker-compose up --build --remove-orphans --renew-anon-volumes --abort-on-conta
 
 It will run test to check if the current version of the DARC core and the older
 one behaves in the same way. To check the result consult the file
-`./data/testing\_files/testing.log`
+`./data/testing_files/testing.log`
 
 **TODO : Make some unit test to check the methods**
 
