@@ -19,6 +19,5 @@ COPY requirements.txt /requirements.txt
 RUN pip3.6 install -r /requirements.txt
 
 ADD . /DARC
-COPY config.py.example /DARC/config.py
 
 WORKDIR /DARC
