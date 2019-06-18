@@ -35,7 +35,7 @@ def check_format_test(ground_truth):
         try:
             check_format_trans_file(ground_truth, sub)
         except Exception as err:
-            error.append(err)
+            error.append("filename : "+file_path+" : "+err)
 
     if not error:
         logging.info("Format check: No errors")
