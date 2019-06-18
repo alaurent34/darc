@@ -26,9 +26,7 @@ RUN git checkout tested
 
 RUN cp ./config.py.example ./config.py
 RUN touch __init__.py
-RUN ls
 
 WORKDIR /DARC
-RUN ls
 
 # vi: ft=dockerfile
