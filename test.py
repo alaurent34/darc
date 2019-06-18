@@ -30,17 +30,22 @@ def check_format_test(ground_truth):
     """
     # Check if the file pass the test, or the tests passed the files
     error = []
+    file_err = []
     for file_path in glob.glob(f"{config.TESTING_DIR}/AT/*.csv"):
         sub = pd.read_csv(file_path, names=T_COL.values(), skiprows=1)
         try:
             check_format_trans_file(ground_truth, sub)
         except Exception as err:
             error.append("filename : "+file_path+" : "+err)
+            file_err.append(file_path)
+
 
     if not error:
         logging.info("Format check: No errors")
     else:
         logging.info(f"Format check: Files have poped the folowwing errors : \n {error}")
+
+    return file_err
 
 def test_reid_scoring():
     """TODO: Docstring for test_k_guess_scoring.
@@ -63,7 +68,7 @@ def test_reid_scoring():
     return scores
 
 
-def oracle_test(ground_truth, aux):
+def oracle_test(ground_truth, aux, file_err):
     """ Compare results obtained by original DARC and new version proposed
     :returns: A file containing the differences
 
@@ -79,6 +84,8 @@ def oracle_test(ground_truth, aux):
 
     # We want to compare if two way of doing the metrics change something on the results
     for file_path in glob.glob(f"{config.TESTING_DIR}/AT/*.csv"):
+        if file_path in file_err:
+            continue
         sub = pd.read_csv(file_path, names=T_COL.values(), skiprows=1)
 
         utility_scores, reid_scores, _, _ = utiliy_metric(ground_truth, aux, sub)
@@ -104,10 +111,10 @@ def main():
     logging.info("================ START NEW TESTS =================")
     logging.info("---------------: Computation :----------------")
     logging.info("Check Format ...")
-    check_format_test(ground_truth)
+    file_err = check_format_test(ground_truth)
     logging.info("Done")
     logging.info("Compare new version with tested one")
-    scores_oracle, scores_new = oracle_test(ground_truth, aux)
+    scores_oracle, scores_new = oracle_test(ground_truth, aux, file_err)
     logging.info("Done")
     logging.info("Run reid on sample of F_files")
     scores_reid = test_reid_scoring()
