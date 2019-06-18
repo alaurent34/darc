@@ -48,7 +48,7 @@ def test_reid_scoring():
 
     """
     ground_truth = pd.read_csv(f"{config.GROUND_TRUTH}")
-    at_file = pd.read_csv(f"{config.TESTING_DIR}/AT/submission_DEL.csv")
+    at_file = pd.read_csv(f"{config.TESTING_DIR}/AT/dabe15b958bcb0967c968d035f9148d9.csv")
     scores = pd.DataFrame(
         columns=range(1, 7),
         index=glob.glob(f"{config.TESTING_DIR}/F/*.csv")
