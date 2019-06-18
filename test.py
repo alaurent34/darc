@@ -19,6 +19,7 @@ from darc_core.utils import T_COL, F_COL, check_format_trans_file
 
 from darc_compare.metrics import compute_score_round1 as utiliy_metric
 
+import numpy as np
 import pandas as pd
 
 from sklearn.metrics.pairwise import cosine_similarity
@@ -85,14 +86,21 @@ def oracle_test(ground_truth, aux, file_err):
     # We want to compare if two way of doing the metrics change something on the results
     for file_path in glob.glob(f"{config.TESTING_DIR}/AT/*.csv"):
         if file_path in file_err:
+            scores_oracle.drop(file_path, inplace=True)
+            scores_new.drop(file_path, inplace=True)
             continue
-        sub = pd.read_csv(file_path, names=T_COL.values(), skiprows=1)
+        try:
+            sub = pd.read_csv(file_path, names=T_COL.values(), skiprows=1)
 
-        utility_scores, reid_scores, _, _ = utiliy_metric(ground_truth, aux, sub)
-        scores_oracle.loc[file_path] = utility_scores + reid_scores
+            utility_scores, reid_scores, _, _ = utiliy_metric(ground_truth, aux, sub)
+            scores_oracle.loc[file_path] = utility_scores + reid_scores
 
-        metrics = config.metric_class(ground_truth, sub)
-        scores_new.loc[file_path] = metrics.scores()
+            metrics = config.metric_class(ground_truth, sub)
+            scores_new.loc[file_path] = metrics.scores()
+        except Exception as err:
+            scores_oracle.drop(file_path, inplace=True)
+            scores_new.drop(file_path, inplace=True)
+            logging.info(f"{file_path} encoutred the following error : {err}")
 
     return scores_oracle, scores_new
 
