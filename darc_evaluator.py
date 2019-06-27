@@ -230,10 +230,31 @@ class DarcEvaluator():
                 nb_atcks+1, aicrowd_submission_uid, aicrowd_submission_id_attacked
                 )
 
+            # Update score of submission
+            previous_score = float(self.redis_co.get_value(aicrowd_submission_id_attacked))
+            attack_success = False
+            attck_sc = float(self.redis_co.get_value(f"{aicrowd_submission_id}_attck_sc") or 0)
+
+            if previous_score < reidentification_score:
+                self.redis_co.set_value(reidentification_score, aicrowd_submission_id_attacked)
+                attack_success = True
+                diff_sc = reidentification_score - previous_score
+                attck_sc = attck_sc + diff_sc
+
+            nb_atcks_success = int(
+                self.redis_co.get_value(f"{aicrowd_submission_id}_attck_succ") or 0
+            )
+            if attack_success:
+                nb_atcks_success += 1
+                self.redis_co.set_value(nb_atcks_success, f"{aicrowd_submission_id}_attck_succ")
+
+            # Compute the attack score as the mean of all attacks
+            attck_sc /= nb_atcks_success
+
             # Return object
             _result_object = {
                 "score": reidentification_score,
-                "score_secondary": 0
+                "score_secondary": attck_sc
                 }
 
             # Remove submission_file extracted
