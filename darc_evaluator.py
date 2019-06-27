@@ -16,12 +16,12 @@ import redis
 try:
     from darc_core.metrics import Metrics, utility_metric
     from darc_core.preprocessing import round1_preprocessing, round2_preprocessing, read_tar
-    from darc_core.utils import *
+    from darc_core.utils import check_format_f_file, check_format_trans_file
     from config import Config as config
 except ImportError:
-    from .darc_core.metrics import Metrics, utiliy_metric
+    from .darc_core.metrics import Metrics, utility_metric
     from .darc_core.preprocessing import round1_preprocessing, round2_preprocessing, read_tar
-    from .darc_core.utils import *
+    from .darc_core.utils import check_format_f_file, check_format_trans_file
     from .config import Config as config
 
 class RedisConnection():
@@ -145,7 +145,7 @@ class DarcEvaluator():
         try:
             aicrowd_submission_uid = client_payload["crowdai_participant_id"]
             aicrowd_submission_id = client_payload["crowdai_submission_id"]
-        except Exception as e:
+        except Exception:
             aicrowd_submission_uid = client_payload["aicrowd_participant_id"]
             aicrowd_submission_id = client_payload["aicrowd_submission_id"]
 
@@ -272,7 +272,7 @@ def main():
     RPORT = config.REDIS_PORT
     RPASSWORD = config.REDIS_PASSWORD
 
-    if RHOST == False:
+    if not RHOST:
         raise Exception("Please provide the Redis Host and other credentials, by providing the following environment variables : REDIS_HOST, REDIS_PORT, REDIS_PASSWORD")
 
     _context = {}
