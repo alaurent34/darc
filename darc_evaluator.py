@@ -9,11 +9,9 @@ Competition).
 
 import os
 import logging
-from io import BytesIO
 
 import pandas as pd
 import redis
-import owncloud
 
 try:
     from darc_core.metrics import Metrics, utility_metric
@@ -25,75 +23,6 @@ except ImportError:
     from .darc_core.preprocessing import round1_preprocessing, round2_preprocessing, read_tar
     from .darc_core.utils import *
     from .config import Config as config
-
-def save_first_round_attempt(team_id, at_data, aicrowd_submission_id, redis_c, oc):
-    """Save the attempt of team `team_id`. Attempt are stored as Y_AICROWD_SUBMISSION_ID
-    with Y in :
-            - AT : the submission
-            - S : AT with DEL row deleted
-            - F : correspondance between id and pseudo
-
-    :team_id: The id of the team submitting the anonymized file.
-    :at_data: the submission
-    :s_data: AT with DEL row deleted
-    :f_data: correspondance between id and pseudo
-    :aicrowd_submission_id: the submission id in AIcrowd
-    :redis_c: one working redis connection
-    :oc: one working owncloud connection
-
-    """
-    nb_try = redis_c.llen("{}_id_sub".format(team_id))
-
-    if nb_try == 3:
-        id_sub = int(redis_c.lpop("{}_id_sub".format(team_id)))
-
-        oc.delete("AT_{}.csv".format(id_sub))
-        oc.delete("S_{}.csv".format(id_sub))
-        oc.delete("F_{}.csv".format(id_sub))
-
-        # ENLEVER id sub
-
-    err = []
-    err.append(oc.put_file_contents(
-        data=at_data.to_csv(index=False),
-        remote_path="AT_{}.csv".format(aicrowd_submission_id)
-        ))
-
-    err.append(redis_c.rpush("{}_id_sub".format(team_id), aicrowd_submission_id))
-
-    if not min(err):
-        raise Exception("Error while saving files for round 1")
-
-    return True
-
-class OwnCloudConnection():
-    """
-    Do the connection to owncloud data base
-    """
-
-    def __init__(self, host, usr, password):
-        """
-        init function
-        """
-        self._host = host
-        self._usr = usr
-        self._password = password
-        self._oc = self._connect_to_bdd()
-
-    def _connect_to_bdd(self):
-        """Set the first connection
-        :returns: connection
-
-        """
-        oc_client = owncloud.Client(self._host)
-        oc_client.login(self._usr, self._password)
-
-        return oc_client
-
-    def get_oc_connection(self):
-        """Return the connection to the owncloud data base
-        """
-        return self._oc
 
 class RedisConnection():
 
@@ -184,7 +113,7 @@ class DarcEvaluator():
     """
     def __init__(self, answer_file_path, round=1,
                  redis_host='127.0.0.1', redis_port=6379, redis_password=False,
-                 oc_host="http://http://redisdarc.insa-cvl.fr:8080", oc_usr=False, oc_password=False
+                 round2_storage=None
                 ):
         """
         `round` : Holds the round for which the evaluation is being done.
@@ -198,12 +127,7 @@ class DarcEvaluator():
         self.redis_host = redis_host
         self.redis_port = redis_port
         self.redis_password = redis_password
-
-        self.oc_co = ""
-        self.oc_host = oc_host
-        self.oc_usr = oc_usr
-        self.oc_password = oc_password
-
+        self.round2_storage = round2_storage
 
     def _evaluate(self, client_payload, _context={}):
         """
@@ -215,7 +139,6 @@ class DarcEvaluator():
 
         # Initialize redis_co
         self.redis_co = RedisConnection(self.redis_host, self.redis_port, self.redis_password)
-        self.oc_co = OwnCloudConnection(self.oc_host, self.oc_usr, self.oc_password)
 
         # Initialize directory variable
         submission_file_path = client_payload["submission_file_path"]
@@ -243,16 +166,9 @@ class DarcEvaluator():
                 ground_truth, submission
             )
 
-            err = save_first_round_attempt(
-                aicrowd_submission_uid,
-                submission,
-                aicrowd_submission_id,
-                self.redis_co.get_redis_connection(),
-                self.oc_co.get_oc_connection()
-                )
-
-            if not err :
-                raise Exception("Error while saving the files in first round")
+            # TODO: This should be done only for the inter round submission (i.e. the final ones) <27-06-19, antoine> #
+            # save score submission_reid for round2
+            self.redis_co.set_value(f"{aicrowd_submission_id}", max(scores[6:12]))
 
             _result_object = {
                 "score" : (max(scores[0:6]) + max(scores[6:12]))/2,
@@ -276,11 +192,7 @@ class DarcEvaluator():
 
             # Recover ground Truth from Redis database
             try:
-                at_origin = pd.read_csv(BytesIO(
-                    self.oc_co.get_oc_connection().get_file_contents(
-                        "AT_{}.csv".format(aicrowd_submission_id_attacked)
-                        )
-                    ))
+                at_origin = pd.read_csv(f"{self.round2_storage}/{aicrowd_submission_id_attacked}.csv")
             except ValueError:
                 raise Exception("There is no team with submission number {}".format(
                     aicrowd_submission_id_attacked
@@ -345,22 +257,16 @@ def main():
     RHOST = config.REDIS_HOST
     RPORT = config.REDIS_PORT
     RPASSWORD = config.REDIS_PASSWORD
-    OCHOST = config.OC_HOST
-    OCUSR = config.OC_USR
-    OCPASSWORD = config.OC_PASSWORD
 
     if RHOST == False:
         raise Exception("Please provide the Redis Host and other credentials, by providing the following environment variables : REDIS_HOST, REDIS_PORT, REDIS_PASSWORD")
-    if OCHOST == False:
-        raise Exception("Please provide the OwnCloud Host and other credentials, by providing the following environment variables : OC_HOST, OC_USR, OC_PASSWORD")
 
     _context = {}
 
     # Instantiate an evaluator
     aicrowd_evaluator = DarcEvaluator(
         answer_file_path, round=1,
-        redis_host=RHOST, redis_port=RPORT, redis_password=RPASSWORD,
-        oc_host=OCHOST, oc_usr=OCUSR, oc_password=OCPASSWORD
+        redis_host=RHOST, redis_port=RPORT, redis_password=RPASSWORD
         )
 
     # Evaluate
@@ -378,8 +284,7 @@ def main():
     # Instantiate an evaluator
     aicrowd_evaluator = DarcEvaluator(
         answer_file_path, round=2,
-        redis_host=RHOST, redis_port=RPORT, redis_password=RPASSWORD,
-        oc_host=OCHOST, oc_usr=OCUSR, oc_password=OCPASSWORD
+        redis_host=RHOST, redis_port=RPORT, redis_password=RPASSWORD
         )
 
     #Evaluate
