@@ -172,7 +172,21 @@ class DarcEvaluator():
 
             _result_object = {
                 "score" : (max(scores[0:6]) + max(scores[6:12]))/2,
-                "score_secondary": max(scores[0:6])
+                "score_secondary": max(scores[0:6]),
+                "meta" : {
+                    "e1":scores[0],
+                    "e2":scores[1],
+                    "e3":scores[2],
+                    "e4":scores[3],
+                    "e5":scores[4],
+                    "e6":scores[5],
+                    "s1":scores[6],
+                    "s2":scores[7],
+                    "s3":scores[8],
+                    "s4":scores[9],
+                    "s5":scores[10],
+                    "s6":scores[11]
+                    }
                 }
             return _result_object
 
