@@ -11,6 +11,7 @@ from collections import OrderedDict
 import time
 import math
 from multiprocessing import Pool
+from pathos.multiprocessing import ProcessingPool as PPool
 from functools import partial
 
 import pandas as pd
@@ -19,9 +20,9 @@ from sklearn.metrics.pairwise import cosine_similarity
 from scipy.sparse import coo_matrix
 
 try:
-    from utils import M_COL, T_COL, T_COL_IT, NB_GUESS
+    from utils import M_COL, T_COL, T_COL_IT, NB_GUESS, SIZE_POOL
 except ImportError:
-    from .utils import M_COL, T_COL, T_COL_IT, NB_GUESS
+    from .utils import M_COL, T_COL, T_COL_IT, NB_GUESS, SIZE_POOL
 
 class Metrics(object):
 
@@ -68,7 +69,7 @@ class Metrics(object):
         return [self._e1_metric(), self._e2_metric(), self._e3_metric(), self._e4_metric(), self._e5_metric(), self._e6_metric()]
 
     def scores_reid(self):
-        return [self._s1_metric(), self._s2_metric(), self._s3_metric(), self._s4_metric(), self._s5_metric(), self._s6_metric()]
+        return [self._s1_metric(), self._s2_metric(), self._s3_metric(), self._s4_metric(), self._s5_metric(), self._s6_metric(), self._s7_metric()]
 
     def scores(self):
         return self.scores_util() + self.scores_reid()
@@ -237,6 +238,73 @@ class Metrics(object):
 
         return f_hat
 
+    def _subset(self, month):
+        """
+        TODO
+        """
+        subset1 = time.clock()
+        # On définit le masque en fonction du mois, beacoup de cas -> le code est dégeu
+        if month != 0 :
+            if month < 9:
+                start = '2011-0'+str(month)+'-01'
+                end = '2011-0'+str(month+1) +'-01'
+            if month == 9:
+                start = '2011-0'+str(month)+'-01'
+                end = '2011-10-01'
+            if month == 12:
+                start = '2011-'+str(month)+'-01'
+                end = '2012-01-01'
+            else:
+                start = '2011-'+str(month)+'-01'
+                end = '2011-'+str(month+1) +'-01'
+        else:
+            start = '2010-12-01'
+            end = '2010-12-31'
+        self._ground_truth['date'] = pd.to_datetime(self._ground_truth['date'])
+        mask1 = (self._ground_truth['date'] >= start) & (self._ground_truth['date'] < end)
+        self._anonymized['date'] = pd.to_datetime(self._anonymized['date'])
+        mask2 = (self._anonymized['date'] >= start) & (self._anonymized['date'] < end)
+
+        t_month=self._ground_truth.loc[mask1]
+        a_month=self._anonymized.loc[mask2]
+
+        subset2 = time.clock()
+        print(" Temps de création de masque : ", subset2 - subset1 ," secondes " )
+        return t_month, a_month, month
+
+    @staticmethod
+    def _compute_score(a, t):
+        """
+        TODO : Find a way to put it in a lambda
+        """
+        return len(a.intersection(t))/len(t)
+
+    def _find_k_guess(self, t_month, a_month, month):
+        """
+        TODO
+        """
+        #k_guess1 = time.clock()
+
+        #Fabrication du vecteur d'item pour chaque utilisateur
+        t_month_group=t_month.groupby('id_user')['id_item'].apply(set)
+        a_month_group=a_month.groupby('id_user')['id_item'].apply(set)
+
+        # Début du calculs des coefficients de similiarité.
+        d_month=dict()
+        d_month['month'] = month
+
+        for id_t in t_month_group.index:
+            list_guess = list()
+            guess = str()
+            inter_a_t = a_month_group.apply( lambda x : self._compute_score(x, t_month_group.loc[id_t]))
+            top_guess = inter_a_t.nlargest(NB_GUESS)
+            for index in top_guess.index :
+                 guess += str(index) + ':'
+            d_month[id_t] = guess[:-1]
+        #k_guess2 = time.clock()
+        #print(" Temps de calcul des k-guess ", k_guess2 - k_guess1, " secondes ")
+        return d_month
+
     def _s1_metric(self):
         """Calculate metric S1, comparing date and quantity buy on each row.
         Update the current score value
@@ -338,6 +406,42 @@ class Metrics(object):
 
         score = self.compare_f_files(f_hat)
         # Add the score to the global score for this metric
+        self._current_score.append(score)
+
+        return score
+
+    def _s7_metric(self):
+        """
+        TODO
+        """
+        def _reid_multi(month):
+            return self._find_k_guess(*self._subset(month))
+
+        Df_list = list()
+        F_list = list()
+        tps1 = time.clock()
+        with PPool(SIZE_POOL) as p:
+            print("Start process")
+            F_list = p.map( _reid_multi, [i for i in range(13)])
+        F_list = sorted(F_list, key=lambda x : x['month'], reverse = False)
+        tps2 = time.clock()
+        print("Le code a mis : ",tps2 - tps1, "secondes")
+        dtypes = {'id_user': str}
+        user_id = pd.DataFrame(sorted(self._anonymized["id_user"].unique()))
+        user_id.columns = ['id_user']
+        user_id = user_id.set_index('id_user')
+        Df_list.append(user_id)
+        for dict_month in F_list:
+            col = dict_month.pop("month")
+            df = pd.DataFrame.from_dict(dict_month, orient='index')
+            df.columns = [col]
+            Df_list.append(df)
+        F_file = pd.concat(Df_list, axis=1, join_axes=[Df_list[0].index])
+        F_file = F_file.reset_index()
+        F_file = F_file.fillna('DEL')
+        #print(F_file)
+        F_file.to_csv('./data/Reid_files/reid_ground3',  index = False, header=True) #a retirer, return le F_file
+        score = self.compare_f_files(F_file)
         self._current_score.append(score)
 
         return score
