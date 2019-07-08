@@ -206,8 +206,9 @@ class DarcEvaluator():
 
             # Recover ground Truth from Redis database
             try:
+                print(os.getcwd())
                 at_origin = pd.read_csv(f"{self.round2_storage}/{aicrowd_submission_id_attacked}.csv")
-            except ValueError:
+            except FileNotFoundError:
                 raise Exception("There is no team with submission number {}".format(
                     aicrowd_submission_id_attacked
                     ))
@@ -319,7 +320,8 @@ def main():
     # Instantiate an evaluator
     aicrowd_evaluator = DarcEvaluator(
         answer_file_path, round=2,
-        redis_host=RHOST, redis_port=RPORT, redis_password=RPASSWORD
+        redis_host=RHOST, redis_port=RPORT, redis_password=RPASSWORD,
+        round2_storage = config.ROUND2_STORAGE
         )
 
     #Evaluate
