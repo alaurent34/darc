@@ -108,7 +108,7 @@ All the persons below have participated to DARC implementation and deployements
 * **Sébastien Gambs** - [Professor at UQAM](mailto:gambs.sebastien@uqam.ca)
 * **Louis Béziaud** - [Ph.D candidate at UQAM](mailto:laurent.antoine@courrier.uqam.ca)
 * **Sharada Mohanty** - [CEO & Co-funder of AIcrowd](mailto:sharada.mohanty@epfl.ch)
-* **Yoann Pagnous** - [Master Student at INSA](mailto:yoann.pagnoux@insa-cvl.fr)
+* **Yoann Pagnoux** - [Master Student at INSA](mailto:yoann.pagnoux@insa-cvl.fr)
 
 And of course all the people from the comite.
 
