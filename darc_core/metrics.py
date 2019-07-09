@@ -158,8 +158,6 @@ class Metrics(object):
         if map_error == 0:
             score += round(float(count)/float(total), 6)
 
-        #tps2 = time.clock()
-        #print("Le code a mis : ",tps2 -tps1, "secondes")
         return score
 
     def _compare_row_f_file(self, row_orig, row_sub):
@@ -269,7 +267,6 @@ class Metrics(object):
         a_month=self._anonymized.loc[mask2]
 
         subset2 = time.clock()
-        print(" Temps de création de masque : ", subset2 - subset1 ," secondes " )
         return t_month, a_month, month
 
     @staticmethod
@@ -302,7 +299,6 @@ class Metrics(object):
                  guess += str(index) + ':'
             d_month[id_t] = guess[:-1]
         #k_guess2 = time.clock()
-        #print(" Temps de calcul des k-guess ", k_guess2 - k_guess1, " secondes ")
         return d_month
 
     def _s1_metric(self):
@@ -421,11 +417,9 @@ class Metrics(object):
         F_list = list()
         tps1 = time.clock()
         with PPool(SIZE_POOL) as p:
-            print("Start process")
             F_list = p.map( _reid_multi, [i for i in range(13)])
         F_list = sorted(F_list, key=lambda x : x['month'], reverse = False)
         tps2 = time.clock()
-        print("Le code a mis : ",tps2 - tps1, "secondes")
         dtypes = {'id_user': str}
         user_id = pd.DataFrame(sorted(self._anonymized["id_user"].unique()))
         user_id.columns = ['id_user']
@@ -439,8 +433,7 @@ class Metrics(object):
         F_file = pd.concat(Df_list, axis=1, join_axes=[Df_list[0].index])
         F_file = F_file.reset_index()
         F_file = F_file.fillna('DEL')
-        #print(F_file)
-        F_file.to_csv('./data/Reid_files/reid_ground3',  index = False, header=True) #a retirer, return le F_file
+
         score = self.compare_f_files(F_file)
         self._current_score.append(score)
 
@@ -834,6 +827,6 @@ def utility_metric(ground_truth, sub):
     #Compute reidentification metrics as subprocesses
     metric_pool = Pool()
     reid_wrapper = partial(metric_wrapper, "s", metric)
-    reid_scores = metric_pool.map(reid_wrapper, range(1, 7))
+    reid_scores = metric_pool.map(reid_wrapper, range(1, 8))
 
     return utility_scores + reid_scores
