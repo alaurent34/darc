@@ -162,16 +162,15 @@ class DarcEvaluator():
             check_format_trans_file(ground_truth, submission)
 
             # Determine all the scores for a anonymization transaction file
-            scores = utility_metric(
-                ground_truth, submission
-            )
+            metric = Metrics(ground_truth, submission)
+            scores = metric.scores()
 
             # TODO: This should be done only for the inter round submission (i.e. the final ones) <27-06-19, antoine> #
             # save score submission_reid for round2
             self.redis_co.set_value(f"{aicrowd_submission_id}", max(scores[6:12]))
 
             _result_object = {
-                "score" : (max(scores[0:6]) + max(scores[6:12]))/2,
+                "score" : (max(scores[0:6]) + max(scores[6:13]))/2,
                 "score_secondary": max(scores[0:6]),
                 "meta" : {
                     "e1":scores[0],
@@ -185,7 +184,8 @@ class DarcEvaluator():
                     "s3":scores[8],
                     "s4":scores[9],
                     "s5":scores[10],
-                    "s6":scores[11]
+                    "s6":scores[11],
+                    "s7":scores[12]
                     }
                 }
             return _result_object
@@ -206,7 +206,6 @@ class DarcEvaluator():
 
             # Recover ground Truth from Redis database
             try:
-                print(os.getcwd())
                 at_origin = pd.read_csv(f"{self.round2_storage}/{aicrowd_submission_id_attacked}.csv")
             except FileNotFoundError:
                 raise Exception("There is no team with submission number {}".format(
@@ -232,7 +231,7 @@ class DarcEvaluator():
                 )
 
             # Update score of submission
-            previous_score = float(self.redis_co.get_value(aicrowd_submission_id_attacked))
+            previous_score = float(self.redis_co.get_value(aicrowd_submission_id_attacked) or 0)
             attack_success = False
             attck_sc = float(self.redis_co.get_value(f"{aicrowd_submission_id}_attck_sc") or 0)
 
@@ -250,7 +249,10 @@ class DarcEvaluator():
                 self.redis_co.set_value(nb_atcks_success, f"{aicrowd_submission_id}_attck_succ")
 
             # Compute the attack score as the mean of all attacks
-            attck_sc /= nb_atcks_success
+            if nb_atcks_success > 0:
+                attck_sc /= nb_atcks_success
+            else:
+                attck_sc = 0
 
             # Return object
             _result_object = {
