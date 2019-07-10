@@ -415,13 +415,11 @@ class Metrics(object):
 
         Df_list = list()
         F_list = list()
-        tps1 = time.clock()
         with PPool(SIZE_POOL) as p:
             F_list = p.map( _reid_multi, [i for i in range(13)])
         F_list = sorted(F_list, key=lambda x : x['month'], reverse = False)
-        tps2 = time.clock()
         dtypes = {'id_user': str}
-        user_id = pd.DataFrame(sorted(self._anonymized["id_user"].unique()))
+        user_id = pd.DataFrame(sorted(self._ground_truth["id_user"].unique()))
         user_id.columns = ['id_user']
         user_id = user_id.set_index('id_user')
         Df_list.append(user_id)
