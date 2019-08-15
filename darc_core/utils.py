@@ -224,8 +224,8 @@ def check_format_f_file(dataframe):
     # It should be done by the participant
     columns = dataframe.columns
 
-    # We want int64
-    dataframe[columns[0]] = dataframe[columns[0]].apply(lambda x: int(x))
+    # We want str
+    dataframe[columns[0]] = dataframe[columns[0]].apply(lambda x: str(x))
 
     # User_id should not be DEL
     size_before = dataframe.shape[0]
